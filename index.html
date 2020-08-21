@@ -1,0 +1,1542 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+    <meta charset="utf-8">
+    
+    <title>JiFu&#39;s Wiki</title>
+    
+    
+        <meta name="keywords" content="JiFu&#39;s Wiki">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta property="og:type" content="website">
+<meta property="og:title" content="JiFu&#39;s Wiki">
+<meta property="og:url" content="http://www.jifu.io/index.html">
+<meta property="og:site_name" content="JiFu&#39;s Wiki">
+<meta property="og:locale" content="default">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="JiFu&#39;s Wiki">
+    
+
+    
+        <link rel="alternate" href="/atom.xml" title="JiFu&#39;s Wiki" type="application/atom+xml">
+    
+
+    
+        <link rel="icon" href="/favicon.ico">
+    
+
+    <link rel="stylesheet" href="/libs/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/libs/open-sans/styles.css">
+    <link rel="stylesheet" href="/libs/source-code-pro/styles.css">
+
+    <link rel="stylesheet" href="/css/style.css">
+    <script src="/libs/jquery/2.1.3/jquery.min.js"></script>
+    <script src="/libs/jquery/plugins/cookie/1.4.1/jquery.cookie.js"></script>
+    
+    
+        <link rel="stylesheet" href="/libs/lightgallery/css/lightgallery.min.css">
+    
+    
+        <link rel="stylesheet" href="/libs/justified-gallery/justifiedGallery.min.css">
+    
+    
+    
+    
+        <script>
+var _hmt = _hmt || [];
+(function() {
+    var hm = document.createElement("script");
+    hm.src = "//hm.baidu.com/hm.js?efa1eb5f56c438a850a0f60609fd7755";
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+    
+
+
+<link rel="stylesheet" href="/css/prism-duotone-light.css" type="text/css">
+<link rel="stylesheet" href="/css/prism-line-numbers.css" type="text/css"></head>
+</html>
+<body>
+    <div id="container">
+        <script>
+    (function(){
+        var bp = document.createElement('script');
+        var curProtocol = window.location.protocol.split(':')[0];
+        if (curProtocol === 'https') {
+            bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+        }
+        else {
+            bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+        }
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(bp, s);
+    })();
+</script>
+
+<header id="header">
+    <div id="header-main" class="header-inner">
+        <div class="outer">
+            <a href="/" id="logo">
+                <i class="logo"></i>
+                <span class="site-title">JiFu&#39;s Wiki</span>
+            </a>
+            <nav id="main-nav">
+                
+                    <a class="main-nav-link" href="/">Home</a>
+                
+                    <a class="main-nav-link" href="/archives">Archives</a>
+                
+                    <a class="main-nav-link" href="/categories">Categories</a>
+                
+                    <a class="main-nav-link" href="/tags">Tags</a>
+                
+                    <a class="main-nav-link" href="/about">About</a>
+                
+            </nav>
+            
+            <div id="search-form-wrap">
+
+    <form class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="Search" />
+        <button type="submit" class="search-form-submit"></button>
+    </form>
+    <div class="ins-search">
+    <div class="ins-search-mask"></div>
+    <div class="ins-search-container">
+        <div class="ins-input-wrapper">
+            <input type="text" class="ins-search-input" placeholder="Type something..." />
+            <span class="ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: 'Posts',
+            PAGES: 'Pages',
+            CATEGORIES: 'Categories',
+            TAGS: 'Tags',
+            UNTITLED: '(Untitled)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+<script src="/js/insight.js"></script>
+
+</div>
+        </div>
+    </div>
+    <div id="main-nav-mobile" class="header-sub header-inner">
+        <table class="menu outer">
+            <tr>
+                
+                    <td><a class="main-nav-link" href="/">Home</a></td>
+                
+                    <td><a class="main-nav-link" href="/archives">Archives</a></td>
+                
+                    <td><a class="main-nav-link" href="/categories">Categories</a></td>
+                
+                    <td><a class="main-nav-link" href="/tags">Tags</a></td>
+                
+                    <td><a class="main-nav-link" href="/about">About</a></td>
+                
+                <td>
+                    
+    <div class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="Search" />
+    </div>
+
+                </td>
+            </tr>
+        </table>
+    </div>
+</header>
+
+        <div class="outer">
+            
+            
+                <aside id="sidebar">
+   
+        
+    <div class="widget-wrap" id='categories'>
+        <h3 class="widget-title">
+            <span>categories</span>
+            &nbsp;
+            <a id='allExpand' href="#">
+                <i class="fa fa-angle-double-up fa-2x"></i>
+            </a>
+        </h3>
+
+        
+        
+         <ul class="unstyled" id="tree" style="display: block;"> 
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                HR
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/3142539384/">HR常用的招聘邮件模板</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Hardware
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/3904818761/">MacBook十年进化史</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder-open"></i>
+                                &nbsp;
+                                OPS
+                            </a>
+                             <ul class="unstyled" id="tree" style="display: block;"> 
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Docker
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/1245529498/">Docker学习笔记</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Editor
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/151598530/">VScdoe error:Could not create temporary directory Permission denied</a></li>  <li class="file"><a href="/posts/4167799419/">Build personal development editor with vscode</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder-open"></i>
+                                &nbsp;
+                                Linux
+                            </a>
+                             <ul class="unstyled" id="tree" style="display: block;"> 
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                CentOS
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/1867760035/">CentOS7编译安装VIM8</a></li>  <li class="file"><a href="/posts/920993072/">CentOS update Ruby</a></li>  <li class="file"><a href="/posts/4057676473/">yum提示Error: rpmdb open failed的解决方案</a></li>  <li class="file"><a href="/posts/1153610031/">centos7修改启动内核，删除无用内核</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                System Service
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/4024224000/">Linux swap分区及作用详解</a></li>  <li class="file"><a href="/posts/709002730/">使用 systemctl 添加自定义服务</a></li>  <li class="file"><a href="/posts/797311580/">服务管理工具 - systemctl</a></li>  <li class="file"><a href="/posts/55221137/">防火墙工具 - firewalld</a></li>  </ul> 
+                        </li>
+                         <li class="file"><a href="/posts/4070386720/">Linux系统目录结构及详细说明</a></li>  <li class="file"><a href="/posts/3897848060/">Mac使用SSH登录Google Cloud Platform</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                MacOS
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/4001059579/">Compiling PyQt5 for Python2.7 on Mac OS</a></li>  <li class="file"><a href="/posts/3746871293/">Charles从入门到精通</a></li>  <li class="file"><a href="/posts/662287335/">MACOS BOOT CAMP – THE STARTUP DISK DOES NOT HAVE ENOUGH SPACE TO BE PARTITIONED</a></li>  <li class="file"><a href="/posts/1883980072/">Mac OS系统加速：干掉那些「炫酷」的动画</a></li>  <li class="file"><a href="/posts/3837318570/">Mac VSCode 禁用GPU加速</a></li>  <li class="file"><a href="/posts/4147446761/">Mac 时间机器 Time Machine 备份速度太慢的解决方法 (加速备份命令)</a></li>  <li class="file"><a href="/posts/2733308530/">Mac定时任务-利用launchctl定时启动任务</a></li>  <li class="file"><a href="/posts/294187676/">Mac版迅雷优化,删除无用插件</a></li>  <li class="file"><a href="/posts/582618556/">Mac的最大连接数限制和端口的相关参数的设置</a></li>  <li class="file"><a href="/posts/1208074722/">Mac重置系统管理控制器SMC</a></li>  <li class="file"><a href="/posts/3366946474/">Mac高效使用技巧</a></li>  <li class="file"><a href="/posts/1070186292/">SafariBookmarksSyncAgent意外退出解决方法</a></li>  <li class="file"><a href="/posts/2768996547/">一览Mac OS 图形界面的发展史</a></li>  <li class="file"><a href="/posts/1623087360/">修复破解Mac应用启动时闪退（原因是由于苹果移除了TNT证书）</a></li>  <li class="file"><a href="/posts/3807466731/">如何彻底和CrossOver说GoodBye</a></li>  <li class="file"><a href="/posts/646546052/">如何查看 macOS 系统日志，辅助排除应用程序和系统故障</a></li>  <li class="file"><a href="/posts/3920589165/">如何重置Mac上的NVRAM</a></li>  <li class="file"><a href="/posts/1207571108/">强制退出Mac程序的六种方法</a></li>  <li class="file"><a href="/posts/3430780623/">解决Mac修改DNS卡死-命令行修改Mac OS系统DNS设置</a></li>  <li class="file"><a href="/posts/558776221/">解决“Mac应用”已损坏，无法打开的问题</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Others
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/2867836530/">Axel:命令行下轻量级多线程下载程序</a></li>  <li class="file"><a href="/posts/3101956195/">Git中.gitignore无效的解决办法</a></li>  <li class="file"><a href="/posts/3784546227/">Git忽略提交规则 - .gitignore配置总结</a></li>  <li class="file"><a href="/posts/3413649842/">Linux实用工具</a></li>  <li class="file"><a href="/posts/1073812833/">linux下测试磁盘的读写IO速度(IO物理测速)</a></li>  <li class="file"><a href="/posts/3895039994/">命令行信息截图工具 - ScreenFetch</a></li>  <li class="file"><a href="/posts/760033837/">平铺式窗口管理器 - Awesome</a></li>  <li class="file"><a href="/posts/1413974522/">用好这些隐藏「小开关」，让 Chrome 浏览器更好用</a></li>  <li class="file"><a href="/posts/2006196850/">私有化TM备份与共享服务器 - Netatalk</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Vim
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/258379777/">VIM下使用Vundle搭建python开发环境</a></li>  <li class="file"><a href="/posts/3374749959/">Vim快捷键使用总结</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Windows
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/913943227/">解决EXCEL按上下左右键不是单元格移动的问题</a></li>  <li class="file"><a href="/posts/3426016246/">利用windows内置工具测试硬盘速度 - winsat</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Wordpress
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/1067246247/">WordPress启用memcached动态缓存以及报错解决</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                command
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/3200906184/">find命令快速技巧：如何定位一个文件</a></li>  <li class="file"><a href="/posts/2407250830/">history命令设置linux查看历史命令显示执行时间</a></li>  <li class="file"><a href="/posts/3403344661/">定时任务Crontab命令详解</a></li>  <li class="file"><a href="/posts/3241041753/">通过编写 chroot 来认识 chroot 发挥的作用和它带来的好处</a></li>  </ul> 
+                        </li>
+                         <li class="file"><a href="/posts/404814820/">DevOps简介</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder-open"></i>
+                                &nbsp;
+                                Soft engineering
+                            </a>
+                             <ul class="unstyled" id="tree" style="display: block;"> 
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Algorithm
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/1453950584/">8大排序算法图文讲解</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Cheat Sheets
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/4169548679/">Cheat Sheets - .NET</a></li>  <li class="file"><a href="/posts/3048024619/">Cheat Sheets - Django Reference Sheet</a></li>  <li class="file"><a href="/posts/2623330927/">Cheat Sheets - PostgreSQL</a></li>  <li class="file"><a href="/posts/2993634676/">Cheat Sheets - Git</a></li>  <li class="file"><a href="/posts/3433268710/">Cheat Sheets - Shell Script</a></li>  <li class="file"><a href="/posts/3327139081/">Cheat Sheets – C++</a></li>  <li class="file"><a href="/posts/305297407/">Cheat Sheets – C</a></li>  <li class="file"><a href="/posts/2137528313/">Cheat Sheets – CSS</a></li>  <li class="file"><a href="/posts/59285358/">Cheat Sheets – HTML and XHTML</a></li>  <li class="file"><a href="/posts/3766000533/">Cheat Sheets – HTTP</a></li>  <li class="file"><a href="/posts/2663199359/">Cheat Sheets – Java</a></li>  <li class="file"><a href="/posts/982990798/">Cheat Sheets – Linux</a></li>  <li class="file"><a href="/posts/316669616/">Cheat Sheets – Mac OS X</a></li>  <li class="file"><a href="/posts/2038387758/">Cheat Sheets – MySQL</a></li>  <li class="file"><a href="/posts/2920272111/">Cheat Sheets – Nodejs</a></li>  <li class="file"><a href="/posts/1362596080/">Cheat Sheets – PHP</a></li>  <li class="file"><a href="/posts/3167589601/">Cheat Sheets – Perl</a></li>  <li class="file"><a href="/posts/1053003126/">Cheat Sheets – Python</a></li>  <li class="file"><a href="/posts/1130312566/">Cheat Sheets – SQLite</a></li>  <li class="file"><a href="/posts/4169548678/">Cheat Sheets - Photoshop</a></li>  <li class="file"><a href="/posts/2789789845/">Cheat Sheets – jQuery</a></li>  <li class="file"><a href="/posts/3586350539/">Cheat sheets - Mac OS</a></li>  <li class="file"><a href="/posts/3905631645/">Cheat sheets - Xcode</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Project
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/467054247/">如何编写开源项目的README文档</a></li>  <li class="file"><a href="/posts/1755831586/">软件发布版本区别介绍</a></li>  </ul> 
+                        </li>
+                         </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                UI Design
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/1907494021/">PS快捷键使用指南</a></li>  <li class="file"><a href="/posts/1525329016/">提高效率！24 个高手常用的 Sketch 技巧合集（附实用快捷键）</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder-open"></i>
+                                &nbsp;
+                                back-end
+                            </a>
+                             <ul class="unstyled" id="tree" style="display: block;"> 
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder-open"></i>
+                                &nbsp;
+                                Middle-ware
+                            </a>
+                             <ul class="unstyled" id="tree" style="display: block;"> 
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Gogs
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/4076369309/">Gogs数据备份、恢复</a></li>  <li class="file"><a href="/posts/612684965/">私人Git服务器 -- gogs</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Jenkins
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/2282359188/">jenkins密码重置</a></li>  <li class="file"><a href="/posts/388825549/">利用Jenkins持续集成iOS项目</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Logstash
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/2615120416/">日志搜集处理框架Logstash-安装配置</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                MySQL
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/2625460784/">MySQL延迟复制</a></li>  <li class="file"><a href="/posts/4284065059/">MySQL 调优/优化的 101 个建议</a></li>  <li class="file"><a href="/posts/2654174479/">分库分表 vs NewSQL数据库</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Nginx
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/524919010/">Nginx正向代理与Client设置代理上网</a></li>  <li class="file"><a href="/posts/3996389515/">Nginx配置跨域请求 Access-Control-Allow-Origin *</a></li>  <li class="file"><a href="/posts/1544228005/">高性能Web服务器 - Nginx配置详解</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                RabbitMQ
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/3135873234/">RabbitMQ入门</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Redis
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/156114019/">Redis Stream应用案例</a></li>  <li class="file"><a href="/posts/2864310564/">深入分析Redis特点及应用场景</a></li>  <li class="file"><a href="/posts/2992538737/">redis.conf参数配置及解释</a></li>  <li class="file"><a href="/posts/3909951181/">Redis Manual</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Sentry
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/1303728868/">错误日志收集平台 - Sentry(Redis+MySQL)</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Shadowsocks
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/3154796955/">Vultr快速搭建SS科学上网</a></li>  </ul> 
+                        </li>
+                         </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                NodeJS
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/2653381572/">NodeJS Package Manage Tool - NPM</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder-open"></i>
+                                &nbsp;
+                                Python
+                            </a>
+                             <ul class="unstyled" id="tree" style="display: block;"> 
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Build-in
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/2858153934/">Python build-in functions - collections</a></li>  <li class="file"><a href="/posts/857250976/">Python build-in functions - List</a></li>  <li class="file"><a href="/posts/3208674450/">Python build-in module - os</a></li>  <li class="file"><a href="/posts/2434599799/">Python build-in functions</a></li>  <li class="file"><a href="/posts/5/">Python多线程和锁</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Configuration
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/3568487154/">更改pip源至国内镜像 - 显著提升下载速度</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Library
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/383305840/">Python Library - Flask SQLAlchemy</a></li>  <li class="file"><a href="/posts/4096440342/">Python Library - SQLAlchemy</a></li>  <li class="file"><a href="/posts/55626181/">发布你自己的轮子 - PyPI打包上传实践</a></li>  </ul> 
+                        </li>
+                         <li class="file"><a href="/posts/272954362/">sys.stdout.write实现Python控制台实时刷新打印</a></li>  </ul> 
+                        </li>
+                         </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                iOS Dev
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/1054462359/">Apple Store上iOS App上架流程</a></li>  <li class="file"><a href="/posts/1098789015/">Xcode开发中Build与version区别/build自增设置/build随时间变化？</a></li>  </ul> 
+                        </li>
+                         </ul> 
+    </div>
+    <script>
+        $(document).ready(function() {
+            var iconFolderOpenClass  = 'fa-folder-open';
+            var iconFolderCloseClass = 'fa-folder';
+            var iconAllExpandClass = 'fa-angle-double-down';
+            var iconAllPackClass = 'fa-angle-double-up';
+            // Handle directory-tree expansion:
+            // 左键单独展开目录
+            $(document).on('click', '#categories a[data-role="directory"]', function (event) {
+                event.preventDefault();
+
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconFolderOpenClass);
+                var subtree = $(this).siblings('ul');
+                icon.removeClass(iconFolderOpenClass).removeClass(iconFolderCloseClass);
+                if (expanded) {
+                    if (typeof subtree != 'undefined') {
+                        subtree.slideUp({ duration: 100 });
+                    }
+                    icon.addClass(iconFolderCloseClass);
+                } else {
+                    if (typeof subtree != 'undefined') {
+                        subtree.slideDown({ duration: 100 });
+                    }
+                    icon.addClass(iconFolderOpenClass);
+                }
+            });
+            // 右键展开下属所有目录
+            $('#categories a[data-role="directory"]').bind("contextmenu", function(event){
+                event.preventDefault();
+
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconFolderOpenClass);
+                var listNode = $(this).siblings('ul');
+                var subtrees = $.merge(listNode.find('li ul'), listNode);
+                var icons = $.merge(listNode.find('.fa'), icon);
+                icons.removeClass(iconFolderOpenClass).removeClass(iconFolderCloseClass);
+                if(expanded) {
+                    subtrees.slideUp({ duration: 100 });
+                    icons.addClass(iconFolderCloseClass);
+                } else {
+                    subtrees.slideDown({ duration: 100 });
+                    icons.addClass(iconFolderOpenClass);
+                }
+            })
+            // 展开关闭所有目录按钮
+            $(document).on('click', '#allExpand', function (event) {
+                event.preventDefault();
+
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconAllExpandClass);
+                icon.removeClass(iconAllExpandClass).removeClass(iconAllPackClass);
+                if(expanded) {
+                    $('#sidebar .fa.fa-folder').removeClass('fa-folder').addClass('fa-folder-open')
+                    $('#categories li ul').slideDown({ duration: 100 });
+                    icon.addClass(iconAllPackClass);
+                } else {
+                    $('#sidebar .fa.fa-folder-open').removeClass('fa-folder-open').addClass('fa-folder')
+                    $('#categories li ul').slideUp({ duration: 100 });
+                    icon.addClass(iconAllExpandClass);
+                }
+            });
+        });
+    </script>
+
+
+    
+        
+    <div class="widget-wrap">
+        <h3 class="widget-title"><span>recent</span></h3>
+        <div class="widget">
+            <ul id="recent-post" class="">
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/posts/3895039994/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://www.jifu.io/images/2/20190427135657.jpg)" alt="命令行信息截图工具 - ScreenFetch" class="thumbnail-image"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/OPS/">OPS</a><i class="fa fa-angle-right"></i><a class="article-category-link" href="/categories/OPS/Others/">Others</a></p>
+                            <p class="item-title"><a href="/posts/3895039994/" class="title">命令行信息截图工具 - ScreenFetch</a></p>
+                            <p class="item-date"><time datetime="2020-08-11T05:17:21.000Z" itemprop="datePublished">2020-08-11</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/posts/1413974522/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://www.jifu.io/images/posts/1413974522/223592376156316015.jpg)" alt="用好这些隐藏「小开关」，让 Chrome 浏览器更好用" class="thumbnail-image"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/OPS/">OPS</a><i class="fa fa-angle-right"></i><a class="article-category-link" href="/categories/OPS/Others/">Others</a></p>
+                            <p class="item-title"><a href="/posts/1413974522/" class="title">用好这些隐藏「小开关」，让 Chrome 浏览器更好用</a></p>
+                            <p class="item-date"><time datetime="2019-12-17T13:14:30.000Z" itemprop="datePublished">2019-12-18</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/posts/4024224000/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://www.jifu.io/images/2/20191116165053.png)" alt="Linux swap分区及作用详解" class="thumbnail-image"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/OPS/">OPS</a><i class="fa fa-angle-right"></i><a class="article-category-link" href="/categories/OPS/Linux/">Linux</a></p>
+                            <p class="item-title"><a href="/posts/4024224000/" class="title">Linux swap分区及作用详解</a></p>
+                            <p class="item-date"><time datetime="2019-11-16T03:44:24.000Z" itemprop="datePublished">2019-11-16</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/posts/151598530/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://www.jifu.io/images/2/20191028214328.png)" alt="VScdoe error:Could not create temporary directory Permission denied" class="thumbnail-image"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/OPS/">OPS</a><i class="fa fa-angle-right"></i><a class="article-category-link" href="/categories/OPS/Editor/">Editor</a></p>
+                            <p class="item-title"><a href="/posts/151598530/" class="title">VScdoe error:Could not create temporary directory Permission denied</a></p>
+                            <p class="item-date"><time datetime="2019-10-28T08:42:49.000Z" itemprop="datePublished">2019-10-28</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/posts/4147446761/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://www.jifu.io/images/2/20191028213414.jpg)" alt="Mac 时间机器 Time Machine 备份速度太慢的解决方法 (加速备份命令)" class="thumbnail-image"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/OPS/">OPS</a><i class="fa fa-angle-right"></i><a class="article-category-link" href="/categories/OPS/MacOS/">MacOS</a></p>
+                            <p class="item-title"><a href="/posts/4147446761/" class="title">Mac 时间机器 Time Machine 备份速度太慢的解决方法 (加速备份命令)</a></p>
+                            <p class="item-date"><time datetime="2019-10-28T08:28:37.000Z" itemprop="datePublished">2019-10-28</time></p>
+                        </div>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+
+    
+    <div id="toTop" class="fa fa-angle-up"></div>
+</aside>
+            
+            <section id="main">
+        <article id="post-OPS/Others/screenFetch: 命令行信息截图工具" class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+        
+            <header class="article-header">
+                
+                    <div class="article-meta">
+                        
+    <div class="article-category">
+    	<i class="fa fa-folder"></i>
+        <a class="article-category-link" href="/categories/OPS/">OPS</a><i class="fa fa-angle-right"></i><a class="article-category-link" href="/categories/OPS/Others/">Others</a>
+    </div>
+
+                        
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/tags/command/">command</a>, <a class="tag-link" href="/tags/screenfetch/">screenfetch</a>, <a class="tag-link" href="/tags/系统信息/">系统信息</a>
+    </div>
+
+                        
+    <div class="article-date">
+        <i class="fa fa-calendar"></i>
+        <a href="/posts/3895039994/">
+            <time datetime="2020-08-11T05:17:21.000Z" itemprop="datePublished">2020-08-11</time>
+        </a>
+    </div>
+
+
+                        
+                    </div>
+                
+                
+    
+        <h1 itemprop="name">
+            <a class="article-title" href="/posts/3895039994/">命令行信息截图工具 - ScreenFetch</a>
+        </h1>
+    
+
+            </header>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+        
+        
+            
+                
+                <p><p><img src="https://www.jifu.io/images/2/20190427135657.jpg" alt=""></p>
+<h1 id="摘要"><a href="#摘要" class="headerlink" title="摘要"></a>摘要</h1><p>screenFetch 是一个“命令行信息截图工具”。它可以在终端上显示系统信息，并进行桌面截图。它能生成漂亮的文本的系统信息和ASCII艺术的发行版LOGO，然后显示在截屏图片中。</p>
+<p>它会自动检测你的发行版并显示其ASCII版本的LOGO，在其右侧显示系统信息。可以通过选项来指定是否显示LOGO、指定颜色，进行截图，甚至可以自定义截图的命令。screenFectch非常容易添加和扩展。</p>
+<h1 id="screenFetch将显示以下系统信息"><a href="#screenFetch将显示以下系统信息" class="headerlink" title="screenFetch将显示以下系统信息"></a>screenFetch将显示以下系统信息</h1><ul>
+<li>当前登录用户</li>
+<li>操作系统版本</li>
+<li>内核版本</li>
+<li>总计运行时间</li>
+<li>已安装包数量</li>
+<li>当前shell详情</li>
+<li>当前屏幕分辨率</li>
+<li>当前桌面环境</li>
+<li>当前窗口管理器（文件管理器）</li>
+<li>总计及空闲磁盘使用百分比</li>
+<li>CPU详情，如处理器速度、类型</li>
+<li>总计及当前内存使用量</li>
+</ul>
+<h1 id="在Linux上安装screenFectch"><a href="#在Linux上安装screenFectch" class="headerlink" title="在Linux上安装screenFectch"></a>在Linux上安装screenFectch</h1><p>您可以通过直接从项目页下载源码包的方式安装，或者从<code>screenFetch git</code>库克隆。</p></p>
+            
+        
+        
+            </div>   
+            <div class="article-more-link">
+                <a href="/posts/3895039994/#more">Read More</a>
+            </div>
+        
+        <footer class="article-footer">
+        </footer>
+    </div>
+</article>
+
+
+
+
+
+
+    
+        <article id="post-OPS/Others/用好这些隐藏「小开关」，让 Chrome 浏览器更好用" class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+        
+            <header class="article-header">
+                
+                    <div class="article-meta">
+                        
+    <div class="article-category">
+    	<i class="fa fa-folder"></i>
+        <a class="article-category-link" href="/categories/OPS/">OPS</a><i class="fa fa-angle-right"></i><a class="article-category-link" href="/categories/OPS/Others/">Others</a>
+    </div>
+
+                        
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/tags/Chrome/">Chrome</a>, <a class="tag-link" href="/tags/Chrome-flags/">Chrome flags</a>, <a class="tag-link" href="/tags/技巧/">技巧</a>
+    </div>
+
+                        
+    <div class="article-date">
+        <i class="fa fa-calendar"></i>
+        <a href="/posts/1413974522/">
+            <time datetime="2019-12-17T13:14:30.000Z" itemprop="datePublished">2019-12-18</time>
+        </a>
+    </div>
+
+
+                        
+                    </div>
+                
+                
+    
+        <h1 itemprop="name">
+            <a class="article-title" href="/posts/1413974522/">用好这些隐藏「小开关」，让 Chrome 浏览器更好用</a>
+        </h1>
+    
+
+            </header>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+        
+        
+            
+                
+                <p><p><img src="https://www.jifu.io/images/posts/1413974522/223592376156316015.jpg" alt=""></p>
+<p>相比移动端的 Chrome 浏览器，功能性能更强更全面的桌面端 Chrome 可能是你我每天使用频次最多的桌面软件。多端数据同步、实用的扩展插件都让其成为电脑上的「超级应用」。近乎无限制的桌面平台也让其可以在第一时间运用起新的功能和技术，这也是限制重重的移动端 Chrome 所无法比拟的。</p>
+<p>当然因为桌面端 Chrome 的广泛使用性，新功能的推出和运用反而会更为谨慎。如果想要尝鲜新功能一样是通过 Feature flags —— 当然比起移动端，桌面端的新功能主要针对的键鼠操作，和移动端有相当大的区别。</p>
+<h1 id="尝鲜新功能，善用-Chrome-flags"><a href="#尝鲜新功能，善用-Chrome-flags" class="headerlink" title="尝鲜新功能，善用 Chrome flags"></a>尝鲜新功能，善用 Chrome flags</h1><p>Chrome 之所以被认为是「超级应用」，很大程度上在于起功能增添和更新上像极了操作系统，新功能会首先出现在 Dev 版、然后经过 Beta 测试后，最后推送到稳定通道中。而新开发的功能则被隐藏在 Chrome flags —— 作为新功能的试验田，通过开启特定的 flags 来在稳定版中尝鲜新功能，即可以尝鲜也避免了可能的不稳定风险，下面我们挑选了一些稳定性尚可且比较实用的 flags， 通过开启对应的开关来让 电脑版的 Chrome 变得更好用。</p>
+<p><img src="https://www.jifu.io/images/posts/1413974522/62091785b5a850e5581.png" alt=""></p>
+<blockquote>
+<p>注：本文 Chrome 版本为稳定通道 v78，电脑系统为 Windows 10 v1909</p>
+</blockquote>
+<h1 id="开启并行下载功能"><a href="#开启并行下载功能" class="headerlink" title="开启并行下载功能"></a>开启并行下载功能</h1><p>移动端 Chrome 考虑到带宽和设备性能问题，只允许单进程下载其实并无不妥，而桌面端至今依旧默认单进程下载似乎就有点说不过去了，所以相比移动端，在桌面端开启并行下载功能要更为迫切一些。</p></p>
+            
+        
+        
+            </div>   
+            <div class="article-more-link">
+                <a href="/posts/1413974522/#more">Read More</a>
+            </div>
+        
+        <footer class="article-footer">
+        </footer>
+    </div>
+</article>
+
+
+
+
+
+
+    
+        <article id="post-OPS/Linux/System Service/Linux swap分区及作用详解" class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+        
+            <header class="article-header">
+                
+                    <div class="article-meta">
+                        
+    <div class="article-category">
+    	<i class="fa fa-folder"></i>
+        <a class="article-category-link" href="/categories/OPS/">OPS</a><i class="fa fa-angle-right"></i><a class="article-category-link" href="/categories/OPS/Linux/">Linux</a><i class="fa fa-angle-right"></i><a class="article-category-link" href="/categories/OPS/Linux/System-Service/">System Service</a>
+    </div>
+
+                        
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/tags/swap/">swap</a>
+    </div>
+
+                        
+    <div class="article-date">
+        <i class="fa fa-calendar"></i>
+        <a href="/posts/4024224000/">
+            <time datetime="2019-11-16T03:44:24.000Z" itemprop="datePublished">2019-11-16</time>
+        </a>
+    </div>
+
+
+                        
+                    </div>
+                
+                
+    
+        <h1 itemprop="name">
+            <a class="article-title" href="/posts/4024224000/">Linux swap分区及作用详解</a>
+        </h1>
+    
+
+            </header>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+        
+        
+            
+                
+                <p><p><img src="https://www.jifu.io/images/2/20191116165053.png" alt=""></p>
+<p>我们在安装系统的时候已经建立了 swap 分区。swap 分区通常被称为交换分区，这是一块特殊的硬盘空间，即当实际内存不够用的时候，操作系统会从内存中取出一部分暂时不用的数据，放在交换分区中，从而为当前运行的程序腾出足够的内存空间。</p>
+<p>也就是说，当内存不够用时，我们使用 swap 分区来临时顶替。这种“拆东墙，补西墙”的方式应用于几乎所有的操作系统中。</p>
+<p>使用 swap 交换分区，显著的优点是，通过操作系统的调度，应用程序实际可以使用的内存空间将远远超过系统的物理内存。由于硬盘空间的价格远比 RAM 要低，因此这种方式无疑是经济实惠的。当然，频繁地读写硬盘，会显著降低操作系统的运行速率，这也是使用 swap 交换分区最大的限制。</p>
+<blockquote>
+<p>相比较而言，Windows 不会为 swap 单独划分一个分区，而是使用分页文件实现相同的功能，在概念上，Windows 称其为虚拟内存，从某种意义上将，这个叫法更容易理解。因此，初学者将 swap 交换分区理解为虚拟内存是没有任何问题的。</p>
+</blockquote>
+<p>具体使用多大的 swap 分区，取决于物理内存大小和硬盘的容量。一般来讲，swap 分区容量应大于物理内存大小，建议是内存的两倍，但不超过 2GB。但是，有时服务器的访问量确实很大，有可能出现 swap 分区不够用的情况，所以我们需要学习 swap 分区的构建方法。</p>
+<p>建立新的 swap 分区，只需要执行以下几个步骤。</p>
+<ol>
+<li><p>分区：不管是 fdisk 命令还是 parted 命令，都需要先区。</p>
+</li>
+<li><p>格式化：格式化命令稍有不同，使用 mkswap 命令把分区格式化成 swap 分区。</p>
+</li>
+<li><p>使用 swap 分区。</p>
+</li>
+</ol></p>
+            
+        
+        
+            </div>   
+            <div class="article-more-link">
+                <a href="/posts/4024224000/#more">Read More</a>
+            </div>
+        
+        <footer class="article-footer">
+        </footer>
+    </div>
+</article>
+
+
+
+
+
+
+    
+        <article id="post-OPS/Editor/VScdoe error:Could not create temporary directory: Permission denied" class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+        
+            <header class="article-header">
+                
+                    <div class="article-meta">
+                        
+    <div class="article-category">
+    	<i class="fa fa-folder"></i>
+        <a class="article-category-link" href="/categories/OPS/">OPS</a><i class="fa fa-angle-right"></i><a class="article-category-link" href="/categories/OPS/Editor/">Editor</a>
+    </div>
+
+                        
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/tags/Permission-denied/">Permission denied</a>, <a class="tag-link" href="/tags/error/">error</a>, <a class="tag-link" href="/tags/vscode/">vscode</a>
+    </div>
+
+                        
+    <div class="article-date">
+        <i class="fa fa-calendar"></i>
+        <a href="/posts/151598530/">
+            <time datetime="2019-10-28T08:42:49.000Z" itemprop="datePublished">2019-10-28</time>
+        </a>
+    </div>
+
+
+                        
+                    </div>
+                
+                
+    
+        <h1 itemprop="name">
+            <a class="article-title" href="/posts/151598530/">VScdoe error:Could not create temporary directory Permission denied</a>
+        </h1>
+    
+
+            </header>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+        
+        
+            
+                
+                <p><p><img src="https://www.jifu.io/images/2/20191028214328.png" alt=""></p>
+<h1 id="Could-not-create-temporary-directory-Permission-denied"><a href="#Could-not-create-temporary-directory-Permission-denied" class="headerlink" title="Could not create temporary directory: Permission denied"></a>Could not create temporary directory: Permission denied</h1><p>This error looks familiar?</p>
+<h1 id="Problem"><a href="#Problem" class="headerlink" title="Problem"></a>Problem</h1><p>If you happen to not being able to update VScode anymore after upgrading to macOS is may be due to some permission issues.</p>
+<h1 id="Solution"><a href="#Solution" class="headerlink" title="Solution"></a>Solution</h1><h2 id="If-you-are-using-normal-VScode"><a href="#If-you-are-using-normal-VScode" class="headerlink" title="If you are using normal VScode"></a>If you are using normal VScode</h2><pre><code class="bash">sudo chown $USER ~/Library/Caches/com.microsoft.VSCode.ShipIt
+</code></pre>
+<h2 id="If-you-are-using-insiders-version"><a href="#If-you-are-using-insiders-version" class="headerlink" title="If you are using insiders version"></a>If you are using insiders version</h2><pre><code class="bash">sudo chown $USER ~/Library/Caches/com.microsoft.VSCodeInsiders.ShipIt
+</code></pre>
+<p>These commands will change the permissions of vscode folders to the current user.</p></p>
+            
+        
+        
+            </div>   
+            <div class="article-more-link">
+                <a href="/posts/151598530/#more">Read More</a>
+            </div>
+        
+        <footer class="article-footer">
+        </footer>
+    </div>
+</article>
+
+
+
+
+
+
+    
+        <article id="post-OPS/MacOS/Mac 时间机器 Time Machine 备份速度太慢的解决方法 (加速备份命令)" class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+        
+            <header class="article-header">
+                
+                    <div class="article-meta">
+                        
+    <div class="article-category">
+    	<i class="fa fa-folder"></i>
+        <a class="article-category-link" href="/categories/OPS/">OPS</a><i class="fa fa-angle-right"></i><a class="article-category-link" href="/categories/OPS/MacOS/">MacOS</a>
+    </div>
+
+                        
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/tags/Mac/">Mac</a>, <a class="tag-link" href="/tags/Time-Machine/">Time Machine</a>, <a class="tag-link" href="/tags/加快备份/">加快备份</a>
+    </div>
+
+                        
+    <div class="article-date">
+        <i class="fa fa-calendar"></i>
+        <a href="/posts/4147446761/">
+            <time datetime="2019-10-28T08:28:37.000Z" itemprop="datePublished">2019-10-28</time>
+        </a>
+    </div>
+
+
+                        
+                    </div>
+                
+                
+    
+        <h1 itemprop="name">
+            <a class="article-title" href="/posts/4147446761/">Mac 时间机器 Time Machine 备份速度太慢的解决方法 (加速备份命令)</a>
+        </h1>
+    
+
+            </header>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+        
+        
+            
+                
+                <p><p><img src="https://www.jifu.io/images/2/20191028213414.jpg" alt=""></p>
+<p>相信用过一段时间电脑的人，都知道经常备份的重要性了。特别最近很多人需要将 Mac 升级到最新版本的 macOS Catalina，为防意外发生，就更需要在动手前做好备份了。</p>
+<h1 id="macOS-时光机器"><a href="#macOS-时光机器" class="headerlink" title="macOS 时光机器"></a>macOS 时光机器</h1><p>macOS 自带的<strong>「时间机器」(Time Machine)</strong>绝对就是 Mac 上最方便的备份工具了，一来完全免费，可以“无感”地替你默默在后台备份，而且因为它是苹果自家开发的，兼容性也最好，所以推荐大家都使用“时间机器”来备份 Mac 电脑。</p>
+<h1 id="解决时间机器备份速度太慢的问题"><a href="#解决时间机器备份速度太慢的问题" class="headerlink" title="解决时间机器备份速度太慢的问题"></a>解决时间机器备份速度太慢的问题</h1><p>然而部分同学在尝试使用时间机器备份系统资料时，却发现它的首次备份速度非常慢，跟自己的网络和机器配置似乎并不匹配，甚至有时花费超过 48 小时都无法完成，即便接了网线、关掉所有 APP 后，备份速度都没有明显提升。</p>
+<p>其实，<strong>时光机器备份太慢</strong>是由于 macOS 本身对其进行了限流的措施，对硬盘读写的频率和内存使用都做了一定的限制，主要是为了防止在备份期间影响了用户正常使用电脑工作。但如果你正在等它完成备份，再去进行系统升级或其他操作，就比较悲剧了。</p>
+<h1 id="macOS-时光机器备份加速命令"><a href="#macOS-时光机器备份加速命令" class="headerlink" title="macOS 时光机器备份加速命令"></a>macOS 时光机器备份加速命令</h1><p>如果你真的打算让时光机器全力全速工作，那也是有办法的，就是通过命令行，用命令强制关闭系统对时光机器的限流，俗称“解除封印”。打开终端，输入以下命令：</p>
+<pre><code class="bash">sudo sysctl debug.lowpri_throttle_enabled=0
+</code></pre></p>
+            
+        
+        
+            </div>   
+            <div class="article-more-link">
+                <a href="/posts/4147446761/#more">Read More</a>
+            </div>
+        
+        <footer class="article-footer">
+        </footer>
+    </div>
+</article>
+
+
+
+
+
+
+    
+        <article id="post-UI Design/提高效率！24 个高手常用的 Sketch 技巧合集（附实用快捷键）" class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+        
+            <header class="article-header">
+                
+                    <div class="article-meta">
+                        
+    <div class="article-category">
+    	<i class="fa fa-folder"></i>
+        <a class="article-category-link" href="/categories/UI-Design/">UI Design</a>
+    </div>
+
+                        
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/tags/Cheat-Sheets/">Cheat Sheets</a>, <a class="tag-link" href="/tags/Sketch/">Sketch</a>, <a class="tag-link" href="/tags/技巧/">技巧</a>
+    </div>
+
+                        
+    <div class="article-date">
+        <i class="fa fa-calendar"></i>
+        <a href="/posts/1525329016/">
+            <time datetime="2019-09-27T02:49:41.000Z" itemprop="datePublished">2019-09-27</time>
+        </a>
+    </div>
+
+
+                        
+                    </div>
+                
+                
+    
+        <h1 itemprop="name">
+            <a class="article-title" href="/posts/1525329016/">提高效率！24 个高手常用的 Sketch 技巧合集（附实用快捷键）</a>
+        </h1>
+    
+
+            </header>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+        
+        
+            
+                
+                <p><p><img src="https://www.jifu.io/images/2/20191028212453.png" alt=""></p>
+<p>Sketch 是一款轻量、易用的矢量设计工具，它为数字设计而生，小巧但功能强大，今天我总结并整理了一些 Sketch 不为人知的快捷操作，希望你可以在实际工作中得以应用。</p>
+<h1 id="形状的描边和填充"><a href="#形状的描边和填充" class="headerlink" title="形状的描边和填充"></a>形状的描边和填充</h1><p><img src="https://www.jifu.io/images/2/20190927145127.jpg" alt=""></p>
+<p>形状的描边快捷键是 B，填充的快捷键是 F，其实就是 Borders 和 Fills 首字母。绘制形状在默认时是带填充和描边的，按一下 B 取消描边，再按一下添加描边，填充也是同理。</p>
+<h1 id="直接吸取颜色"><a href="#直接吸取颜色" class="headerlink" title="直接吸取颜色"></a>直接吸取颜色</h1><p><img src="https://www.jifu.io/images/2/20190927151211.jpg" alt=""></p>
+<p>直接吸色快捷键 Control+C，Sketch 吸管工具可以吸取屏幕上任何地方的色彩。</p>
+<h1 id="拷贝样式"><a href="#拷贝样式" class="headerlink" title="拷贝样式"></a>拷贝样式</h1><p><img src="https://www.jifu.io/images/2/20190927145127.jpg" alt=""></p>
+<p>Command + Alt + C 拷贝样式，Command + Alt + V 粘贴样式。当我们设计中使用相同的样式可以调整一处，其他可以用这个快捷键来操作。样式可以包含填充、描边、颜色、阴影、字体样式等。</p>
+<h1 id="数值框直接进行数学运算"><a href="#数值框直接进行数学运算" class="headerlink" title="数值框直接进行数学运算"></a>数值框直接进行数学运算</h1><p><img src="https://www.jifu.io/images/2/20190927152328.jpg" alt=""></p>
+<p>Sketch 支持直接在输入框内进行加减乘除的数学运算。长宽、坐标和圆角的数值是可以计算的，透明度和色值等是不可以进行计算的。</p></p>
+            
+        
+        
+            </div>   
+            <div class="article-more-link">
+                <a href="/posts/1525329016/#more">Read More</a>
+            </div>
+        
+        <footer class="article-footer">
+        </footer>
+    </div>
+</article>
+
+
+
+
+
+
+    
+        <article id="post-OPS/Linux/Mac使用SSH登录Google Cloud Platform" class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+        
+            <header class="article-header">
+                
+                    <div class="article-meta">
+                        
+    <div class="article-category">
+    	<i class="fa fa-folder"></i>
+        <a class="article-category-link" href="/categories/OPS/">OPS</a><i class="fa fa-angle-right"></i><a class="article-category-link" href="/categories/OPS/Linux/">Linux</a>
+    </div>
+
+                        
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/tags/Google-Cloud/">Google Cloud</a>, <a class="tag-link" href="/tags/SSH/">SSH</a>
+    </div>
+
+                        
+    <div class="article-date">
+        <i class="fa fa-calendar"></i>
+        <a href="/posts/3897848060/">
+            <time datetime="2019-09-24T10:01:05.000Z" itemprop="datePublished">2019-09-24</time>
+        </a>
+    </div>
+
+
+                        
+                    </div>
+                
+                
+    
+        <h1 itemprop="name">
+            <a class="article-title" href="/posts/3897848060/">Mac使用SSH登录Google Cloud Platform</a>
+        </h1>
+    
+
+            </header>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+        
+        
+            
+                
+                <p><p><img src="https://www.jifu.io/images/2/20190924220856.png" alt=""></p>
+<h1 id="启用root账户及密码自动验证"><a href="#启用root账户及密码自动验证" class="headerlink" title="启用root账户及密码自动验证"></a>启用root账户及密码自动验证</h1><h2 id="使用Google-Cloud网页版ssh，切换到root"><a href="#使用Google-Cloud网页版ssh，切换到root" class="headerlink" title="使用Google Cloud网页版ssh，切换到root"></a>使用Google Cloud网页版ssh，切换到root</h2><pre><code class="bash">sudo -i
+</code></pre>
+<h2 id="编辑ssh配置文件"><a href="#编辑ssh配置文件" class="headerlink" title="编辑ssh配置文件"></a>编辑ssh配置文件</h2><pre><code class="bash">vi /etc/ssh/sshd_config
+</code></pre>
+<h2 id="修改以下的内容"><a href="#修改以下的内容" class="headerlink" title="修改以下的内容"></a>修改以下的内容</h2><pre><code class="bash">PermitRootLogin yes
+PasswordAuthentication yes
+</code></pre>
+<p><img src="https://www.jifu.io/images/2/20190924220447.png" alt=""></p>
+<h2 id="重启ssh"><a href="#重启ssh" class="headerlink" title="重启ssh"></a>重启ssh</h2><pre><code class="bash">service sshd restart
+</code></pre>
+<h1 id="修改当前账户和root账户的密码"><a href="#修改当前账户和root账户的密码" class="headerlink" title="修改当前账户和root账户的密码"></a>修改当前账户和root账户的密码</h1><h2 id="设置当前账户新密码"><a href="#设置当前账户新密码" class="headerlink" title="设置当前账户新密码"></a>设置当前账户新密码</h2><pre><code class="bash">sudo passwd ${whoami}
+</code></pre>
+<h2 id="设置root账户新密码"><a href="#设置root账户新密码" class="headerlink" title="设置root账户新密码"></a>设置root账户新密码</h2><pre><code class="bash">sudo passwd root
+</code></pre>
+<p><img src="https://www.jifu.io/images/2/20190924220603.png" alt=""></p>
+<h1 id="使用Mac自带的SSH进行连接"><a href="#使用Mac自带的SSH进行连接" class="headerlink" title="使用Mac自带的SSH进行连接"></a>使用Mac自带的SSH进行连接</h1><h2 id="打开终端，新建远程连接，填写ip地址以及账户名"><a href="#打开终端，新建远程连接，填写ip地址以及账户名" class="headerlink" title="打开终端，新建远程连接，填写ip地址以及账户名"></a>打开终端，<strong><em>新建远程连接</em></strong>，填写ip地址以及账户名</h2><p><img src="https://www.jifu.io/images/2/20190924220629.png" alt=""></p>
+<h2 id="使用刚才修改的密码进行登录"><a href="#使用刚才修改的密码进行登录" class="headerlink" title="使用刚才修改的密码进行登录"></a>使用刚才修改的密码进行登录</h2><p><img src="https://www.jifu.io/images/2/20190924220646.png" alt=""></p></p>
+            
+        
+        
+            </div>   
+            <div class="article-more-link">
+                <a href="/posts/3897848060/#more">Read More</a>
+            </div>
+        
+        <footer class="article-footer">
+        </footer>
+    </div>
+</article>
+
+
+
+
+
+
+    
+        <article id="post-OPS/Wordpress/WordPress启用memcached动态缓存以及报错解决" class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+        
+            <header class="article-header">
+                
+                    <div class="article-meta">
+                        
+    <div class="article-category">
+    	<i class="fa fa-folder"></i>
+        <a class="article-category-link" href="/categories/OPS/">OPS</a><i class="fa fa-angle-right"></i><a class="article-category-link" href="/categories/OPS/Wordpress/">Wordpress</a>
+    </div>
+
+                        
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/tags/WordPress/">WordPress</a>, <a class="tag-link" href="/tags/memcached/">memcached</a>, <a class="tag-link" href="/tags/缓存/">缓存</a>
+    </div>
+
+                        
+    <div class="article-date">
+        <i class="fa fa-calendar"></i>
+        <a href="/posts/1067246247/">
+            <time datetime="2019-09-22T11:22:57.000Z" itemprop="datePublished">2019-09-22</time>
+        </a>
+    </div>
+
+
+                        
+                    </div>
+                
+                
+    
+        <h1 itemprop="name">
+            <a class="article-title" href="/posts/1067246247/">WordPress启用memcached动态缓存以及报错解决</a>
+        </h1>
+    
+
+            </header>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+        
+        
+            
+                
+                <p><p><img src="https://www.jifu.io/images/2/20190922233858.jpg" alt=""></p>
+<h1 id="Memcahced-Memcache"><a href="#Memcahced-Memcache" class="headerlink" title="Memcahced | Memcache"></a>Memcahced | Memcache</h1><p>php有memcached和memcache两个类似组件，百度搜出来的文章，大部分是教你如何安装memcache(d)，却步解释二者的区别。</p>
+<h2 id="memcache"><a href="#memcache" class="headerlink" title="memcache"></a>memcache</h2><p>是 pecl 扩展库版本，原生支持php，出现更早，是老前辈；</p>
+<h2 id="memcached"><a href="#memcached" class="headerlink" title="memcached"></a>memcached</h2><p>是 libmemcached 版本，出现较后，是新一代，因此也更加完善，推荐使用。</p>
+<blockquote>
+<p>Ps：如果想更深入了解，可以搜索下 memcache vs memcached</p>
+</blockquote>
+<p>其实，我们这种小网站的话，二选一即可，这点QPS还不至于纠结。不过一旦选择了，安装的时候就要注意区分，一对一配套安装，别搞的牛头不对马嘴，出现上面那位仁兄的困惑（后文有相关说明）。</p>
+<p>这里，我果断选择了带d的，继续分享。</p>
+<h1 id="部署memcached"><a href="#部署memcached" class="headerlink" title="部署memcached"></a>部署memcached</h1><h2 id="安装memcached"><a href="#安装memcached" class="headerlink" title="安装memcached"></a>安装memcached</h2><blockquote>
+<p>Ps：这里的memcached是指Mencached的服务端，用来处理缓存数据，名字也是容易混淆。</p>
+</blockquote>
+<p>下面2种安装方式任选其一：</p>
+<h3 id="在线安装"><a href="#在线安装" class="headerlink" title="在线安装"></a>在线安装</h3><pre><code class="bash"># Centos直接使用yum安装即可，其他系统自行搜索安装命令，比如ubuntu
+yum -y install memcached
+# 启动memcached
+service memcached start
+# 开机启动
+chkconfig memcached on
+</code></pre>
+<h3 id="编译安装"><a href="#编译安装" class="headerlink" title="编译安装"></a>编译安装</h3><p>相比在线安装，很多时候编译安装更加灵活，非常类似Windows平台的自定义安装或绿色安装，推荐熟悉 Linux 系统的朋友使用：</p></p>
+            
+        
+        
+            </div>   
+            <div class="article-more-link">
+                <a href="/posts/1067246247/#more">Read More</a>
+            </div>
+        
+        <footer class="article-footer">
+        </footer>
+    </div>
+</article>
+
+
+
+
+
+
+    
+        <article id="post-back-end/Middle-ware/Nginx/Nginx配置跨域请求 Access-Control-Allow-Origin *" class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+        
+            <header class="article-header">
+                
+                    <div class="article-meta">
+                        
+    <div class="article-category">
+    	<i class="fa fa-folder"></i>
+        <a class="article-category-link" href="/categories/back-end/">back-end</a><i class="fa fa-angle-right"></i><a class="article-category-link" href="/categories/back-end/Middle-ware/">Middle-ware</a><i class="fa fa-angle-right"></i><a class="article-category-link" href="/categories/back-end/Middle-ware/Nginx/">Nginx</a>
+    </div>
+
+                        
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/tags/Nignx/">Nignx</a>, <a class="tag-link" href="/tags/跨域/">跨域</a>
+    </div>
+
+                        
+    <div class="article-date">
+        <i class="fa fa-calendar"></i>
+        <a href="/posts/3996389515/">
+            <time datetime="2019-09-21T22:16:59.000Z" itemprop="datePublished">2019-09-22</time>
+        </a>
+    </div>
+
+
+                        
+                    </div>
+                
+                
+    
+        <h1 itemprop="name">
+            <a class="article-title" href="/posts/3996389515/">Nginx配置跨域请求 Access-Control-Allow-Origin *</a>
+        </h1>
+    
+
+            </header>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+        
+        
+            
+                
+                <p><p><img src="https://www.jifu.io/images/2/20190921222614.jpeg" alt=""></p>
+<h1 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h1><p>当出现403跨域错误的时候 No ‘Access-Control-Allow-Origin’ header is present on the requested resource，需要给Nginx服务器配置响应的header参数：</p>
+<h1 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h1><p>只需要在Nginx的配置文件中配置以下参数：</p>
+<pre><code class="bash">location / {
+    add_header Access-Control-Allow-Origin *;
+    add_header Access-Control-Allow-Methods &#39;GET, POST, OPTIONS&#39;;
+    add_header Access-Control-Allow-Headers &#39;DNT,X-Mx-ReqToken,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Authorization&#39;;
+
+    if ($request_method = &#39;OPTIONS&#39;) {
+        return 204;
+    }
+}
+</code></pre>
+<blockquote>
+<p>上面配置代码即可解决问题了，不想深入研究的，看到这里就可以啦=-=</p>
+</blockquote>
+<h1 id="参数解释"><a href="#参数解释" class="headerlink" title="参数解释"></a>参数解释</h1><h2 id="Access-Control-Allow-Origin"><a href="#Access-Control-Allow-Origin" class="headerlink" title="Access-Control-Allow-Origin"></a>Access-Control-Allow-Origin</h2><blockquote>
+<p>服务器默认是不被允许跨域的。给Nginx服务器配置<code>Access-Control-Allow-Origin *</code>后，表示服务器可以接受所有的请求源（Origin）,即接受所有跨域的请求。</p>
+</blockquote>
+<h2 id="Access-Control-Allow-Headers"><a href="#Access-Control-Allow-Headers" class="headerlink" title="Access-Control-Allow-Headers"></a>Access-Control-Allow-Headers</h2><p>是为了防止出现以下错误：</p>
+<p><code>Request header field Content-Type is not allowed by Access-Control-Allow-Headers in preflight response.</code></p>
+<p>这个错误表示当前请求Content-Type的值不被支持。其实是我们发起了”application/json”的类型请求导致的。这里涉及到一个概念：<strong><em>预检请求（preflight request）</em></strong>,请看下面”预检请求”的介绍。</p>
+<h2 id="Access-Control-Allow-Methods"><a href="#Access-Control-Allow-Methods" class="headerlink" title="Access-Control-Allow-Methods"></a>Access-Control-Allow-Methods</h2><p>是为了防止出现以下错误：</p>
+<p><code>Content-Type is not allowed by Access-Control-Allow-Headers in preflight response.</code></p></p>
+            
+        
+        
+            </div>   
+            <div class="article-more-link">
+                <a href="/posts/3996389515/#more">Read More</a>
+            </div>
+        
+        <footer class="article-footer">
+        </footer>
+    </div>
+</article>
+
+
+
+
+
+
+    
+        <article id="post-OPS/Others/linux下测试磁盘的读写IO速度(IO物理测速)" class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+        
+            <header class="article-header">
+                
+                    <div class="article-meta">
+                        
+    <div class="article-category">
+    	<i class="fa fa-folder"></i>
+        <a class="article-category-link" href="/categories/OPS/">OPS</a><i class="fa fa-angle-right"></i><a class="article-category-link" href="/categories/OPS/Others/">Others</a>
+    </div>
+
+                        
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/tags/IO速度/">IO速度</a>, <a class="tag-link" href="/tags/Linux/">Linux</a>, <a class="tag-link" href="/tags/磁盘读写/">磁盘读写</a>
+    </div>
+
+                        
+    <div class="article-date">
+        <i class="fa fa-calendar"></i>
+        <a href="/posts/1073812833/">
+            <time datetime="2019-08-25T03:50:00.000Z" itemprop="datePublished">2019-08-25</time>
+        </a>
+    </div>
+
+
+                        
+                    </div>
+                
+                
+    
+        <h1 itemprop="name">
+            <a class="article-title" href="/posts/1073812833/">linux下测试磁盘的读写IO速度(IO物理测速)</a>
+        </h1>
+    
+
+            </header>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+        
+        
+            
+                
+                <p><p><img src="https://www.jifu.io/images/2/20190902210133.jpg" alt=""></p>
+<h1 id="hdparm命令"><a href="#hdparm命令" class="headerlink" title="hdparm命令"></a>hdparm命令</h1><p>这是一个是用来获取ATA/IDE硬盘的参数的命令,是由早期Linux IDE驱动的开发和维护人员 Mark Lord开发编写的( hdparm has been written by Mark Lord <a href="mailto:&#109;&#x6c;&#111;&#x72;&#100;&#64;&#x70;&#111;&#98;&#x6f;&#120;&#46;&#99;&#111;&#109;" target="_blank" rel="noopener">&#109;&#x6c;&#111;&#x72;&#100;&#64;&#x70;&#111;&#98;&#x6f;&#120;&#46;&#99;&#111;&#109;</a>, the primary developer and maintainer of the (E)IDE driver for Linux, with suggestions from many netfolk).该命令应该也是仅用于Linux系统,对于UNIX系统，ATA/IDE硬盘用的可能比较少，一般大型的系统都是使用磁盘阵列的.</p>
+<h2 id="使用方法"><a href="#使用方法" class="headerlink" title="使用方法"></a>使用方法</h2><pre><code class="bash"># hdparm -Tt /dev/sda
+
+/dev/sda:
+Timing cached reads: 6676 MB in 2.00 seconds = 3340.18 MB/sec
+Timing buffered disk reads: 218 MB in 3.11 seconds = 70.11 MB/sec
+</code></pre>
+<p>可以看到,2秒钟读取了6676MB的缓存,约合3340.18 MB/sec;<br>在3.11秒中读取了218MB磁盘(物理读),读取速度约合70.11 MB/sec</p>
+<h1 id="dd命令"><a href="#dd命令" class="headerlink" title="dd命令"></a>dd命令</h1><p>这不是一个专业的测试工具，不过如果对于测试结果的要求不是很苛刻的话,平时可以使用来对磁盘的读写速度作一个简单的评估.<br>另外由于这是一个免费软件,基本上×NIX系统上都有安装,对于Oracle裸设备的复制迁移,dd工具一般都是首选.</p>
+<h2 id="首先了解两个特殊设备"><a href="#首先了解两个特殊设备" class="headerlink" title="首先了解两个特殊设备"></a>首先了解两个特殊设备</h2><p><code>/dev/null</code> 伪设备，回收站.写该文件不会产生IO<br><code>/dev/zero</code> 伪设备，会产生空字符流，对它不会产生IO</p>
+<h2 id="测试方法"><a href="#测试方法" class="headerlink" title="测试方法"></a>测试方法</h2><h3 id="测试磁盘的IO写速度"><a href="#测试磁盘的IO写速度" class="headerlink" title="测试磁盘的IO写速度"></a>测试磁盘的IO写速度</h3><pre><code class="bash">time dd if=/dev/zero of=test.dbf bs=8k count=300000
+</code></pre>
+<p>如果要测试实际速度 还要在末尾加上 oflag=direct测到的才是真实的IO速度</p>
+<h3 id="测试磁盘的IO读速度"><a href="#测试磁盘的IO读速度" class="headerlink" title="测试磁盘的IO读速度"></a>测试磁盘的IO读速度</h3><pre><code class="bash">dd if=test.dbf bs=8k count=300000 of=/dev/null
+#表示 每次写入/读取8k的数据，执行300000次
+</code></pre>
+<blockquote>
+<p>dd命令可以通用，但不够专业，也没有考虑到缓存和物理读的区分，测试的数据也是仅作参考，不能算是权威。</p>
+</blockquote>
+<h2 id="dd命令解释"><a href="#dd命令解释" class="headerlink" title="dd命令解释"></a>dd命令解释</h2><pre><code class="bash">dd if= of= bs= skip= seek= conv=
+</code></pre>
+<p>一定不要搞混 <strong><em>source</em></strong> 和 <strong><em>target</em></strong>，不然数据会丢失。所以 dd 平时用着顺手就叫它 dd，但是不小心把数据弄没了就该哭着叫它 Data Destroyer 了。</p></p>
+            
+        
+        
+            </div>   
+            <div class="article-more-link">
+                <a href="/posts/1073812833/#more">Read More</a>
+            </div>
+        
+        <footer class="article-footer">
+        </footer>
+    </div>
+</article>
+
+
+
+
+
+
+    
+        <nav id="page-nav">
+        <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/12/">12</a><a class="extend next" rel="next" href="/page/2/">Next &raquo;</a>
+        </nav>
+    
+</section>
+        </div>
+        <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+
+<footer id="footer">
+    <div class="outer">
+        <div id="footer-info" class="inner">
+            <a href="https://www.jifu.io">
+            Ji Fu &copy; 2020
+            </a>
+            <br> Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>. Theme - <a href="https://github.com/zthxxx/hexo-theme-Wikitten">wikitten</a>
+            <br> 您是  jifu'wiki 的第<span id="busuanzi_value_site_uv"></span>个小伙伴
+            <br>
+                本站总访问量<span id="busuanzi_value_site_pv"></span>次
+                本文总阅读量<span id="busuanzi_value_page_pv"></span>次
+        </div>
+    </div>
+</footer>
+
+
+
+        
+
+    
+        <script src="/libs/lightgallery/js/lightgallery.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-thumbnail.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-pager.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-autoplay.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-fullscreen.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-zoom.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-hash.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-share.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-video.min.js"></script>
+    
+    
+        <script src="/libs/justified-gallery/jquery.justifiedGallery.min.js"></script>
+    
+    
+
+
+
+<!-- Custom Scripts -->
+<script src="/js/main.js"></script>
+
+    </div>
+</body>
+</html>
