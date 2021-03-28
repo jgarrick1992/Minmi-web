@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://www.jifu.io/"/>
-  <updated>2021-03-28T00:33:34.620Z</updated>
+  <updated>2021-03-28T00:50:51.068Z</updated>
   <id>http://www.jifu.io/</id>
   
   <author>
@@ -21,17 +21,31 @@
     <link href="http://www.jifu.io/posts/4263562837/"/>
     <id>http://www.jifu.io/posts/4263562837/</id>
     <published>2021-03-28T00:02:47.000Z</published>
-    <updated>2021-03-28T00:33:34.620Z</updated>
+    <updated>2021-03-28T00:50:51.068Z</updated>
     
-    <content type="html"><![CDATA[<p>【导语】：t-rec 是一款惊人的快速终端记录器，可以生成 gif 图像。</p><h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>t-rec 是使用 Rust 实现的一款快速终端记录器，结果可生成动图或视频，有以下特点：</p><ul><li>以每秒 4 帧的速度录制终端</li><li>生成高质量的小尺寸动画 gif 图像或 mp4 视频</li><li>内置空闲帧检测和优化 (用于超级流体演示)</li><li>应用 (可以禁用) 边框装饰效果，如投影</li><li>在 MacOS 和 Linux 上运行</li><li>使用本地高效的 api</li><li>在没有任何云服务的情况下运行，完全脱机</li><li>支持终端尺寸大于 80x24</li><li>字体和颜色均可正常显示</li><li>支持基于 curses 的程序</li><li>支持转义序列</li><li>没有记录和重放 - 只是一个简单的命令来管理</li><li>隐藏功能: 记录任意窗口<br><img src="https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210328133124.gif" alt=""></li></ul><h2 id="项目地址"><a href="#项目地址" class="headerlink" title="项目地址"></a>项目地址</h2><p><a href="https://github.com/sassman/t-rec-rs" target="_blank" rel="noopener">github</a></p><h1 id="下载安装"><a href="#下载安装" class="headerlink" title="下载安装"></a>下载安装</h1><p>t-rec 仅支持在 MacOS 和 Linux 安装使用，方法如下：</p><h2 id="在-MacOS-下安装使用"><a href="#在-MacOS-下安装使用" class="headerlink" title="在 MacOS 下安装使用"></a>在 MacOS 下安装使用</h2><ul><li>使用 homebrew 安装：</li></ul><pre class="line-numbers language-bash"><code class="language-bash">brew <span class="token function">install</span> t-rec<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre><ul><li>使用 cargo 安装：</li></ul><pre class="line-numbers language-bash"><code class="language-bash"><span class="token comment" spellcheck="true">#先安装依赖imagemagick</span>brew <span class="token function">install</span> imagemagickcargo <span class="token function">install</span> -f t-rec <span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre><h2 id="在-Linux-下安装使用"><a href="#在-Linux-下安装使用" class="headerlink" title="在 Linux 下安装使用"></a>在 Linux 下安装使用</h2><ul><li>下载 deb 安装包安装：</li></ul><pre class="line-numbers language-bash"><code class="language-bash"><span class="token function">sudo</span> <span class="token function">apt-get</span> <span class="token function">install</span> imagemagick<span class="token function">wget</span> https://github.com/sassman/t-rec-rs/releases/download/v0.5.0/t-rec_0.5.0_amd64.deb<span class="token function">sudo</span> dpkg -i t-rec_0.5.0_amd64.deb<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre><ul><li>使用 snap 安装：</li></ul><pre class="line-numbers language-bash"><code class="language-bash"><span class="token function">sudo</span> snap <span class="token function">install</span> t-rec --classic/snap/bin/t-rec --versiont-rec 0.4.3<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre><ul><li>从 AUR 下载</li></ul><pre class="line-numbers language-bash"><code class="language-bash">paru -S t-rec<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre><ul><li>使用 cargo 安装：</li></ul><pre class="line-numbers language-absh"><code class="language-absh"># 先安装依赖imagemagicksudo apt-get install libx11-dev imagemagickcargo install -f t-rec<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre><p>ubuntu 20.10 GNOME 下使用效果：</p><p><img src="https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210328133159.gif" alt=""></p><p>ubuntu 20.10 i3wm 下使用效果：</p><p><img src="https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210328133215.gif" alt=""></p><p>linux mint 20 cinnamon 下使用效果：</p><p><img src="https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210328133228.md" alt=""></p><p>ArcoLinux 5.4 Xfwm4 下使用效果：</p><p><img src="https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210328133238.md" alt=""></p><h2 id="使用命令详解"><a href="#使用命令详解" class="headerlink" title="使用命令详解"></a>使用命令详解</h2><pre class="line-numbers language-bash"><code class="language-bash">t-rec <span class="token punctuation">[</span>FLAGS<span class="token punctuation">]</span> <span class="token punctuation">[</span>OPTIONS<span class="token punctuation">]</span> <span class="token punctuation">[</span>shell or program to launch<span class="token punctuation">]</span>FLAGS:    -h, --help       打印帮助信息    -l, --ls-win     显示窗口ID，设置环境变量<span class="token string">'WINDOWID'</span>去录制指定的窗口    -n, --natural    自然的打字体验并禁用空闲检测和采样优化    -q, --quiet      静音模式，不提示:“Press Ctrl+D to end recording”    -V, --version    显示版本信息    -v, --verbose    详细信息OPTIONS:    -b, --bg <span class="token operator">&lt;</span>bg<span class="token operator">></span>          背景颜色<span class="token punctuation">[</span>默认: transparent<span class="token punctuation">]</span>，<span class="token punctuation">[</span>可选: white, black,transparent<span class="token punctuation">]</span>    -d, --decor <span class="token operator">&lt;</span>decor<span class="token operator">></span>    装饰效果 <span class="token punctuation">[</span>默认: shadow<span class="token punctuation">]</span>  <span class="token punctuation">[</span>可选: shadow, none<span class="token punctuation">]</span>    -m, --video <span class="token operator">&lt;</span>video<span class="token operator">></span>    对gif生成一个mp4视频<span class="token punctuation">[</span>默认: mp4<span class="token punctuation">]</span>  <span class="token punctuation">[</span>可选: mp4<span class="token punctuation">]</span>ARGS:    <span class="token operator">&lt;</span>shell or program to launch<span class="token operator">></span>    启动指定的程序，例如 <span class="token string">'/bin/sh'</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><h2 id="录制指定的窗口"><a href="#录制指定的窗口" class="headerlink" title="录制指定的窗口"></a>录制指定的窗口</h2><ul><li>通过环境变量 TERM_PROGRAM 指定录制 Google Chrome 窗口</li></ul><pre class="line-numbers language-bash"><code class="language-bash">TERM_PROGRAM<span class="token operator">=</span><span class="token string">"google chrome"</span> t-recFrame cache dir: <span class="token string">"/var/folders/m8/084p1v0x4770rpwpkrgl5b6h0000gn/T/trec-74728.rUxBx3ohGiQ2"</span>Recording window: <span class="token string">"Google Chrome 2"</span>Press Ctrl+D to end recording<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre><p><img src="https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210328133306.gif" alt=""></p><ul><li>通过环境变量 WINDOWID 指定录制 VSCode 窗口</li></ul><pre class="line-numbers language-bash"><code class="language-bash">t-rec --ls-win <span class="token operator">|</span> <span class="token function">grep</span> -i codeCode <span class="token operator">|</span> 27600<span class="token comment" spellcheck="true"># set the WINDOWID variable and run t-rec</span>WINDOWID<span class="token operator">=</span>27600 t-recFrame cache dir: <span class="token string">"/var/folders/m8/084p1v0x4770rpwpkrgl5b6h0000gn/T/trec-77862.BMYiHNRWqv9Y"</span>Press Ctrl+D to end recording<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>]]></content>
+    <content type="html"><![CDATA[<p><img src="https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210328134957.png" alt="【导语】：t-rec 是一款惊人的快速终端记录器，可以生成 gif 图像。"></p><h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>t-rec 是使用 Rust 实现的一款快速终端记录器，结果可生成动图或视频，有以下特点：</p><ul><li>以每秒 4 帧的速度录制终端</li><li>生成高质量的小尺寸动画 gif 图像或 mp4 视频</li><li>内置空闲帧检测和优化 (用于超级流体演示)</li><li>应用 (可以禁用) 边框装饰效果，如投影</li><li>在 MacOS 和 Linux 上运行</li><li>使用本地高效的 api</li><li>在没有任何云服务的情况下运行，完全脱机</li><li>支持终端尺寸大于 80x24</li><li>字体和颜色均可正常显示</li><li>支持基于 curses 的程序</li><li>支持转义序列</li><li>没有记录和重放 - 只是一个简单的命令来管理</li><li>隐藏功能: 记录任意窗口<br><img src="https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210328133124.gif" alt=""></li></ul><h2 id="项目地址"><a href="#项目地址" class="headerlink" title="项目地址"></a>项目地址</h2><p><a href="https://github.com/sassman/t-rec-rs" target="_blank" rel="noopener">github</a></p><h1 id="下载安装"><a href="#下载安装" class="headerlink" title="下载安装"></a>下载安装</h1><p>t-rec 仅支持在 MacOS 和 Linux 安装使用，方法如下：</p><a id="more"></a><h2 id="在-MacOS-下安装使用"><a href="#在-MacOS-下安装使用" class="headerlink" title="在 MacOS 下安装使用"></a>在 MacOS 下安装使用</h2><ul><li>使用 homebrew 安装：</li></ul><pre class="line-numbers language-bash"><code class="language-bash">brew <span class="token function">install</span> t-rec<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre><ul><li>使用 cargo 安装：</li></ul><pre class="line-numbers language-bash"><code class="language-bash"><span class="token comment" spellcheck="true">#先安装依赖imagemagick</span>brew <span class="token function">install</span> imagemagickcargo <span class="token function">install</span> -f t-rec <span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre><h2 id="在-Linux-下安装使用"><a href="#在-Linux-下安装使用" class="headerlink" title="在 Linux 下安装使用"></a>在 Linux 下安装使用</h2><ul><li>下载 deb 安装包安装：</li></ul><pre class="line-numbers language-bash"><code class="language-bash"><span class="token function">sudo</span> <span class="token function">apt-get</span> <span class="token function">install</span> imagemagick<span class="token function">wget</span> https://github.com/sassman/t-rec-rs/releases/download/v0.5.0/t-rec_0.5.0_amd64.deb<span class="token function">sudo</span> dpkg -i t-rec_0.5.0_amd64.deb<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre><ul><li>使用 snap 安装：</li></ul><pre class="line-numbers language-bash"><code class="language-bash"><span class="token function">sudo</span> snap <span class="token function">install</span> t-rec --classic/snap/bin/t-rec --versiont-rec 0.4.3<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre><ul><li>从 AUR 下载</li></ul><pre class="line-numbers language-bash"><code class="language-bash">paru -S t-rec<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre><ul><li>使用 cargo 安装：</li></ul><pre class="line-numbers language-absh"><code class="language-absh"># 先安装依赖imagemagicksudo apt-get install libx11-dev imagemagickcargo install -f t-rec<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre><p>ubuntu 20.10 GNOME 下使用效果：</p><p><img src="https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210328133159.gif" alt=""></p><p>ubuntu 20.10 i3wm 下使用效果：</p><p><img src="https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210328133215.gif" alt=""></p><p>linux mint 20 cinnamon 下使用效果：</p><p><img src="https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210328133228.md" alt=""></p><p>ArcoLinux 5.4 Xfwm4 下使用效果：</p><p><img src="https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210328133238.md" alt=""></p><h2 id="使用命令详解"><a href="#使用命令详解" class="headerlink" title="使用命令详解"></a>使用命令详解</h2><pre class="line-numbers language-bash"><code class="language-bash">t-rec <span class="token punctuation">[</span>FLAGS<span class="token punctuation">]</span> <span class="token punctuation">[</span>OPTIONS<span class="token punctuation">]</span> <span class="token punctuation">[</span>shell or program to launch<span class="token punctuation">]</span>FLAGS:    -h, --help       打印帮助信息    -l, --ls-win     显示窗口ID，设置环境变量<span class="token string">'WINDOWID'</span>去录制指定的窗口    -n, --natural    自然的打字体验并禁用空闲检测和采样优化    -q, --quiet      静音模式，不提示:“Press Ctrl+D to end recording”    -V, --version    显示版本信息    -v, --verbose    详细信息OPTIONS:    -b, --bg <span class="token operator">&lt;</span>bg<span class="token operator">></span>          背景颜色<span class="token punctuation">[</span>默认: transparent<span class="token punctuation">]</span>，<span class="token punctuation">[</span>可选: white, black,transparent<span class="token punctuation">]</span>    -d, --decor <span class="token operator">&lt;</span>decor<span class="token operator">></span>    装饰效果 <span class="token punctuation">[</span>默认: shadow<span class="token punctuation">]</span>  <span class="token punctuation">[</span>可选: shadow, none<span class="token punctuation">]</span>    -m, --video <span class="token operator">&lt;</span>video<span class="token operator">></span>    对gif生成一个mp4视频<span class="token punctuation">[</span>默认: mp4<span class="token punctuation">]</span>  <span class="token punctuation">[</span>可选: mp4<span class="token punctuation">]</span>ARGS:    <span class="token operator">&lt;</span>shell or program to launch<span class="token operator">></span>    启动指定的程序，例如 <span class="token string">'/bin/sh'</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><h2 id="录制指定的窗口"><a href="#录制指定的窗口" class="headerlink" title="录制指定的窗口"></a>录制指定的窗口</h2><ul><li>通过环境变量 TERM_PROGRAM 指定录制 Google Chrome 窗口</li></ul><pre class="line-numbers language-bash"><code class="language-bash">TERM_PROGRAM<span class="token operator">=</span><span class="token string">"google chrome"</span> t-recFrame cache dir: <span class="token string">"/var/folders/m8/084p1v0x4770rpwpkrgl5b6h0000gn/T/trec-74728.rUxBx3ohGiQ2"</span>Recording window: <span class="token string">"Google Chrome 2"</span>Press Ctrl+D to end recording<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre><p><img src="https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210328133306.gif" alt=""></p><ul><li>通过环境变量 WINDOWID 指定录制 VSCode 窗口</li></ul><pre class="line-numbers language-bash"><code class="language-bash">t-rec --ls-win <span class="token operator">|</span> <span class="token function">grep</span> -i codeCode <span class="token operator">|</span> 27600<span class="token comment" spellcheck="true"># set the WINDOWID variable and run t-rec</span>WINDOWID<span class="token operator">=</span>27600 t-recFrame cache dir: <span class="token string">"/var/folders/m8/084p1v0x4770rpwpkrgl5b6h0000gn/T/trec-77862.BMYiHNRWqv9Y"</span>Press Ctrl+D to end recording<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>]]></content>
     
     <summary type="html">
     
-      
-      
-        &lt;p&gt;【导语】：t-rec 是一款惊人的快速终端记录器，可以生成 gif 图像。&lt;/p&gt;
-&lt;h1 id=&quot;简介&quot;&gt;&lt;a href=&quot;#简介&quot; class=&quot;headerlink&quot; title=&quot;简介&quot;&gt;&lt;/a&gt;简介&lt;/h1&gt;&lt;p&gt;t-rec 是使用 Rust 实现的一款快速终端记
-      
+      &lt;p&gt;&lt;img src=&quot;https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210328134957.png&quot; alt=&quot;【导语】：t-rec 是一款惊人的快速终端记录器，可以生成 gif 图像。&quot;&gt;&lt;/p&gt;
+&lt;h1 id=&quot;简介&quot;&gt;&lt;a href=&quot;#简介&quot; class=&quot;headerlink&quot; title=&quot;简介&quot;&gt;&lt;/a&gt;简介&lt;/h1&gt;&lt;p&gt;t-rec 是使用 Rust 实现的一款快速终端记录器，结果可生成动图或视频，有以下特点：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;以每秒 4 帧的速度录制终端&lt;/li&gt;
+&lt;li&gt;生成高质量的小尺寸动画 gif 图像或 mp4 视频&lt;/li&gt;
+&lt;li&gt;内置空闲帧检测和优化 (用于超级流体演示)&lt;/li&gt;
+&lt;li&gt;应用 (可以禁用) 边框装饰效果，如投影&lt;/li&gt;
+&lt;li&gt;在 MacOS 和 Linux 上运行&lt;/li&gt;
+&lt;li&gt;使用本地高效的 api&lt;/li&gt;
+&lt;li&gt;在没有任何云服务的情况下运行，完全脱机&lt;/li&gt;
+&lt;li&gt;支持终端尺寸大于 80x24&lt;/li&gt;
+&lt;li&gt;字体和颜色均可正常显示&lt;/li&gt;
+&lt;li&gt;支持基于 curses 的程序&lt;/li&gt;
+&lt;li&gt;支持转义序列&lt;/li&gt;
+&lt;li&gt;没有记录和重放 - 只是一个简单的命令来管理&lt;/li&gt;
+&lt;li&gt;隐藏功能: 记录任意窗口&lt;br&gt;&lt;img src=&quot;https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210328133124.gif&quot; alt=&quot;&quot;&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&quot;项目地址&quot;&gt;&lt;a href=&quot;#项目地址&quot; class=&quot;headerlink&quot; title=&quot;项目地址&quot;&gt;&lt;/a&gt;项目地址&lt;/h2&gt;&lt;p&gt;&lt;a href=&quot;https://github.com/sassman/t-rec-rs&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;github&lt;/a&gt;&lt;/p&gt;
+&lt;h1 id=&quot;下载安装&quot;&gt;&lt;a href=&quot;#下载安装&quot; class=&quot;headerlink&quot; title=&quot;下载安装&quot;&gt;&lt;/a&gt;下载安装&lt;/h1&gt;&lt;p&gt;t-rec 仅支持在 MacOS 和 Linux 安装使用，方法如下：&lt;/p&gt;
     
     </summary>
     
@@ -40,13 +54,13 @@
       <category term="MacOS" scheme="http://www.jifu.io/categories/OPS/MacOS/"/>
     
     
-      <category term="Chrome" scheme="http://www.jifu.io/tags/Chrome/"/>
-    
       <category term="VSCode" scheme="http://www.jifu.io/tags/VSCode/"/>
     
       <category term="终端" scheme="http://www.jifu.io/tags/%E7%BB%88%E7%AB%AF/"/>
     
       <category term="录像" scheme="http://www.jifu.io/tags/%E5%BD%95%E5%83%8F/"/>
+    
+      <category term="Chrome" scheme="http://www.jifu.io/tags/Chrome/"/>
     
   </entry>
   
@@ -315,11 +329,11 @@ pip install seaborn`
       <category term="Nginx" scheme="http://www.jifu.io/categories/back-end/Middle-ware/Nginx/"/>
     
     
+      <category term="调优" scheme="http://www.jifu.io/tags/%E8%B0%83%E4%BC%98/"/>
+    
       <category term="Nginx" scheme="http://www.jifu.io/tags/Nginx/"/>
     
       <category term="高性能" scheme="http://www.jifu.io/tags/%E9%AB%98%E6%80%A7%E8%83%BD/"/>
-    
-      <category term="调优" scheme="http://www.jifu.io/tags/%E8%B0%83%E4%BC%98/"/>
     
       <category term="提速" scheme="http://www.jifu.io/tags/%E6%8F%90%E9%80%9F/"/>
     
@@ -679,11 +693,11 @@ pip install seaborn`
       <category term="MacOS" scheme="http://www.jifu.io/categories/OPS/MacOS/"/>
     
     
-      <category term="command" scheme="http://www.jifu.io/tags/command/"/>
-    
       <category term="MacOS" scheme="http://www.jifu.io/tags/MacOS/"/>
     
       <category term="Homebrew" scheme="http://www.jifu.io/tags/Homebrew/"/>
+    
+      <category term="command" scheme="http://www.jifu.io/tags/command/"/>
     
   </entry>
   
@@ -724,9 +738,9 @@ pip install seaborn`
       <category term="Others" scheme="http://www.jifu.io/categories/OPS/Others/"/>
     
     
-      <category term="screenfetch" scheme="http://www.jifu.io/tags/screenfetch/"/>
-    
       <category term="command" scheme="http://www.jifu.io/tags/command/"/>
+    
+      <category term="screenfetch" scheme="http://www.jifu.io/tags/screenfetch/"/>
     
       <category term="系统信息" scheme="http://www.jifu.io/tags/%E7%B3%BB%E7%BB%9F%E4%BF%A1%E6%81%AF/"/>
     
