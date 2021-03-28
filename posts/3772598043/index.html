@@ -1,0 +1,1129 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+    <meta charset="utf-8">
+    
+    <title>Swift：解包的正确姿势 | JiFu&#39;s Wiki</title>
+    
+    
+        <meta name="keywords" content="Swift,解包">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="description" content="嗯，先来一段感慨对于Swift学习而言，可选类型Optional是永远绕不过的坎，特别是从OC刚刚转Swift的时候，可能就会被代码行间的?与!，有的时候甚至是??搞得稀里糊涂的。 这篇文章会给各位带来我对于可选类型的一些认识以及如何进行解包，其中会涉及到Swift中if let以及guard let的使用以及思考，还有涉及OC部分的nullable和nonnull两个关键字，以及一点点对两种语">
+<meta name="keywords" content="Swift,解包">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Swift：解包的正确姿势">
+<meta property="og:url" content="http://www.jifu.io/posts/3772598043/index.html">
+<meta property="og:site_name" content="JiFu&#39;s Wiki">
+<meta property="og:description" content="嗯，先来一段感慨对于Swift学习而言，可选类型Optional是永远绕不过的坎，特别是从OC刚刚转Swift的时候，可能就会被代码行间的?与!，有的时候甚至是??搞得稀里糊涂的。 这篇文章会给各位带来我对于可选类型的一些认识以及如何进行解包，其中会涉及到Swift中if let以及guard let的使用以及思考，还有涉及OC部分的nullable和nonnull两个关键字，以及一点点对两种语">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210226162513.png">
+<meta property="og:updated_time" content="2021-02-28T13:25:18.354Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Swift：解包的正确姿势">
+<meta name="twitter:description" content="嗯，先来一段感慨对于Swift学习而言，可选类型Optional是永远绕不过的坎，特别是从OC刚刚转Swift的时候，可能就会被代码行间的?与!，有的时候甚至是??搞得稀里糊涂的。 这篇文章会给各位带来我对于可选类型的一些认识以及如何进行解包，其中会涉及到Swift中if let以及guard let的使用以及思考，还有涉及OC部分的nullable和nonnull两个关键字，以及一点点对两种语">
+<meta name="twitter:image" content="https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210226162513.png">
+    
+
+    
+        <link rel="alternate" href="/atom.xml" title="JiFu&#39;s Wiki" type="application/atom+xml">
+    
+
+    
+        <link rel="icon" href="/favicon.ico">
+    
+
+    <link rel="stylesheet" href="/libs/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/libs/open-sans/styles.css">
+    <link rel="stylesheet" href="/libs/source-code-pro/styles.css">
+
+    <link rel="stylesheet" href="/css/style.css">
+    <script src="/libs/jquery/2.1.3/jquery.min.js"></script>
+    <script src="/libs/jquery/plugins/cookie/1.4.1/jquery.cookie.js"></script>
+    
+    
+        <link rel="stylesheet" href="/libs/lightgallery/css/lightgallery.min.css">
+    
+    
+        <link rel="stylesheet" href="/libs/justified-gallery/justifiedGallery.min.css">
+    
+    
+    
+    
+        <script>
+var _hmt = _hmt || [];
+(function() {
+    var hm = document.createElement("script");
+    hm.src = "//hm.baidu.com/hm.js?efa1eb5f56c438a850a0f60609fd7755";
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+    
+
+
+<link rel="stylesheet" href="/css/prism-duotone-light.css" type="text/css">
+<link rel="stylesheet" href="/css/prism-line-numbers.css" type="text/css"></head>
+</html>
+<body>
+    <div id="container">
+        <script>
+    (function(){
+        var bp = document.createElement('script');
+        var curProtocol = window.location.protocol.split(':')[0];
+        if (curProtocol === 'https') {
+            bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+        }
+        else {
+            bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+        }
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(bp, s);
+    })();
+</script>
+
+<header id="header">
+    <div id="header-main" class="header-inner">
+        <div class="outer">
+            <a href="/" id="logo">
+                <i class="logo"></i>
+                <span class="site-title">JiFu&#39;s Wiki</span>
+            </a>
+            <nav id="main-nav">
+                
+                    <a class="main-nav-link" href="/">Home</a>
+                
+                    <a class="main-nav-link" href="/archives">Archives</a>
+                
+                    <a class="main-nav-link" href="/categories">Categories</a>
+                
+                    <a class="main-nav-link" href="/tags">Tags</a>
+                
+                    <a class="main-nav-link" href="/about">About</a>
+                
+            </nav>
+            
+            <div id="search-form-wrap">
+
+    <form class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="Search" />
+        <button type="submit" class="search-form-submit"></button>
+    </form>
+    <div class="ins-search">
+    <div class="ins-search-mask"></div>
+    <div class="ins-search-container">
+        <div class="ins-input-wrapper">
+            <input type="text" class="ins-search-input" placeholder="Type something..." />
+            <span class="ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: 'Posts',
+            PAGES: 'Pages',
+            CATEGORIES: 'Categories',
+            TAGS: 'Tags',
+            UNTITLED: '(Untitled)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+<script src="/js/insight.js"></script>
+
+</div>
+        </div>
+    </div>
+    <div id="main-nav-mobile" class="header-sub header-inner">
+        <table class="menu outer">
+            <tr>
+                
+                    <td><a class="main-nav-link" href="/">Home</a></td>
+                
+                    <td><a class="main-nav-link" href="/archives">Archives</a></td>
+                
+                    <td><a class="main-nav-link" href="/categories">Categories</a></td>
+                
+                    <td><a class="main-nav-link" href="/tags">Tags</a></td>
+                
+                    <td><a class="main-nav-link" href="/about">About</a></td>
+                
+                <td>
+                    
+    <div class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="Search" />
+    </div>
+
+                </td>
+            </tr>
+        </table>
+    </div>
+</header>
+
+        <div class="outer">
+            
+            
+                <aside id="sidebar">
+   
+        
+    <div class="widget-wrap" id='categories'>
+        <h3 class="widget-title">
+            <span>categories</span>
+            &nbsp;
+            <a id='allExpand' href="#">
+                <i class="fa fa-angle-double-up fa-2x"></i>
+            </a>
+        </h3>
+
+        
+        
+         <ul class="unstyled" id="tree" style="display: block;"> 
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Android Development
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/1797699998/">深入了解 gradle 和 maven 的区别</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Design
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/1907494021/">PS快捷键使用指南</a></li>  <li class="file"><a href="/posts/729727978/">快速改善用户界面的10个技巧</a></li>  <li class="file"><a href="/posts/1525329016/">提高效率！24 个高手常用的 Sketch 技巧合集（附实用快捷键）</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                HR
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/3142539384/">HR常用的招聘邮件模板</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Hardware
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/3904818761/">MacBook十年进化史</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder-open"></i>
+                                &nbsp;
+                                OPS
+                            </a>
+                             <ul class="unstyled" id="tree" style="display: block;"> 
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Docker
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/1245529498/">Docker学习笔记</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Editor
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/151598530/">VScdoe error:Could not create temporary directory Permission denied</a></li>  <li class="file"><a href="/posts/4167799419/">Build personal development editor with vscode</a></li>  <li class="file"><a href="/posts/4165683660/">REST Client 简单好用的接口测试辅助工具</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder-open"></i>
+                                &nbsp;
+                                Linux
+                            </a>
+                             <ul class="unstyled" id="tree" style="display: block;"> 
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                CentOS
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/1867760035/">CentOS7编译安装VIM8</a></li>  <li class="file"><a href="/posts/920993072/">CentOS update Ruby</a></li>  <li class="file"><a href="/posts/4057676473/">yum提示Error: rpmdb open failed的解决方案</a></li>  <li class="file"><a href="/posts/1153610031/">centos7修改启动内核，删除无用内核</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                System Service
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/709002730/">使用 systemctl 添加自定义服务</a></li>  <li class="file"><a href="/posts/4024224000/">Linux swap分区及作用详解</a></li>  <li class="file"><a href="/posts/797311580/">服务管理工具 - systemctl</a></li>  <li class="file"><a href="/posts/55221137/">防火墙工具 - firewalld</a></li>  </ul> 
+                        </li>
+                         <li class="file"><a href="/posts/4070386720/">Linux系统目录结构及详细说明</a></li>  <li class="file"><a href="/posts/3897848060/">Mac使用SSH登录Google Cloud Platform</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                MacOS
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/3746871293/">Charles从入门到精通</a></li>  <li class="file"><a href="/posts/581320548/">Homebrew：让你从 Mac 切换到 Linux 更轻松</a></li>  <li class="file"><a href="/posts/4001059579/">Compiling PyQt5 for Python2.7 on Mac OS</a></li>  <li class="file"><a href="/posts/662287335/">MACOS BOOT CAMP – THE STARTUP DISK DOES NOT HAVE ENOUGH SPACE TO BE PARTITIONED</a></li>  <li class="file"><a href="/posts/2776773816/">Mac OS X设置SMB进行文件共享</a></li>  <li class="file"><a href="/posts/582618556/">Mac的最大连接数限制和端口的相关参数的设置</a></li>  <li class="file"><a href="/posts/1883980072/">Mac OS系统加速：干掉那些「炫酷」的动画</a></li>  <li class="file"><a href="/posts/1208074722/">Mac重置系统管理控制器SMC</a></li>  <li class="file"><a href="/posts/294187676/">Mac版迅雷优化,删除无用插件</a></li>  <li class="file"><a href="/posts/2652542772/">macOS 下 FFmpeg 视频转码入门及进阶使用心得</a></li>  <li class="file"><a href="/posts/1070186292/">SafariBookmarksSyncAgent意外退出解决方法</a></li>  <li class="file"><a href="/posts/2733308530/">Mac定时任务-利用launchctl定时启动任务</a></li>  <li class="file"><a href="/posts/2768996547/">一览Mac OS 图形界面的发展史</a></li>  <li class="file"><a href="/posts/4147446761/">Mac 时间机器 Time Machine 备份速度太慢的解决方法 (加速备份命令)</a></li>  <li class="file"><a href="/posts/4263562837/">一个惊人快速的终端录像工具，也能录制 VSCode 和 Chrome 窗口</a></li>  <li class="file"><a href="/posts/1623087360/">修复破解Mac应用启动时闪退（原因是由于苹果移除了TNT证书）</a></li>  <li class="file"><a href="/posts/1525358532/">在 M1 芯片 Mac 上使用 Homebrew</a></li>  <li class="file"><a href="/posts/646546052/">如何查看 macOS 系统日志，辅助排除应用程序和系统故障</a></li>  <li class="file"><a href="/posts/3807466731/">如何彻底和CrossOver说GoodBye</a></li>  <li class="file"><a href="/posts/1207571108/">强制退出Mac程序的六种方法</a></li>  <li class="file"><a href="/posts/3920589165/">如何重置Mac上的NVRAM</a></li>  <li class="file"><a href="/posts/3430780623/">解决Mac修改DNS卡死-命令行修改Mac OS系统DNS设置</a></li>  <li class="file"><a href="/posts/3653564083/">苹果 Mac 重置 SMC、NVRAM、PRAM 方法教程 - 解决 macOS 卡顿或无法启动</a></li>  <li class="file"><a href="/posts/3837318570/">Mac VSCode 禁用GPU加速</a></li>  <li class="file"><a href="/posts/3366946474/">Mac高效使用技巧</a></li>  <li class="file"><a href="/posts/558776221/">解决“Mac应用”已损坏，无法打开的问题</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Others
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/3101956195/">Git中.gitignore无效的解决办法</a></li>  <li class="file"><a href="/posts/2867836530/">Axel:命令行下轻量级多线程下载程序</a></li>  <li class="file"><a href="/posts/3413649842/">Linux实用工具</a></li>  <li class="file"><a href="/posts/1073812833/">linux下测试磁盘的读写IO速度(IO物理测速)</a></li>  <li class="file"><a href="/posts/3895039994/">命令行信息截图工具 - ScreenFetch</a></li>  <li class="file"><a href="/posts/3784546227/">Git忽略提交规则 - .gitignore配置总结</a></li>  <li class="file"><a href="/posts/760033837/">平铺式窗口管理器 - Awesome</a></li>  <li class="file"><a href="/posts/2006196850/">私有化TM备份与共享服务器 - Netatalk</a></li>  <li class="file"><a href="/posts/1413974522/">用好这些隐藏「小开关」，让 Chrome 浏览器更好用</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Vim
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/258379777/">VIM下使用Vundle搭建python开发环境</a></li>  <li class="file"><a href="/posts/3374749959/">Vim快捷键使用总结</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Windows
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/3669230936/">为远程桌面启用Windows防火墙例外</a></li>  <li class="file"><a href="/posts/3426016246/">利用windows内置工具测试硬盘速度 - winsat</a></li>  <li class="file"><a href="/posts/913943227/">解决EXCEL按上下左右键不是单元格移动的问题</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Wordpress
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/1067246247/">WordPress启用memcached动态缓存以及报错解决</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                command
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/2407250830/">history命令设置linux查看历史命令显示执行时间</a></li>  <li class="file"><a href="/posts/3200906184/">find命令快速技巧：如何定位一个文件</a></li>  <li class="file"><a href="/posts/3403344661/">定时任务Crontab命令详解</a></li>  <li class="file"><a href="/posts/3241041753/">通过编写 chroot 来认识 chroot 发挥的作用和它带来的好处</a></li>  </ul> 
+                        </li>
+                         <li class="file"><a href="/posts/404814820/">DevOps简介</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder-open"></i>
+                                &nbsp;
+                                Soft engineering
+                            </a>
+                             <ul class="unstyled" id="tree" style="display: block;"> 
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Algorithm
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/1453950584/">8大排序算法图文讲解</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Architecture
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/2097636152/">工作两三年了，整不明白架构图都画啥？</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Cheat Sheets
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/2623330927/">Cheat Sheets - PostgreSQL</a></li>  <li class="file"><a href="/posts/3327139081/">Cheat Sheets – C++</a></li>  <li class="file"><a href="/posts/3048024619/">Cheat Sheets - Django Reference Sheet</a></li>  <li class="file"><a href="/posts/3433268710/">Cheat Sheets - Shell Script</a></li>  <li class="file"><a href="/posts/4169548679/">Cheat Sheets - .NET</a></li>  <li class="file"><a href="/posts/2137528313/">Cheat Sheets – CSS</a></li>  <li class="file"><a href="/posts/2993634676/">Cheat Sheets - Git</a></li>  <li class="file"><a href="/posts/3766000533/">Cheat Sheets – HTTP</a></li>  <li class="file"><a href="/posts/982990798/">Cheat Sheets – Linux</a></li>  <li class="file"><a href="/posts/2663199359/">Cheat Sheets – Java</a></li>  <li class="file"><a href="/posts/316669616/">Cheat Sheets – Mac OS X</a></li>  <li class="file"><a href="/posts/2038387758/">Cheat Sheets – MySQL</a></li>  <li class="file"><a href="/posts/2920272111/">Cheat Sheets – Nodejs</a></li>  <li class="file"><a href="/posts/3167589601/">Cheat Sheets – Perl</a></li>  <li class="file"><a href="/posts/305297407/">Cheat Sheets – C</a></li>  <li class="file"><a href="/posts/1053003126/">Cheat Sheets – Python</a></li>  <li class="file"><a href="/posts/2789789845/">Cheat Sheets – jQuery</a></li>  <li class="file"><a href="/posts/59285358/">Cheat Sheets – HTML and XHTML</a></li>  <li class="file"><a href="/posts/4169548678/">Cheat Sheets - Photoshop</a></li>  <li class="file"><a href="/posts/1130312566/">Cheat Sheets – SQLite</a></li>  <li class="file"><a href="/posts/3905631645/">Cheat sheets - Xcode</a></li>  <li class="file"><a href="/posts/3586350539/">Cheat sheets - Mac OS</a></li>  <li class="file"><a href="/posts/1362596080/">Cheat Sheets – PHP</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Project
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/467054247/">如何编写开源项目的README文档</a></li>  <li class="file"><a href="/posts/1755831586/">软件发布版本区别介绍</a></li>  </ul> 
+                        </li>
+                         </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder-open"></i>
+                                &nbsp;
+                                back-end
+                            </a>
+                             <ul class="unstyled" id="tree" style="display: block;"> 
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder-open"></i>
+                                &nbsp;
+                                Middle-ware
+                            </a>
+                             <ul class="unstyled" id="tree" style="display: block;"> 
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Gogs
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/612684965/">私人Git服务器 -- gogs</a></li>  <li class="file"><a href="/posts/4076369309/">Gogs数据备份、恢复</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Jenkins
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/388825549/">利用Jenkins持续集成iOS项目</a></li>  <li class="file"><a href="/posts/2282359188/">jenkins密码重置</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Logstash
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/2615120416/">日志搜集处理框架Logstash-安装配置</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                MySQL
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/554387356/">MySQL 排序的艺术：你真的懂 Order By 吗？</a></li>  <li class="file"><a href="/posts/2625460784/">MySQL延迟复制</a></li>  <li class="file"><a href="/posts/2654174479/">分库分表 vs NewSQL数据库</a></li>  <li class="file"><a href="/posts/4284065059/">MySQL 调优/优化的 101 个建议</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Nginx
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/1350143519/">高性能 Nginx HTTPS 调优 - 如何为 HTTPS 提速 30%</a></li>  <li class="file"><a href="/posts/1544228005/">高性能Web服务器 - Nginx配置详解</a></li>  <li class="file"><a href="/posts/3996389515/">Nginx配置跨域请求 Access-Control-Allow-Origin *</a></li>  <li class="file"><a href="/posts/524919010/">Nginx正向代理与Client设置代理上网</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                RabbitMQ
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/2846671594/">RabbitMQ 集群高可用原理及实战部署介绍</a></li>  <li class="file"><a href="/posts/3135873234/">RabbitMQ入门</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Redis
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/156114019/">Redis Stream应用案例</a></li>  <li class="file"><a href="/posts/2992538737/">redis.conf参数配置及解释</a></li>  <li class="file"><a href="/posts/2864310564/">深入分析Redis特点及应用场景</a></li>  <li class="file"><a href="/posts/3909951181/">Redis Manual</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Sentry
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/1303728868/">错误日志收集平台 - Sentry(Redis+MySQL)</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Shadowsocks
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/3154796955/">Vultr快速搭建SS科学上网</a></li>  </ul> 
+                        </li>
+                         </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                NodeJS
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/2653381572/">NodeJS Package Manage Tool - NPM</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder-open"></i>
+                                &nbsp;
+                                Python
+                            </a>
+                             <ul class="unstyled" id="tree" style="display: block;"> 
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Build-in
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/2858153934/">Python build-in functions - collections</a></li>  <li class="file"><a href="/posts/857250976/">Python build-in functions - List</a></li>  <li class="file"><a href="/posts/3208674450/">Python build-in module - os</a></li>  <li class="file"><a href="/posts/5/">Python多线程和锁</a></li>  <li class="file"><a href="/posts/2434599799/">Python build-in functions</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Configuration
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/3568487154/">更改pip源至国内镜像 - 显著提升下载速度</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Library
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/4096440342/">Python Library - SQLAlchemy</a></li>  <li class="file"><a href="/posts/3634498847/">我用 Python 的 Seaborn 库，绘制了 17 个超好看图表!</a></li>  <li class="file"><a href="/posts/383305840/">Python Library - Flask SQLAlchemy</a></li>  <li class="file"><a href="/posts/55626181/">发布你自己的轮子 - PyPI打包上传实践</a></li>  </ul> 
+                        </li>
+                         <li class="file"><a href="/posts/272954362/">sys.stdout.write实现Python控制台实时刷新打印</a></li>  </ul> 
+                        </li>
+                         </ul> 
+                        </li>
+                        
+                        <li class="directory-open" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                iOS Development
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/684390890/">Swift 5.4 有什么新功能？</a></li>  <li class="file"><a href="/posts/1054462359/">Apple Store上iOS App上架流程</a></li>  <li class="file"><a href="/posts/1098789015/">Xcode开发中Build与version区别/build自增设置/build随时间变化？</a></li>  <li class="file active"><a href="/posts/3772598043/">Swift：解包的正确姿势</a></li>  </ul> 
+                        </li>
+                         </ul> 
+    </div>
+    <script>
+        $(document).ready(function() {
+            var iconFolderOpenClass  = 'fa-folder-open';
+            var iconFolderCloseClass = 'fa-folder';
+            var iconAllExpandClass = 'fa-angle-double-down';
+            var iconAllPackClass = 'fa-angle-double-up';
+            // Handle directory-tree expansion:
+            // 左键单独展开目录
+            $(document).on('click', '#categories a[data-role="directory"]', function (event) {
+                event.preventDefault();
+
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconFolderOpenClass);
+                var subtree = $(this).siblings('ul');
+                icon.removeClass(iconFolderOpenClass).removeClass(iconFolderCloseClass);
+                if (expanded) {
+                    if (typeof subtree != 'undefined') {
+                        subtree.slideUp({ duration: 100 });
+                    }
+                    icon.addClass(iconFolderCloseClass);
+                } else {
+                    if (typeof subtree != 'undefined') {
+                        subtree.slideDown({ duration: 100 });
+                    }
+                    icon.addClass(iconFolderOpenClass);
+                }
+            });
+            // 右键展开下属所有目录
+            $('#categories a[data-role="directory"]').bind("contextmenu", function(event){
+                event.preventDefault();
+
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconFolderOpenClass);
+                var listNode = $(this).siblings('ul');
+                var subtrees = $.merge(listNode.find('li ul'), listNode);
+                var icons = $.merge(listNode.find('.fa'), icon);
+                icons.removeClass(iconFolderOpenClass).removeClass(iconFolderCloseClass);
+                if(expanded) {
+                    subtrees.slideUp({ duration: 100 });
+                    icons.addClass(iconFolderCloseClass);
+                } else {
+                    subtrees.slideDown({ duration: 100 });
+                    icons.addClass(iconFolderOpenClass);
+                }
+            })
+            // 展开关闭所有目录按钮
+            $(document).on('click', '#allExpand', function (event) {
+                event.preventDefault();
+
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconAllExpandClass);
+                icon.removeClass(iconAllExpandClass).removeClass(iconAllPackClass);
+                if(expanded) {
+                    $('#sidebar .fa.fa-folder').removeClass('fa-folder').addClass('fa-folder-open')
+                    $('#categories li ul').slideDown({ duration: 100 });
+                    icon.addClass(iconAllPackClass);
+                } else {
+                    $('#sidebar .fa.fa-folder-open').removeClass('fa-folder-open').addClass('fa-folder')
+                    $('#categories li ul').slideUp({ duration: 100 });
+                    icon.addClass(iconAllExpandClass);
+                }
+            });
+        });
+    </script>
+
+
+    
+        
+    <div class="widget-wrap">
+        <h3 class="widget-title"><span>recent</span></h3>
+        <div class="widget">
+            <ul id="recent-post" class="">
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/posts/4263562837/" class="thumbnail">
+    
+    
+        <span class="thumbnail-image thumbnail-none"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/OPS/">OPS</a><i class="fa fa-angle-right"></i><a class="article-category-link" href="/categories/OPS/MacOS/">MacOS</a></p>
+                            <p class="item-title"><a href="/posts/4263562837/" class="title">一个惊人快速的终端录像工具，也能录制 VSCode 和 Chrome 窗口</a></p>
+                            <p class="item-date"><time datetime="2021-03-28T00:02:47.000Z" itemprop="datePublished">2021-03-28</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/posts/3634498847/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210309111745.png)" alt="我用 Python 的 Seaborn 库，绘制了 17 个超好看图表!" class="thumbnail-image"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/back-end/">back-end</a><i class="fa fa-angle-right"></i><a class="article-category-link" href="/categories/back-end/Python/">Python</a></p>
+                            <p class="item-title"><a href="/posts/3634498847/" class="title">我用 Python 的 Seaborn 库，绘制了 17 个超好看图表!</a></p>
+                            <p class="item-date"><time datetime="2021-03-08T22:18:11.000Z" itemprop="datePublished">2021-03-09</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/posts/2097636152/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210303212435.jpg)" alt="工作两三年了，整不明白架构图都画啥？" class="thumbnail-image"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/Soft-engineering/">Soft engineering</a><i class="fa fa-angle-right"></i><a class="article-category-link" href="/categories/Soft-engineering/Architecture/">Architecture</a></p>
+                            <p class="item-title"><a href="/posts/2097636152/" class="title">工作两三年了，整不明白架构图都画啥？</a></p>
+                            <p class="item-date"><time datetime="2021-03-03T08:09:53.000Z" itemprop="datePublished">2021-03-03</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/posts/2846671594/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210228142136.jpg)" alt="RabbitMQ 集群高可用原理及实战部署介绍" class="thumbnail-image"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/back-end/">back-end</a><i class="fa fa-angle-right"></i><a class="article-category-link" href="/categories/back-end/Middle-ware/">Middle-ware</a></p>
+                            <p class="item-title"><a href="/posts/2846671594/" class="title">RabbitMQ 集群高可用原理及实战部署介绍</a></p>
+                            <p class="item-date"><time datetime="2021-02-28T01:06:06.000Z" itemprop="datePublished">2021-02-28</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/posts/3772598043/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210226162513.png)" alt="Swift：解包的正确姿势" class="thumbnail-image"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/iOS-Development/">iOS Development</a></p>
+                            <p class="item-title"><a href="/posts/3772598043/" class="title">Swift：解包的正确姿势</a></p>
+                            <p class="item-date"><time datetime="2021-02-26T03:32:25.000Z" itemprop="datePublished">2021-02-26</time></p>
+                        </div>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+
+    
+    <div id="toTop" class="fa fa-angle-up"></div>
+</aside>
+            
+            <section id="main"><article id="post-iOS Development/Swift:解包的正确姿势" class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+        
+            <header class="article-header">
+                
+                    <div class="article-meta">
+                        
+    <div class="article-category">
+    	<i class="fa fa-folder"></i>
+        <a class="article-category-link" href="/categories/iOS-Development/">iOS Development</a>
+    </div>
+
+                        
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/tags/Swift/">Swift</a>, <a class="tag-link" href="/tags/解包/">解包</a>
+    </div>
+
+                        
+    <div class="article-date">
+        <i class="fa fa-calendar"></i>
+        <a href="/posts/3772598043/">
+            <time datetime="2021-02-26T03:32:25.000Z" itemprop="datePublished">2021-02-26</time>
+        </a>
+    </div>
+
+
+                        
+                    </div>
+                
+                
+    
+        <h1 class="article-title" itemprop="name">
+            Swift：解包的正确姿势
+        </h1>
+    
+
+            </header>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+        
+        
+            
+                <div id="toc" class="toc-article">
+                <strong class="toc-title">Catalogue</strong>
+                    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#嗯，先来一段感慨"><span class="toc-number">1.</span> <span class="toc-text">嗯，先来一段感慨</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#var-num-Int-它是什么类型"><span class="toc-number">2.</span> <span class="toc-text">var num: Int? 它是什么类型?</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#解包的基本思路，使用if-let或者guard-let，而非强制解包"><span class="toc-number">3.</span> <span class="toc-text">解包的基本思路，使用if let或者guard let，而非强制解包</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#解包深入"><span class="toc-number">4.</span> <span class="toc-text">解包深入</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-获取本地路径"><span class="toc-number">4.1.</span> <span class="toc-text">1. 获取本地路径</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-将本地路径读取转为Data"><span class="toc-number">4.2.</span> <span class="toc-text">2. 将本地路径读取转为Data</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-JSON序列化"><span class="toc-number">4.3.</span> <span class="toc-text">3. JSON序列化</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-是否可以转为字典类型"><span class="toc-number">4.4.</span> <span class="toc-text">4. 是否可以转为字典类型</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#这个函数我是这来进行设计与步骤分解的"><span class="toc-number">4.4.1.</span> <span class="toc-text">这个函数我是这来进行设计与步骤分解的</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#可选链的解包"><span class="toc-number">5.</span> <span class="toc-text">可选链的解包</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#nullable和nonnull"><span class="toc-number">6.</span> <span class="toc-text">nullable和nonnull</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#一点点Swift与OC的语言思考"><span class="toc-number">7.</span> <span class="toc-text">一点点Swift与OC的语言思考</span></a></li></ol>
+                </div>
+            
+        
+        
+            <p><img src="https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210226162513.png" alt=""></p>
+<h1 id="嗯，先来一段感慨"><a href="#嗯，先来一段感慨" class="headerlink" title="嗯，先来一段感慨"></a>嗯，先来一段感慨</h1><p><strong>对于Swift学习而言，可选类型Optional是永远绕不过的坎，特别是从OC刚刚转Swift的时候，可能就会被代码行间的?与!，有的时候甚至是??搞得稀里糊涂的。</strong></p>
+<p>这篇文章会给各位带来我对于可选类型的一些认识以及如何进行解包，其中会涉及到Swift中<em><strong>if let</strong></em>以及<strong><em>guard let</em></strong>的使用以及思考，还有涉及OC部分的<em><strong>nullable</strong></em>和<em><strong>nonnull</strong></em>两个关键字，以及一点点对两种语言的思考。</p>
+<h1 id="var-num-Int-它是什么类型"><a href="#var-num-Int-它是什么类型" class="headerlink" title="var num: Int? 它是什么类型?"></a>var num: Int? 它是什么类型?</h1><p>在进行解包前，我们先来理解一个概念，这样可能更有利于对于解包。</p>
+<p>首先我们来看看这样一段代码:</p>
+<pre class="line-numbers language-swift"><code class="language-swift"> `<span class="token keyword">var</span> num<span class="token punctuation">:</span> <span class="token builtin">Int</span><span class="token operator">?</span>
+
+  num <span class="token operator">=</span> <span class="token number">10</span>
+
+  <span class="token keyword">if</span> num <span class="token keyword">is</span> <span class="token builtin">Optional</span><span class="token operator">&lt;</span><span class="token builtin">Int</span><span class="token operator">></span> <span class="token punctuation">{</span>
+
+   <span class="token function">print</span><span class="token punctuation">(</span><span class="token string">"它是Optional类型"</span><span class="token punctuation">)</span>
+
+  <span class="token punctuation">}</span><span class="token keyword">else</span> <span class="token punctuation">{</span>
+
+    <span class="token function">print</span><span class="token punctuation">(</span><span class="token string">"它是Int类型"</span><span class="token punctuation">)</span>
+
+  <span class="token punctuation">}</span>`
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>请先暂时不要把这段代码复制到Xcode中，先自问自答，num是什么类型，是Int类型吗?</p>
+<p>好了，你可以将这段代码复制到Xcode里去了，然后在Xcode中的if上一定会出现这样一段话：</p>
+<a id="more"></a>
+<pre class="line-numbers language-swift"><code class="language-swift">`
+<span class="token string">'is'</span> test <span class="token keyword">is</span> always <span class="token boolean">true</span>
+
+`
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+<p>num不是<em><strong>Int类</strong></em>，它是<em><strong>Optional类型</strong></em>。</p>
+<p>那么Optional类型是啥呢–可选类型，具体Optional是啥，Optional类型的本质实际上就是一个带有泛型参数的enum类型，各位去源码中仔细看看就能了解到，这个类型和Swift中的Result类有异曲同工之妙。</p>
+<p>var num: Int?这是一个人Optional的声明，意思不是“我声明了一个Optional的Int值”，而是“我声明了一个Optional类型，它可能包含一个Int值，也可能什么都不包含”，也就是说实际上我们声明的是Optional类型，而不是声明了一个Int类型！</p>
+<p><em><strong>至于像Int!或者Int?这种写法，只是一种Optional类型的糖语法写法。</strong></em></p>
+<p>以此类推String?是什么类型，泛型T?是什么类型，答案各位心中已经明了吧。</p>
+<p>正是因为num是一个可选类型。所以它才能赋值为nil， <code>var num: Int = nil。</code>这样是不可能赋值成功的。因为Int类型中没有nil这个概念！</p>
+<p>这就是Swift与OC一个很大区别，<em><strong>在OC中我们的对象都可以赋值为nil，而在Swift中，能赋值为nil只有Optional类型！</strong></em></p>
+<h1 id="解包的基本思路，使用if-let或者guard-let，而非强制解包"><a href="#解包的基本思路，使用if-let或者guard-let，而非强制解包" class="headerlink" title="解包的基本思路，使用if let或者guard let，而非强制解包"></a>解包的基本思路，使用if let或者guard let，而非强制解包</h1><p>我们先来看一个简单的需求，虽然这个需求在实际开发中意义不太大：</p>
+<p>我们需要从网络请求获取到的一个人的身高(cm为单位)以除以100倍，以获取m为单位的结果然后将其结果进行返回。</p>
+<p>设计思路：</p>
+<p>由于实际网络请求中，后台可能会返回我们的身高为空(即nil)，所以在转模型的时候我们不能定义Float类型，而是定义Float?便于接受数据。</p>
+<p>如果身高为nil，那么nil除以100是没有意义的，在编译器中Float?除以100会直接报错，那么其返回值也应该为nil，所以函数的返回值也是Float?类型</p>
+<p>那么函数应该设计成为这个样子是这样的:</p>
+<pre class="line-numbers language-swift"><code class="language-swift"> `<span class="token keyword">func</span> <span class="token function">getHeight</span><span class="token punctuation">(</span><span class="token number">_</span> height<span class="token punctuation">:</span> <span class="token builtin">Float</span><span class="token operator">?</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token builtin">Float</span><span class="token operator">?</span>`
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>如果一般解包的话，我们的函数实现大概会写成这样:</p>
+<pre class="line-numbers language-swift"><code class="language-swift"> `<span class="token keyword">func</span> <span class="token function">getHeight</span><span class="token punctuation">(</span><span class="token number">_</span> height<span class="token punctuation">:</span> <span class="token builtin">Float</span><span class="token operator">?</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token builtin">Float</span><span class="token operator">?</span> <span class="token punctuation">{</span>
+
+     <span class="token keyword">if</span> height <span class="token operator">!=</span> <span class="token constant">nil</span> <span class="token punctuation">{</span>
+
+     <span class="token keyword">return</span> height<span class="token operator">!</span> <span class="token operator">/</span> <span class="token number">100</span>
+
+     <span class="token punctuation">}</span>
+
+     <span class="token keyword">return</span> <span class="token constant">nil</span>
+
+  <span class="token punctuation">}</span>`
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>使用!进行强制解包，然后进行运算。</p>
+<p>我想说的是使用强制解包固然没有错，不过如果在实际开发中这个height参数可能还要其他用途，那么是不是每使用一次都要进行强制解包？</p>
+<p>强制解包是一种很危险的行为，一旦解包失败,就有崩溃的可能，也许你会说这不是有if判断,然而实际开发中，情况往往比想的复杂的多。<em><strong>所以安全的解包行为应该是通过if let 或者guard let来进行。</strong></em></p>
+<pre class="line-numbers language-swift"><code class="language-swift"> `<span class="token keyword">func</span> <span class="token function">getHeight</span><span class="token punctuation">(</span><span class="token number">_</span> height<span class="token punctuation">:</span> <span class="token builtin">Float</span><span class="token operator">?</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token builtin">Float</span><span class="token operator">?</span> <span class="token punctuation">{</span>
+
+     <span class="token keyword">if</span> <span class="token keyword">let</span> unwrapedHeight <span class="token operator">=</span> height <span class="token punctuation">{</span>
+
+     <span class="token keyword">return</span> unwrapedHeight <span class="token operator">/</span> <span class="token number">100</span>
+
+     <span class="token punctuation">}</span>
+
+     <span class="token keyword">return</span> <span class="token constant">nil</span>
+
+  <span class="token punctuation">}</span>`
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>或者：</p>
+<pre class="line-numbers language-swift"><code class="language-swift"> `<span class="token keyword">func</span> <span class="token function">getHeight</span><span class="token punctuation">(</span><span class="token number">_</span> height<span class="token punctuation">:</span> <span class="token builtin">Float</span><span class="token operator">?</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token builtin">Float</span><span class="token operator">?</span> <span class="token punctuation">{</span>
+
+     <span class="token keyword">guard</span> <span class="token keyword">let</span> unwrapedHeight <span class="token operator">=</span> height <span class="token keyword">else</span> <span class="token punctuation">{</span>
+
+     <span class="token keyword">return</span> <span class="token constant">nil</span>
+
+     <span class="token punctuation">}</span>
+
+     <span class="token keyword">return</span> unwrapedHeight <span class="token operator">/</span> <span class="token number">100</span>
+
+  <span class="token punctuation">}</span>`
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>那么if let和guard let 你更倾向使用哪个呢？</p>
+<p>在本例子中，其实感觉二者的差别不大，不过我个人更倾向于使用guard let。</p>
+<hr>
+<p>原因如下：</p>
+<p>在使用if let的时候其大括号类中的情况才是正常情况，而外部主体是非正常情况的返回的nil；</p>
+<p>而在使用guard let的时候，guard let else中的大括号是异常情况，而外部主体返回的是正常情况。</p>
+<p><em><strong>对于一个以返回结果为目的的函数，函数主体展示正常返回值，而将异常抛出在判断中，这样不仅逻辑更清晰，而且更加易于代码阅读。</strong></em></p>
+<hr>
+<h1 id="解包深入"><a href="#解包深入" class="headerlink" title="解包深入"></a>解包深入</h1><p>有这么一个需求，从本地路径获取一个json文件，最终将其转为字典，准备进行转模型操作。</p>
+<p>在这个过程中我们大概有这么几个步骤：</p>
+<h2 id="1-获取本地路径"><a href="#1-获取本地路径" class="headerlink" title="1. 获取本地路径"></a>1. 获取本地路径</h2><pre class="line-numbers language-swift"><code class="language-swift">`<span class="token keyword">func</span> <span class="token function">path</span><span class="token punctuation">(</span>forResource name<span class="token punctuation">:</span> <span class="token builtin">String</span><span class="token operator">?</span><span class="token punctuation">,</span> ofType ext<span class="token punctuation">:</span> <span class="token builtin">String</span><span class="token operator">?</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token builtin">String</span><span class="token operator">?</span>
+`
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+<h2 id="2-将本地路径读取转为Data"><a href="#2-将本地路径读取转为Data" class="headerlink" title="2. 将本地路径读取转为Data"></a>2. 将本地路径读取转为Data</h2><pre class="line-numbers language-swift"><code class="language-swift">`<span class="token keyword">init</span><span class="token punctuation">(</span>contentsOf url<span class="token punctuation">:</span> <span class="token constant">URL</span><span class="token punctuation">,</span> options<span class="token punctuation">:</span> <span class="token builtin">Data</span><span class="token punctuation">.</span><span class="token builtin">ReadingOptions</span> <span class="token operator">=</span> <span class="token keyword">default</span><span class="token punctuation">)</span> <span class="token keyword">throws</span>
+`
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+<h2 id="3-JSON序列化"><a href="#3-JSON序列化" class="headerlink" title="3. JSON序列化"></a>3. JSON序列化</h2><pre class="line-numbers language-swift"><code class="language-swift">`<span class="token keyword">class</span> <span class="token class-name">func</span> <span class="token function">jsonObject</span><span class="token punctuation">(</span>with data<span class="token punctuation">:</span> <span class="token builtin">Data</span><span class="token punctuation">,</span> options opt<span class="token punctuation">:</span> <span class="token builtin">JSONSerialization</span><span class="token punctuation">.</span><span class="token builtin">ReadingOptions</span> <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token keyword">throws</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token builtin">Any</span>
+`
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+<h2 id="4-是否可以转为字典类型"><a href="#4-是否可以转为字典类型" class="headerlink" title="4. 是否可以转为字典类型"></a>4. 是否可以转为字典类型</h2><p>我们可以看到以上几个函数中，获取路径获取返回的路径结果是一个可选类型而转Data的方法是抛出异常，JSON序列化也是抛出异常，至于最后一步的类型转换是使用as？[Sting: Any]这样的操作</p>
+<h3 id="这个函数我是这来进行设计与步骤分解的"><a href="#这个函数我是这来进行设计与步骤分解的" class="headerlink" title="这个函数我是这来进行设计与步骤分解的"></a>这个函数我是这来进行设计与步骤分解的</h3><p>函数的返回类型为可选类型，因为下面的4步中都有可能失败进而返回nil。</p>
+<p>虽然有人会说第一步获取本地路径，一定是本地有的才会进行读取操作，但是作为一个严谨操作，凡事和字符串打交道的书写都是有隐患的，所以我这里还是用了guard let进行守护。</p>
+<p>这个函数看起来很不简洁，每一个guard let 后面都跟着一个异常返回，甚至不如使用if let看着简洁</p>
+<p>但是这么写的好处是：<em><strong>在调试过程中你可以明确的知道自己哪一步出错</strong></em></p>
+<pre class="line-numbers language-swift"><code class="language-swift"> `<span class="token keyword">func</span> <span class="token function">getDictFromLocal</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token punctuation">[</span><span class="token builtin">String</span><span class="token punctuation">:</span> <span class="token builtin">Any</span><span class="token punctuation">]</span><span class="token operator">?</span> <span class="token punctuation">{</span>
+
+     <span class="token comment" spellcheck="true">/// 1 获取路径</span>
+
+     <span class="token keyword">guard</span> <span class="token keyword">let</span> path <span class="token operator">=</span> <span class="token builtin">Bundle</span><span class="token punctuation">.</span>main<span class="token punctuation">.</span><span class="token function">path</span><span class="token punctuation">(</span>forResource<span class="token punctuation">:</span> <span class="token string">"test"</span><span class="token punctuation">,</span> ofType<span class="token punctuation">:</span><span class="token string">"json"</span><span class="token punctuation">)</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+
+       <span class="token keyword">return</span> <span class="token constant">nil</span>
+
+     <span class="token punctuation">}</span>
+
+     <span class="token comment" spellcheck="true">/// 2 获取json文件里面的内容</span>
+
+     <span class="token keyword">guard</span> <span class="token keyword">let</span> jsonData <span class="token operator">=</span> <span class="token keyword">try</span><span class="token operator">?</span> <span class="token builtin">Data</span><span class="token punctuation">.</span><span class="token keyword">init</span><span class="token punctuation">(</span>contentsOf<span class="token punctuation">:</span> <span class="token constant">URL</span><span class="token punctuation">.</span><span class="token keyword">init</span><span class="token punctuation">(</span>fileURLWithPath<span class="token punctuation">:</span> path<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+
+       <span class="token keyword">return</span> <span class="token constant">nil</span>
+
+     <span class="token punctuation">}</span>
+
+     <span class="token comment" spellcheck="true">/// 3 解析json内容</span>
+
+     <span class="token keyword">guard</span> <span class="token keyword">let</span> json <span class="token operator">=</span> <span class="token keyword">try</span><span class="token operator">?</span> <span class="token builtin">JSONSerialization</span><span class="token punctuation">.</span><span class="token function">jsonObject</span><span class="token punctuation">(</span>with<span class="token punctuation">:</span> jsonData<span class="token punctuation">,</span> options<span class="token punctuation">:</span><span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+
+       <span class="token keyword">return</span> <span class="token constant">nil</span>
+
+     <span class="token punctuation">}</span>
+
+     <span class="token comment" spellcheck="true">/// 4 将Any转为Dict</span>
+
+     <span class="token keyword">guard</span> <span class="token keyword">let</span> dict <span class="token operator">=</span> json <span class="token keyword">as</span><span class="token operator">?</span> <span class="token punctuation">[</span><span class="token builtin">String</span><span class="token punctuation">:</span> <span class="token builtin">Any</span><span class="token punctuation">]</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+
+       <span class="token keyword">return</span> <span class="token constant">nil</span>
+
+     <span class="token punctuation">}</span>
+
+     <span class="token keyword">return</span> dict
+
+  <span class="token punctuation">}</span>`
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>当然,如果你要追求简洁,这么写也未尝不可,一波流带走</p>
+<pre class="line-numbers language-swift"><code class="language-swift"> `<span class="token keyword">func</span> <span class="token function">getDictFromLocal</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token punctuation">[</span><span class="token builtin">String</span><span class="token punctuation">:</span> <span class="token builtin">Any</span><span class="token punctuation">]</span><span class="token operator">?</span> <span class="token punctuation">{</span>
+
+     <span class="token keyword">guard</span> <span class="token keyword">let</span> path <span class="token operator">=</span> <span class="token builtin">Bundle</span><span class="token punctuation">.</span>main<span class="token punctuation">.</span><span class="token function">path</span><span class="token punctuation">(</span>forResource<span class="token punctuation">:</span> <span class="token string">"test"</span><span class="token punctuation">,</span> ofType<span class="token punctuation">:</span><span class="token string">"json"</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+
+     <span class="token keyword">let</span> jsonData <span class="token operator">=</span> <span class="token keyword">try</span><span class="token operator">?</span> <span class="token builtin">Data</span><span class="token punctuation">.</span><span class="token keyword">init</span><span class="token punctuation">(</span>contentsOf<span class="token punctuation">:</span> <span class="token constant">URL</span><span class="token punctuation">.</span><span class="token keyword">init</span><span class="token punctuation">(</span>fileURLWithPath<span class="token punctuation">:</span> path<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+
+     <span class="token keyword">let</span> json <span class="token operator">=</span> <span class="token keyword">try</span><span class="token operator">?</span> <span class="token builtin">JSONSerialization</span><span class="token punctuation">.</span><span class="token function">jsonObject</span><span class="token punctuation">(</span>with<span class="token punctuation">:</span> jsonData<span class="token punctuation">,</span> options<span class="token punctuation">:</span><span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+
+     <span class="token keyword">let</span> dict <span class="token operator">=</span> json <span class="token keyword">as</span><span class="token operator">?</span> <span class="token punctuation">[</span><span class="token builtin">String</span><span class="token punctuation">:</span> <span class="token builtin">Any</span><span class="token punctuation">]</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+
+       <span class="token keyword">return</span> <span class="token constant">nil</span>
+
+     <span class="token punctuation">}</span>
+
+     <span class="token keyword">return</span> dict
+
+  <span class="token punctuation">}</span>`
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p><em><strong>guard let与if let不仅可以判断一个值的解包,而且可以进行连续操作</strong></em></p>
+<p>像下面这种写法，更加追求的是结果，对于一般的调试与学习，多几个guard let进行拆分，未尝不是好事。</p>
+<p>至于哪种用法更适合，因人而异。</p>
+<h1 id="可选链的解包"><a href="#可选链的解包" class="headerlink" title="可选链的解包"></a>可选链的解包</h1><p>至于可选链的解包是完全可以一步到位，假设我们有以下这个模型。</p>
+<pre class="line-numbers language-swift"><code class="language-swift"> `<span class="token keyword">class</span> <span class="token class-name">Person</span> <span class="token punctuation">{</span>
+
+     <span class="token keyword">var</span> phone<span class="token punctuation">:</span> <span class="token builtin">Phone</span><span class="token operator">?</span>
+
+  <span class="token punctuation">}</span>
+
+  <span class="token keyword">class</span> <span class="token class-name">Phone</span> <span class="token punctuation">{</span>
+
+     <span class="token keyword">var</span> number<span class="token punctuation">:</span> <span class="token builtin">String</span><span class="token operator">?</span>
+
+  <span class="token punctuation">}</span>`
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>Person类中有一个手机对象属性，手机类中有个手机号属性，现在我们有位小明同学，我们想知道他的手机号。</p>
+<p>小明他不一定有手机，可能有手机而手机并没有上手机号码。</p>
+<pre class="line-numbers language-swift"><code class="language-swift"> `<span class="token keyword">let</span> xiaoming <span class="token operator">=</span> <span class="token function">Person</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+
+  <span class="token keyword">guard</span> <span class="token keyword">let</span> number <span class="token operator">=</span> xiaoming<span class="token punctuation">.</span>phone<span class="token operator">?</span><span class="token punctuation">.</span>number <span class="token keyword">else</span> <span class="token punctuation">{</span>
+
+     <span class="token keyword">return</span>
+
+  <span class="token punctuation">}</span>
+
+  <span class="token function">print</span><span class="token punctuation">(</span>number<span class="token punctuation">)</span>`
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>这里只是抛砖引玉，更长的可选链也可以一步到位，而不必一层层进行判断，因为可选链中一旦有某个链为nil，那么就会返回nil。</p>
+<h1 id="nullable和nonnull"><a href="#nullable和nonnull" class="headerlink" title="nullable和nonnull"></a>nullable和nonnull</h1><p>我们先来看这两个函数,PHImageManager在OC与Swift中通过PHAsset实例获取图片的例子</p>
+<pre class="line-numbers language-swift"><code class="language-swift"> `<span class="token punctuation">[</span><span class="token punctuation">[</span><span class="token builtin">PHImageManager</span> defaultManager<span class="token punctuation">]</span> requestImageForAsset<span class="token punctuation">:</span>asset targetSize<span class="token punctuation">:</span>size contentMode<span class="token punctuation">:</span><span class="token builtin">PHImageContentModeDefault</span> options<span class="token punctuation">:</span>options resultHandler<span class="token punctuation">:</span><span class="token operator">^</span><span class="token punctuation">(</span><span class="token builtin">UIImage</span> <span class="token operator">*</span> _Nullable result<span class="token punctuation">,</span> <span class="token builtin">NSDictionary</span> <span class="token operator">*</span> _Nullable info<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+
+     <span class="token comment" spellcheck="true">//、 非空才进行操作 注意_Nullable,Swift中即为nil,注意判断</span>
+
+     <span class="token keyword">if</span> <span class="token punctuation">(</span>result<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+
+     <span class="token punctuation">}</span>
+
+  <span class="token punctuation">}</span><span class="token punctuation">]</span><span class="token punctuation">;</span>`
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<pre class="line-numbers language-swift"><code class="language-swift">`
+<span class="token builtin">PHImageManager</span><span class="token punctuation">.</span><span class="token keyword">default</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">requestImage</span><span class="token punctuation">(</span><span class="token keyword">for</span><span class="token punctuation">:</span> asset<span class="token punctuation">,</span> targetSize<span class="token punctuation">:</span> size<span class="token punctuation">,</span> contentMode<span class="token punctuation">:</span> <span class="token punctuation">.</span><span class="token keyword">default</span><span class="token punctuation">,</span> options<span class="token punctuation">:</span> options<span class="token punctuation">,</span> resultHandler<span class="token punctuation">:</span> <span class="token punctuation">{</span> <span class="token punctuation">(</span>result<span class="token punctuation">:</span> <span class="token builtin">UIImage</span><span class="token operator">?</span><span class="token punctuation">,</span> info<span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token builtin">AnyHashable</span> <span class="token punctuation">:</span> <span class="token builtin">Any</span><span class="token punctuation">]</span><span class="token operator">?</span><span class="token punctuation">)</span> <span class="token keyword">in</span>
+
+   <span class="token keyword">guard</span> <span class="token keyword">let</span> image <span class="token operator">=</span> result <span class="token keyword">else</span> <span class="token punctuation">{</span> <span class="token keyword">return</span> <span class="token punctuation">}</span>
+
+<span class="token punctuation">}</span><span class="token punctuation">)</span>
+
+`
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>在Swift中闭包返回的是两个可选类型，result: UIImage?与info: [AnyHashable : Any]?</p>
+<p>而在OC中返回的类型是 UIImage <em>_Nullable result, NSDictionary </em> _Nullable info</p>
+<p>注意观察OC中返回的类型UIImage * 后面使用了<em>Nullable来修饰,至于Nullable这个单词是什么意思，我想稍微有点英文基础的应该一看就懂–”可以为空”，</em><strong>这不恰恰和Swift的可选类型呼应吗？</strong>_</p>
+<p>另外还有PHFetchResult遍历这个函数,我们再来看看在OC与Swift中的表达</p>
+<pre class="line-numbers language-swift"><code class="language-swift"> `<span class="token builtin">PHFetchResult</span> <span class="token operator">*</span>fetchResult<span class="token punctuation">;</span>
+
+  <span class="token punctuation">[</span>fetchResult enumerateObjectsUsingBlock<span class="token punctuation">:</span><span class="token operator">^</span><span class="token punctuation">(</span>id _Nonnull obj<span class="token punctuation">,</span> <span class="token builtin">NSUInteger</span> idx<span class="token punctuation">,</span> <span class="token constant">BOOL</span> <span class="token operator">*</span> _Nonnull stop<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+
+  <span class="token punctuation">}</span><span class="token punctuation">]</span><span class="token punctuation">;</span>`
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<pre class="line-numbers language-swift"><code class="language-swift"> `<span class="token keyword">let</span> fetchResult<span class="token punctuation">:</span> <span class="token builtin">PHFetchResult</span>
+
+  fetchResult<span class="token punctuation">.</span><span class="token function">enumerateObjects</span><span class="token punctuation">(</span><span class="token punctuation">{</span> <span class="token punctuation">(</span>obj<span class="token punctuation">,</span> index<span class="token punctuation">,</span> stop<span class="token punctuation">)</span> <span class="token keyword">in</span>
+
+  <span class="token punctuation">}</span><span class="token punctuation">)</span>`
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>看见OC中Block中的回调使用了Nonnull来修饰，即不可能为空，不可能为nil，一定有值，对于使用这样的字符修饰的对象，我们就不必为其做健壮性判断了。</p>
+<p>这也就是nullable与nonnull两个关键字出现的原因吧–与Swift做桥接使用以及显式的提醒对象的状态</p>
+<h1 id="一点点Swift与OC的语言思考"><a href="#一点点Swift与OC的语言思考" class="headerlink" title="一点点Swift与OC的语言思考"></a>一点点Swift与OC的语言思考</h1><p>我之前写过一篇文章,是说有关于一个字符串拼接函数的</p>
+<p>从Swift来反思OC的语法</p>
+<p>OC函数是这样的：</p>
+<pre class="line-numbers language-swift"><code class="language-swift">`
+<span class="token operator">-</span> <span class="token punctuation">(</span><span class="token builtin">NSString</span> <span class="token operator">*</span><span class="token punctuation">)</span>stringByAppendingString<span class="token punctuation">:</span><span class="token punctuation">(</span><span class="token builtin">NSString</span> <span class="token operator">*</span><span class="token punctuation">)</span>aString<span class="token punctuation">;</span>
+
+`
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+<p>Swift中函数是这样的：</p>
+<pre class="line-numbers language-swift"><code class="language-swift">`
+<span class="token keyword">public</span> <span class="token keyword">mutating</span> <span class="token keyword">func</span> <span class="token function">append</span><span class="token punctuation">(</span><span class="token number">_</span> other<span class="token punctuation">:</span> <span class="token builtin">String</span><span class="token punctuation">)</span>
+
+`
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+<p>仅从API来看，OC的入参是很危险的,因为类型是NSString *</p>
+<p>那么nil也可以传入其中，而传入nil的后果就是崩掉，我觉得对于这种传入参数为nil会崩掉的函数需要特别提醒一下，应该写成这样:</p>
+<pre class="line-numbers language-swift"><code class="language-swift">`
+<span class="token operator">-</span> <span class="token punctuation">(</span><span class="token builtin">NSString</span> <span class="token operator">*</span><span class="token punctuation">)</span>stringByAppendingString<span class="token punctuation">:</span><span class="token punctuation">(</span><span class="token builtin">NSString</span> <span class="token operator">*</span> _Nonnull<span class="token punctuation">)</span>aString<span class="token punctuation">;</span>
+
+<span class="token comment" spellcheck="true">/// 或者下面这样</span>
+
+<span class="token operator">-</span> <span class="token punctuation">(</span><span class="token builtin">NSString</span> <span class="token operator">*</span><span class="token punctuation">)</span>stringByAppendingString<span class="token punctuation">:</span><span class="token punctuation">(</span>nonnull <span class="token builtin">NSString</span> <span class="token operator">*</span><span class="token punctuation">)</span>aString<span class="token punctuation">;</span>
+
+`
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>以便告诉程序员，入参不能为空，不能为空，不能为空，重要的事情说三遍！！！</p>
+<p>反观Swift就不会出现这种情况，other后面的类型为String，而不是String?，说明入参是一个非可选类型。</p>
+<p>基于以上对于代码的严谨性，所以我才更喜欢使用Swift进行编程。</p>
+<p>当然，Swift的严谨使得它失去部分的灵活性，OC在灵活性上比Swift卓越。</p>
+
+            </div>
+        
+        <footer class="article-footer">
+        </footer>
+    </div>
+</article>
+
+
+    
+<nav id="article-nav">
+    
+        <a href="/posts/2846671594/" id="article-nav-newer" class="article-nav-link-wrap">
+            <strong class="article-nav-caption">Newer</strong>
+            <div class="article-nav-title">
+                
+                    RabbitMQ 集群高可用原理及实战部署介绍
+                
+            </div>
+        </a>
+    
+    
+        <a href="/posts/2652542772/" id="article-nav-older" class="article-nav-link-wrap">
+            <strong class="article-nav-caption">Older</strong>
+            <div class="article-nav-title">macOS 下 FFmpeg 视频转码入门及进阶使用心得</div>
+        </a>
+    
+</nav>
+
+
+
+
+
+    
+    
+
+
+
+
+<!-- baidu url auto push script -->
+<script type="text/javascript">
+    !function(){var e=/([http|https]:\/\/[a-zA-Z0-9\_\.]+\.baidu\.com)/gi,r=window.location.href,o=document.referrer;if(!e.test(r)){var n="//api.share.baidu.com/s.gif";o?(n+="?r="+encodeURIComponent(document.referrer),r&&(n+="&l="+r)):r&&(n+="?l="+r);var t=new Image;t.src=n}}(window);
+</script>     
+
+<head><meta name="generator" content="Hexo 3.9.0">
+    <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+    <script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+<link rel="stylesheet" href="/css/prism-duotone-light.css" type="text/css">
+<link rel="stylesheet" href="/css/prism-line-numbers.css" type="text/css"></head>
+<body>
+    <div id="vcomments"></div>
+    <script>
+        new Valine({
+            el: '#vcomments',
+            appId: '8kLhebBkVygl1MhVcQx9dnBP-gzGzoHsz',
+            appKey: 'hrctlOb6RQBWjjwTJ9fVjb91'
+        })
+    </script>
+</body>
+
+
+</section>
+        </div>
+        <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+
+<footer id="footer">
+    <div class="outer">
+        <div id="footer-info" class="inner">
+            <a href="https://www.jifu.io">
+            Ji Fu &copy; 2021
+            </a>
+            <br> Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>. Theme - <a href="https://github.com/zthxxx/hexo-theme-Wikitten">wikitten</a>
+            <br> 您是  jifu'wiki 的第<span id="busuanzi_value_site_uv"></span>个小伙伴
+            <br>
+                本站总访问量<span id="busuanzi_value_site_pv"></span>次
+                本文总阅读量<span id="busuanzi_value_page_pv"></span>次
+        </div>
+    </div>
+</footer>
+
+
+
+        
+
+    
+        <script src="/libs/lightgallery/js/lightgallery.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-thumbnail.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-pager.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-autoplay.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-fullscreen.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-zoom.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-hash.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-share.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-video.min.js"></script>
+    
+    
+        <script src="/libs/justified-gallery/jquery.justifiedGallery.min.js"></script>
+    
+    
+
+
+
+<!-- Custom Scripts -->
+<script src="/js/main.js"></script>
+
+    </div>
+</body>
+</html>

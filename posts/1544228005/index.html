@@ -1,0 +1,1100 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+    <meta charset="utf-8">
+    
+    <title>高性能Web服务器 - Nginx配置详解 | JiFu&#39;s Wiki</title>
+    
+    
+        <meta name="keywords" content="配置,Nginx">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="description" content="概述Nginx是轻量级的高性能Web服务器，提供了诸如HTTP代理和反向代理、负载均衡、缓存等一系列重要特性，因而在实践之中使用广泛，笔者也在学习和实践之中。 在本文中，我们详解一下Nginx服务器的各种配置指令的作用和用法。">
+<meta name="keywords" content="配置,Nginx">
+<meta property="og:type" content="article">
+<meta property="og:title" content="高性能Web服务器 - Nginx配置详解">
+<meta property="og:url" content="http://www.jifu.io/posts/1544228005/index.html">
+<meta property="og:site_name" content="JiFu&#39;s Wiki">
+<meta property="og:description" content="概述Nginx是轻量级的高性能Web服务器，提供了诸如HTTP代理和反向代理、负载均衡、缓存等一系列重要特性，因而在实践之中使用广泛，笔者也在学习和实践之中。 在本文中，我们详解一下Nginx服务器的各种配置指令的作用和用法。">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="https://www.jifu.io/images/2/20190331191904.png">
+<meta property="og:updated_time" content="2020-08-11T05:17:21.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="高性能Web服务器 - Nginx配置详解">
+<meta name="twitter:description" content="概述Nginx是轻量级的高性能Web服务器，提供了诸如HTTP代理和反向代理、负载均衡、缓存等一系列重要特性，因而在实践之中使用广泛，笔者也在学习和实践之中。 在本文中，我们详解一下Nginx服务器的各种配置指令的作用和用法。">
+<meta name="twitter:image" content="https://www.jifu.io/images/2/20190331191904.png">
+    
+
+    
+        <link rel="alternate" href="/atom.xml" title="JiFu&#39;s Wiki" type="application/atom+xml">
+    
+
+    
+        <link rel="icon" href="/favicon.ico">
+    
+
+    <link rel="stylesheet" href="/libs/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/libs/open-sans/styles.css">
+    <link rel="stylesheet" href="/libs/source-code-pro/styles.css">
+
+    <link rel="stylesheet" href="/css/style.css">
+    <script src="/libs/jquery/2.1.3/jquery.min.js"></script>
+    <script src="/libs/jquery/plugins/cookie/1.4.1/jquery.cookie.js"></script>
+    
+    
+        <link rel="stylesheet" href="/libs/lightgallery/css/lightgallery.min.css">
+    
+    
+        <link rel="stylesheet" href="/libs/justified-gallery/justifiedGallery.min.css">
+    
+    
+    
+    
+        <script>
+var _hmt = _hmt || [];
+(function() {
+    var hm = document.createElement("script");
+    hm.src = "//hm.baidu.com/hm.js?efa1eb5f56c438a850a0f60609fd7755";
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+    
+
+
+<link rel="stylesheet" href="/css/prism-duotone-light.css" type="text/css">
+<link rel="stylesheet" href="/css/prism-line-numbers.css" type="text/css"></head>
+</html>
+<body>
+    <div id="container">
+        <script>
+    (function(){
+        var bp = document.createElement('script');
+        var curProtocol = window.location.protocol.split(':')[0];
+        if (curProtocol === 'https') {
+            bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+        }
+        else {
+            bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+        }
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(bp, s);
+    })();
+</script>
+
+<header id="header">
+    <div id="header-main" class="header-inner">
+        <div class="outer">
+            <a href="/" id="logo">
+                <i class="logo"></i>
+                <span class="site-title">JiFu&#39;s Wiki</span>
+            </a>
+            <nav id="main-nav">
+                
+                    <a class="main-nav-link" href="/">Home</a>
+                
+                    <a class="main-nav-link" href="/archives">Archives</a>
+                
+                    <a class="main-nav-link" href="/categories">Categories</a>
+                
+                    <a class="main-nav-link" href="/tags">Tags</a>
+                
+                    <a class="main-nav-link" href="/about">About</a>
+                
+            </nav>
+            
+            <div id="search-form-wrap">
+
+    <form class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="Search" />
+        <button type="submit" class="search-form-submit"></button>
+    </form>
+    <div class="ins-search">
+    <div class="ins-search-mask"></div>
+    <div class="ins-search-container">
+        <div class="ins-input-wrapper">
+            <input type="text" class="ins-search-input" placeholder="Type something..." />
+            <span class="ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: 'Posts',
+            PAGES: 'Pages',
+            CATEGORIES: 'Categories',
+            TAGS: 'Tags',
+            UNTITLED: '(Untitled)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+<script src="/js/insight.js"></script>
+
+</div>
+        </div>
+    </div>
+    <div id="main-nav-mobile" class="header-sub header-inner">
+        <table class="menu outer">
+            <tr>
+                
+                    <td><a class="main-nav-link" href="/">Home</a></td>
+                
+                    <td><a class="main-nav-link" href="/archives">Archives</a></td>
+                
+                    <td><a class="main-nav-link" href="/categories">Categories</a></td>
+                
+                    <td><a class="main-nav-link" href="/tags">Tags</a></td>
+                
+                    <td><a class="main-nav-link" href="/about">About</a></td>
+                
+                <td>
+                    
+    <div class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="Search" />
+    </div>
+
+                </td>
+            </tr>
+        </table>
+    </div>
+</header>
+
+        <div class="outer">
+            
+            
+                <aside id="sidebar">
+   
+        
+    <div class="widget-wrap" id='categories'>
+        <h3 class="widget-title">
+            <span>categories</span>
+            &nbsp;
+            <a id='allExpand' href="#">
+                <i class="fa fa-angle-double-up fa-2x"></i>
+            </a>
+        </h3>
+
+        
+        
+         <ul class="unstyled" id="tree" style="display: block;"> 
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Android Development
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/1797699998/">深入了解 gradle 和 maven 的区别</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Design
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/1907494021/">PS快捷键使用指南</a></li>  <li class="file"><a href="/posts/729727978/">快速改善用户界面的10个技巧</a></li>  <li class="file"><a href="/posts/1525329016/">提高效率！24 个高手常用的 Sketch 技巧合集（附实用快捷键）</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                HR
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/3142539384/">HR常用的招聘邮件模板</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Hardware
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/3904818761/">MacBook十年进化史</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder-open"></i>
+                                &nbsp;
+                                OPS
+                            </a>
+                             <ul class="unstyled" id="tree" style="display: block;"> 
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Docker
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/1245529498/">Docker学习笔记</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Editor
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/151598530/">VScdoe error:Could not create temporary directory Permission denied</a></li>  <li class="file"><a href="/posts/4167799419/">Build personal development editor with vscode</a></li>  <li class="file"><a href="/posts/4165683660/">REST Client 简单好用的接口测试辅助工具</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder-open"></i>
+                                &nbsp;
+                                Linux
+                            </a>
+                             <ul class="unstyled" id="tree" style="display: block;"> 
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                CentOS
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/1867760035/">CentOS7编译安装VIM8</a></li>  <li class="file"><a href="/posts/920993072/">CentOS update Ruby</a></li>  <li class="file"><a href="/posts/4057676473/">yum提示Error: rpmdb open failed的解决方案</a></li>  <li class="file"><a href="/posts/1153610031/">centos7修改启动内核，删除无用内核</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                System Service
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/709002730/">使用 systemctl 添加自定义服务</a></li>  <li class="file"><a href="/posts/4024224000/">Linux swap分区及作用详解</a></li>  <li class="file"><a href="/posts/797311580/">服务管理工具 - systemctl</a></li>  <li class="file"><a href="/posts/55221137/">防火墙工具 - firewalld</a></li>  </ul> 
+                        </li>
+                         <li class="file"><a href="/posts/4070386720/">Linux系统目录结构及详细说明</a></li>  <li class="file"><a href="/posts/3897848060/">Mac使用SSH登录Google Cloud Platform</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                MacOS
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/3746871293/">Charles从入门到精通</a></li>  <li class="file"><a href="/posts/581320548/">Homebrew：让你从 Mac 切换到 Linux 更轻松</a></li>  <li class="file"><a href="/posts/4001059579/">Compiling PyQt5 for Python2.7 on Mac OS</a></li>  <li class="file"><a href="/posts/662287335/">MACOS BOOT CAMP – THE STARTUP DISK DOES NOT HAVE ENOUGH SPACE TO BE PARTITIONED</a></li>  <li class="file"><a href="/posts/2776773816/">Mac OS X设置SMB进行文件共享</a></li>  <li class="file"><a href="/posts/582618556/">Mac的最大连接数限制和端口的相关参数的设置</a></li>  <li class="file"><a href="/posts/1883980072/">Mac OS系统加速：干掉那些「炫酷」的动画</a></li>  <li class="file"><a href="/posts/1208074722/">Mac重置系统管理控制器SMC</a></li>  <li class="file"><a href="/posts/294187676/">Mac版迅雷优化,删除无用插件</a></li>  <li class="file"><a href="/posts/2652542772/">macOS 下 FFmpeg 视频转码入门及进阶使用心得</a></li>  <li class="file"><a href="/posts/1070186292/">SafariBookmarksSyncAgent意外退出解决方法</a></li>  <li class="file"><a href="/posts/2733308530/">Mac定时任务-利用launchctl定时启动任务</a></li>  <li class="file"><a href="/posts/2768996547/">一览Mac OS 图形界面的发展史</a></li>  <li class="file"><a href="/posts/4147446761/">Mac 时间机器 Time Machine 备份速度太慢的解决方法 (加速备份命令)</a></li>  <li class="file"><a href="/posts/4263562837/">一个惊人快速的终端录像工具，也能录制 VSCode 和 Chrome 窗口</a></li>  <li class="file"><a href="/posts/1623087360/">修复破解Mac应用启动时闪退（原因是由于苹果移除了TNT证书）</a></li>  <li class="file"><a href="/posts/1525358532/">在 M1 芯片 Mac 上使用 Homebrew</a></li>  <li class="file"><a href="/posts/646546052/">如何查看 macOS 系统日志，辅助排除应用程序和系统故障</a></li>  <li class="file"><a href="/posts/3807466731/">如何彻底和CrossOver说GoodBye</a></li>  <li class="file"><a href="/posts/1207571108/">强制退出Mac程序的六种方法</a></li>  <li class="file"><a href="/posts/3920589165/">如何重置Mac上的NVRAM</a></li>  <li class="file"><a href="/posts/3430780623/">解决Mac修改DNS卡死-命令行修改Mac OS系统DNS设置</a></li>  <li class="file"><a href="/posts/3653564083/">苹果 Mac 重置 SMC、NVRAM、PRAM 方法教程 - 解决 macOS 卡顿或无法启动</a></li>  <li class="file"><a href="/posts/3837318570/">Mac VSCode 禁用GPU加速</a></li>  <li class="file"><a href="/posts/3366946474/">Mac高效使用技巧</a></li>  <li class="file"><a href="/posts/558776221/">解决“Mac应用”已损坏，无法打开的问题</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Others
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/3101956195/">Git中.gitignore无效的解决办法</a></li>  <li class="file"><a href="/posts/2867836530/">Axel:命令行下轻量级多线程下载程序</a></li>  <li class="file"><a href="/posts/3413649842/">Linux实用工具</a></li>  <li class="file"><a href="/posts/1073812833/">linux下测试磁盘的读写IO速度(IO物理测速)</a></li>  <li class="file"><a href="/posts/3895039994/">命令行信息截图工具 - ScreenFetch</a></li>  <li class="file"><a href="/posts/3784546227/">Git忽略提交规则 - .gitignore配置总结</a></li>  <li class="file"><a href="/posts/760033837/">平铺式窗口管理器 - Awesome</a></li>  <li class="file"><a href="/posts/2006196850/">私有化TM备份与共享服务器 - Netatalk</a></li>  <li class="file"><a href="/posts/1413974522/">用好这些隐藏「小开关」，让 Chrome 浏览器更好用</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Vim
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/258379777/">VIM下使用Vundle搭建python开发环境</a></li>  <li class="file"><a href="/posts/3374749959/">Vim快捷键使用总结</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Windows
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/3669230936/">为远程桌面启用Windows防火墙例外</a></li>  <li class="file"><a href="/posts/3426016246/">利用windows内置工具测试硬盘速度 - winsat</a></li>  <li class="file"><a href="/posts/913943227/">解决EXCEL按上下左右键不是单元格移动的问题</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Wordpress
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/1067246247/">WordPress启用memcached动态缓存以及报错解决</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                command
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/2407250830/">history命令设置linux查看历史命令显示执行时间</a></li>  <li class="file"><a href="/posts/3200906184/">find命令快速技巧：如何定位一个文件</a></li>  <li class="file"><a href="/posts/3403344661/">定时任务Crontab命令详解</a></li>  <li class="file"><a href="/posts/3241041753/">通过编写 chroot 来认识 chroot 发挥的作用和它带来的好处</a></li>  </ul> 
+                        </li>
+                         <li class="file"><a href="/posts/404814820/">DevOps简介</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder-open"></i>
+                                &nbsp;
+                                Soft engineering
+                            </a>
+                             <ul class="unstyled" id="tree" style="display: block;"> 
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Algorithm
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/1453950584/">8大排序算法图文讲解</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Architecture
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/2097636152/">工作两三年了，整不明白架构图都画啥？</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Cheat Sheets
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/2623330927/">Cheat Sheets - PostgreSQL</a></li>  <li class="file"><a href="/posts/3327139081/">Cheat Sheets – C++</a></li>  <li class="file"><a href="/posts/3048024619/">Cheat Sheets - Django Reference Sheet</a></li>  <li class="file"><a href="/posts/3433268710/">Cheat Sheets - Shell Script</a></li>  <li class="file"><a href="/posts/4169548679/">Cheat Sheets - .NET</a></li>  <li class="file"><a href="/posts/2137528313/">Cheat Sheets – CSS</a></li>  <li class="file"><a href="/posts/2993634676/">Cheat Sheets - Git</a></li>  <li class="file"><a href="/posts/3766000533/">Cheat Sheets – HTTP</a></li>  <li class="file"><a href="/posts/982990798/">Cheat Sheets – Linux</a></li>  <li class="file"><a href="/posts/2663199359/">Cheat Sheets – Java</a></li>  <li class="file"><a href="/posts/316669616/">Cheat Sheets – Mac OS X</a></li>  <li class="file"><a href="/posts/2038387758/">Cheat Sheets – MySQL</a></li>  <li class="file"><a href="/posts/2920272111/">Cheat Sheets – Nodejs</a></li>  <li class="file"><a href="/posts/3167589601/">Cheat Sheets – Perl</a></li>  <li class="file"><a href="/posts/305297407/">Cheat Sheets – C</a></li>  <li class="file"><a href="/posts/1053003126/">Cheat Sheets – Python</a></li>  <li class="file"><a href="/posts/2789789845/">Cheat Sheets – jQuery</a></li>  <li class="file"><a href="/posts/59285358/">Cheat Sheets – HTML and XHTML</a></li>  <li class="file"><a href="/posts/4169548678/">Cheat Sheets - Photoshop</a></li>  <li class="file"><a href="/posts/1130312566/">Cheat Sheets – SQLite</a></li>  <li class="file"><a href="/posts/3905631645/">Cheat sheets - Xcode</a></li>  <li class="file"><a href="/posts/3586350539/">Cheat sheets - Mac OS</a></li>  <li class="file"><a href="/posts/1362596080/">Cheat Sheets – PHP</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Project
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/467054247/">如何编写开源项目的README文档</a></li>  <li class="file"><a href="/posts/1755831586/">软件发布版本区别介绍</a></li>  </ul> 
+                        </li>
+                         </ul> 
+                        </li>
+                        
+                        <li class="directory-open" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder-open"></i>
+                                &nbsp;
+                                back-end
+                            </a>
+                             <ul class="unstyled" id="tree" style="display: block;"> 
+                        <li class="directory-open" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder-open"></i>
+                                &nbsp;
+                                Middle-ware
+                            </a>
+                             <ul class="unstyled" id="tree" style="display: block;"> 
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Gogs
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/612684965/">私人Git服务器 -- gogs</a></li>  <li class="file"><a href="/posts/4076369309/">Gogs数据备份、恢复</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Jenkins
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/388825549/">利用Jenkins持续集成iOS项目</a></li>  <li class="file"><a href="/posts/2282359188/">jenkins密码重置</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Logstash
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/2615120416/">日志搜集处理框架Logstash-安装配置</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                MySQL
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/554387356/">MySQL 排序的艺术：你真的懂 Order By 吗？</a></li>  <li class="file"><a href="/posts/2625460784/">MySQL延迟复制</a></li>  <li class="file"><a href="/posts/2654174479/">分库分表 vs NewSQL数据库</a></li>  <li class="file"><a href="/posts/4284065059/">MySQL 调优/优化的 101 个建议</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory-open" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Nginx
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/1350143519/">高性能 Nginx HTTPS 调优 - 如何为 HTTPS 提速 30%</a></li>  <li class="file active"><a href="/posts/1544228005/">高性能Web服务器 - Nginx配置详解</a></li>  <li class="file"><a href="/posts/3996389515/">Nginx配置跨域请求 Access-Control-Allow-Origin *</a></li>  <li class="file"><a href="/posts/524919010/">Nginx正向代理与Client设置代理上网</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                RabbitMQ
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/2846671594/">RabbitMQ 集群高可用原理及实战部署介绍</a></li>  <li class="file"><a href="/posts/3135873234/">RabbitMQ入门</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Redis
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/156114019/">Redis Stream应用案例</a></li>  <li class="file"><a href="/posts/2992538737/">redis.conf参数配置及解释</a></li>  <li class="file"><a href="/posts/2864310564/">深入分析Redis特点及应用场景</a></li>  <li class="file"><a href="/posts/3909951181/">Redis Manual</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Sentry
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/1303728868/">错误日志收集平台 - Sentry(Redis+MySQL)</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Shadowsocks
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/3154796955/">Vultr快速搭建SS科学上网</a></li>  </ul> 
+                        </li>
+                         </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                NodeJS
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/2653381572/">NodeJS Package Manage Tool - NPM</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder-open"></i>
+                                &nbsp;
+                                Python
+                            </a>
+                             <ul class="unstyled" id="tree" style="display: block;"> 
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Build-in
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/2858153934/">Python build-in functions - collections</a></li>  <li class="file"><a href="/posts/857250976/">Python build-in functions - List</a></li>  <li class="file"><a href="/posts/3208674450/">Python build-in module - os</a></li>  <li class="file"><a href="/posts/5/">Python多线程和锁</a></li>  <li class="file"><a href="/posts/2434599799/">Python build-in functions</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Configuration
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/3568487154/">更改pip源至国内镜像 - 显著提升下载速度</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Library
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/4096440342/">Python Library - SQLAlchemy</a></li>  <li class="file"><a href="/posts/3634498847/">我用 Python 的 Seaborn 库，绘制了 17 个超好看图表!</a></li>  <li class="file"><a href="/posts/383305840/">Python Library - Flask SQLAlchemy</a></li>  <li class="file"><a href="/posts/55626181/">发布你自己的轮子 - PyPI打包上传实践</a></li>  </ul> 
+                        </li>
+                         <li class="file"><a href="/posts/272954362/">sys.stdout.write实现Python控制台实时刷新打印</a></li>  </ul> 
+                        </li>
+                         </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                iOS Development
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/684390890/">Swift 5.4 有什么新功能？</a></li>  <li class="file"><a href="/posts/1054462359/">Apple Store上iOS App上架流程</a></li>  <li class="file"><a href="/posts/1098789015/">Xcode开发中Build与version区别/build自增设置/build随时间变化？</a></li>  <li class="file"><a href="/posts/3772598043/">Swift：解包的正确姿势</a></li>  </ul> 
+                        </li>
+                         </ul> 
+    </div>
+    <script>
+        $(document).ready(function() {
+            var iconFolderOpenClass  = 'fa-folder-open';
+            var iconFolderCloseClass = 'fa-folder';
+            var iconAllExpandClass = 'fa-angle-double-down';
+            var iconAllPackClass = 'fa-angle-double-up';
+            // Handle directory-tree expansion:
+            // 左键单独展开目录
+            $(document).on('click', '#categories a[data-role="directory"]', function (event) {
+                event.preventDefault();
+
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconFolderOpenClass);
+                var subtree = $(this).siblings('ul');
+                icon.removeClass(iconFolderOpenClass).removeClass(iconFolderCloseClass);
+                if (expanded) {
+                    if (typeof subtree != 'undefined') {
+                        subtree.slideUp({ duration: 100 });
+                    }
+                    icon.addClass(iconFolderCloseClass);
+                } else {
+                    if (typeof subtree != 'undefined') {
+                        subtree.slideDown({ duration: 100 });
+                    }
+                    icon.addClass(iconFolderOpenClass);
+                }
+            });
+            // 右键展开下属所有目录
+            $('#categories a[data-role="directory"]').bind("contextmenu", function(event){
+                event.preventDefault();
+
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconFolderOpenClass);
+                var listNode = $(this).siblings('ul');
+                var subtrees = $.merge(listNode.find('li ul'), listNode);
+                var icons = $.merge(listNode.find('.fa'), icon);
+                icons.removeClass(iconFolderOpenClass).removeClass(iconFolderCloseClass);
+                if(expanded) {
+                    subtrees.slideUp({ duration: 100 });
+                    icons.addClass(iconFolderCloseClass);
+                } else {
+                    subtrees.slideDown({ duration: 100 });
+                    icons.addClass(iconFolderOpenClass);
+                }
+            })
+            // 展开关闭所有目录按钮
+            $(document).on('click', '#allExpand', function (event) {
+                event.preventDefault();
+
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconAllExpandClass);
+                icon.removeClass(iconAllExpandClass).removeClass(iconAllPackClass);
+                if(expanded) {
+                    $('#sidebar .fa.fa-folder').removeClass('fa-folder').addClass('fa-folder-open')
+                    $('#categories li ul').slideDown({ duration: 100 });
+                    icon.addClass(iconAllPackClass);
+                } else {
+                    $('#sidebar .fa.fa-folder-open').removeClass('fa-folder-open').addClass('fa-folder')
+                    $('#categories li ul').slideUp({ duration: 100 });
+                    icon.addClass(iconAllExpandClass);
+                }
+            });
+        });
+    </script>
+
+
+    
+        
+    <div class="widget-wrap">
+        <h3 class="widget-title"><span>recent</span></h3>
+        <div class="widget">
+            <ul id="recent-post" class="">
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/posts/4263562837/" class="thumbnail">
+    
+    
+        <span class="thumbnail-image thumbnail-none"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/OPS/">OPS</a><i class="fa fa-angle-right"></i><a class="article-category-link" href="/categories/OPS/MacOS/">MacOS</a></p>
+                            <p class="item-title"><a href="/posts/4263562837/" class="title">一个惊人快速的终端录像工具，也能录制 VSCode 和 Chrome 窗口</a></p>
+                            <p class="item-date"><time datetime="2021-03-28T00:02:47.000Z" itemprop="datePublished">2021-03-28</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/posts/3634498847/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210309111745.png)" alt="我用 Python 的 Seaborn 库，绘制了 17 个超好看图表!" class="thumbnail-image"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/back-end/">back-end</a><i class="fa fa-angle-right"></i><a class="article-category-link" href="/categories/back-end/Python/">Python</a></p>
+                            <p class="item-title"><a href="/posts/3634498847/" class="title">我用 Python 的 Seaborn 库，绘制了 17 个超好看图表!</a></p>
+                            <p class="item-date"><time datetime="2021-03-08T22:18:11.000Z" itemprop="datePublished">2021-03-09</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/posts/2097636152/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210303212435.jpg)" alt="工作两三年了，整不明白架构图都画啥？" class="thumbnail-image"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/Soft-engineering/">Soft engineering</a><i class="fa fa-angle-right"></i><a class="article-category-link" href="/categories/Soft-engineering/Architecture/">Architecture</a></p>
+                            <p class="item-title"><a href="/posts/2097636152/" class="title">工作两三年了，整不明白架构图都画啥？</a></p>
+                            <p class="item-date"><time datetime="2021-03-03T08:09:53.000Z" itemprop="datePublished">2021-03-03</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/posts/2846671594/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210228142136.jpg)" alt="RabbitMQ 集群高可用原理及实战部署介绍" class="thumbnail-image"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/back-end/">back-end</a><i class="fa fa-angle-right"></i><a class="article-category-link" href="/categories/back-end/Middle-ware/">Middle-ware</a></p>
+                            <p class="item-title"><a href="/posts/2846671594/" class="title">RabbitMQ 集群高可用原理及实战部署介绍</a></p>
+                            <p class="item-date"><time datetime="2021-02-28T01:06:06.000Z" itemprop="datePublished">2021-02-28</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/posts/3772598043/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210226162513.png)" alt="Swift：解包的正确姿势" class="thumbnail-image"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/iOS-Development/">iOS Development</a></p>
+                            <p class="item-title"><a href="/posts/3772598043/" class="title">Swift：解包的正确姿势</a></p>
+                            <p class="item-date"><time datetime="2021-02-26T03:32:25.000Z" itemprop="datePublished">2021-02-26</time></p>
+                        </div>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+
+    
+    <div id="toTop" class="fa fa-angle-up"></div>
+</aside>
+            
+            <section id="main"><article id="post-back-end/Middle-ware/Nginx/高性能Web服务器 - Nginx配置详解" class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+        
+            <header class="article-header">
+                
+                    <div class="article-meta">
+                        
+    <div class="article-category">
+    	<i class="fa fa-folder"></i>
+        <a class="article-category-link" href="/categories/back-end/">back-end</a><i class="fa fa-angle-right"></i><a class="article-category-link" href="/categories/back-end/Middle-ware/">Middle-ware</a><i class="fa fa-angle-right"></i><a class="article-category-link" href="/categories/back-end/Middle-ware/Nginx/">Nginx</a>
+    </div>
+
+                        
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/tags/Nginx/">Nginx</a>, <a class="tag-link" href="/tags/配置/">配置</a>
+    </div>
+
+                        
+    <div class="article-date">
+        <i class="fa fa-calendar"></i>
+        <a href="/posts/1544228005/">
+            <time datetime="2019-03-31T22:14:03.000Z" itemprop="datePublished">2019-04-01</time>
+        </a>
+    </div>
+
+
+                        
+                    </div>
+                
+                
+    
+        <h1 class="article-title" itemprop="name">
+            高性能Web服务器 - Nginx配置详解
+        </h1>
+    
+
+            </header>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+        
+        
+            
+                <div id="toc" class="toc-article">
+                <strong class="toc-title">Catalogue</strong>
+                    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#概述"><span class="toc-number">1.</span> <span class="toc-text">概述</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Nginx配置文件的整体结构"><span class="toc-number">2.</span> <span class="toc-text">Nginx配置文件的整体结构</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#全局块"><span class="toc-number">2.1.</span> <span class="toc-text">全局块</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#events块"><span class="toc-number">2.2.</span> <span class="toc-text">events块</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#HTTP块"><span class="toc-number">2.3.</span> <span class="toc-text">HTTP块</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#server块"><span class="toc-number">2.4.</span> <span class="toc-text">server块</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#location块"><span class="toc-number">2.5.</span> <span class="toc-text">location块</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#一份配置清单例析"><span class="toc-number">3.</span> <span class="toc-text">一份配置清单例析</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#配置详细剖析"><span class="toc-number">4.</span> <span class="toc-text">配置详细剖析</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#配置运行Nginx服务器用户（组）"><span class="toc-number">4.1.</span> <span class="toc-text">配置运行Nginx服务器用户（组）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#worker-process数配置"><span class="toc-number">4.2.</span> <span class="toc-text">worker process数配置</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Nginx进程PID存放路径"><span class="toc-number">4.3.</span> <span class="toc-text">Nginx进程PID存放路径</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#错误日志的存放路径"><span class="toc-number">4.4.</span> <span class="toc-text">错误日志的存放路径</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#配置文件的引入"><span class="toc-number">4.5.</span> <span class="toc-text">配置文件的引入</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#设置网络连接的序列化"><span class="toc-number">4.6.</span> <span class="toc-text">设置网络连接的序列化</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#是否允许同时接收多个网络连接"><span class="toc-number">4.7.</span> <span class="toc-text">是否允许同时接收多个网络连接</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#事件驱动模型的选择"><span class="toc-number">4.8.</span> <span class="toc-text">事件驱动模型的选择</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#最大连接数的配置"><span class="toc-number">4.9.</span> <span class="toc-text">最大连接数的配置</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#定义MIME-Type"><span class="toc-number">4.10.</span> <span class="toc-text">定义MIME-Type</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#自定义服务日志"><span class="toc-number">4.11.</span> <span class="toc-text">自定义服务日志</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#允许sendfile方式传输文件"><span class="toc-number">4.12.</span> <span class="toc-text">允许sendfile方式传输文件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#连接超时时间配置"><span class="toc-number">4.13.</span> <span class="toc-text">连接超时时间配置</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#单连接请求数上限"><span class="toc-number">4.14.</span> <span class="toc-text">单连接请求数上限</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#配置网络监听"><span class="toc-number">4.15.</span> <span class="toc-text">配置网络监听</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#基于名称和IP的虚拟主机配置"><span class="toc-number">4.16.</span> <span class="toc-text">基于名称和IP的虚拟主机配置</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#location配置"><span class="toc-number">4.17.</span> <span class="toc-text">location配置</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#请求根目录配置"><span class="toc-number">4.18.</span> <span class="toc-text">请求根目录配置</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#设置网站的默认首页"><span class="toc-number">4.19.</span> <span class="toc-text">设置网站的默认首页</span></a></li></ol></li></ol>
+                </div>
+            
+        
+        
+            <p><img src="https://www.jifu.io/images/2/20190331191904.png" alt=""></p>
+<h1 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h1><p>Nginx是轻量级的高性能Web服务器，提供了诸如HTTP代理和反向代理、负载均衡、缓存等一系列重要特性，因而在实践之中使用广泛，笔者也在学习和实践之中。</p>
+<p>在本文中，我们详解一下Nginx服务器的各种配置指令的作用和用法。</p>
+<a id="more"></a>
+<h1 id="Nginx配置文件的整体结构"><a href="#Nginx配置文件的整体结构" class="headerlink" title="Nginx配置文件的整体结构"></a>Nginx配置文件的整体结构</h1><p><img src="https://www.jifu.io/images/2/20190331192115.jpg" alt=""></p>
+<p>从图中可以看出主要包含以下几大部分内容：</p>
+<h2 id="全局块"><a href="#全局块" class="headerlink" title="全局块"></a>全局块</h2><p>该部分配置主要影响Nginx全局，通常包括下面几个部分：</p>
+<ul>
+<li>配置运行Nginx服务器用户（组）</li>
+<li>worker process数</li>
+<li>Nginx进程PID存放路径</li>
+<li>错误日志的存放路径</li>
+<li>配置文件的引入</li>
+</ul>
+<h2 id="events块"><a href="#events块" class="headerlink" title="events块"></a>events块</h2><p>该部分配置主要影响Nginx服务器与用户的网络连接，主要包括：</p>
+<ul>
+<li>设置网络连接的序列化</li>
+<li>是否允许同时接收多个网络连接</li>
+<li>事件驱动模型的选择</li>
+<li>最大连接数的配置</li>
+</ul>
+<h2 id="HTTP块"><a href="#HTTP块" class="headerlink" title="HTTP块"></a>HTTP块</h2><ul>
+<li>定义MIMI-Type</li>
+<li>自定义服务日志</li>
+<li>允许sendfile方式传输文件</li>
+<li>连接超时时间</li>
+<li>单连接请求数上限</li>
+</ul>
+<h2 id="server块"><a href="#server块" class="headerlink" title="server块"></a>server块</h2><ul>
+<li>配置网络监听</li>
+<li>基于名称的虚拟主机配置</li>
+<li>基于IP的虚拟主机配置</li>
+</ul>
+<h2 id="location块"><a href="#location块" class="headerlink" title="location块"></a>location块</h2><ul>
+<li>location配置</li>
+<li>请求根目录配置</li>
+<li>更改location的URI</li>
+<li>网站默认首页配置</li>
+</ul>
+<h1 id="一份配置清单例析"><a href="#一份配置清单例析" class="headerlink" title="一份配置清单例析"></a>一份配置清单例析</h1><p>给出了一份简要的清单配置举例：</p>
+<p><img src="https://www.jifu.io/images/2/20190331192341.jpg" alt=""></p>
+<p>配置代码如下：</p>
+<pre class="line-numbers language-bash"><code class="language-bash">user  nobody  nobody<span class="token punctuation">;</span>
+worker_processes  3<span class="token punctuation">;</span>
+error_log  logs/error.log<span class="token punctuation">;</span>
+pid  logs/nginx.pid<span class="token punctuation">;</span>
+
+events <span class="token punctuation">{</span>
+    use epoll<span class="token punctuation">;</span>
+    worker_connections  1024<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+
+http <span class="token punctuation">{</span>
+    include       mime.types<span class="token punctuation">;</span>
+    default_type  application/octet-stream<span class="token punctuation">;</span>
+
+    log_format  main  <span class="token string">'<span class="token variable">$remote_addr</span> - <span class="token variable">$remote_user</span> [<span class="token variable">$time_local</span>] "<span class="token variable">$request</span>" '</span>
+                      <span class="token string">'<span class="token variable">$status</span> <span class="token variable">$body_bytes_sent</span> "<span class="token variable">$http_referer</span>" '</span>
+                      <span class="token string">'"<span class="token variable">$http_user_agent</span>" "<span class="token variable">$http_x_forwarded_for</span>"'</span><span class="token punctuation">;</span>
+    access_log  logs/access.log  main<span class="token punctuation">;</span>
+    sendfile  on<span class="token punctuation">;</span>
+    keepalive_timeout  65<span class="token punctuation">;</span>
+
+    server <span class="token punctuation">{</span>
+        listen       8088<span class="token punctuation">;</span>
+        server_name  codesheep<span class="token punctuation">;</span>
+        access_log  /codesheep/webserver/server1/log/access.log<span class="token punctuation">;</span>
+        error_page  404  /404.html<span class="token punctuation">;</span>
+
+        location /server1/location1 <span class="token punctuation">{</span>
+            root   /codesheep/webserver<span class="token punctuation">;</span>
+            index  index.server2-location1.htm<span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+
+        location /server1/location2 <span class="token punctuation">{</span>
+        root   /codesheep/webserver<span class="token punctuation">;</span>
+            index  index.server2-location2.htm<span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+
+    <span class="token punctuation">}</span>
+
+    server <span class="token punctuation">{</span>
+        listen       8089<span class="token punctuation">;</span>
+        server_name  192.168.31.177<span class="token punctuation">;</span>
+        access_log  /codesheep/webserver/server2/log/access.log<span class="token punctuation">;</span>
+        error_page  404  /404.html<span class="token punctuation">;</span>
+
+        location /server2/location1 <span class="token punctuation">{</span>
+            root   /codesheep/webserver<span class="token punctuation">;</span>
+            index  index.server2-location1.htm<span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+
+        location /srv2/loc2 <span class="token punctuation">{</span>
+            <span class="token function">alias</span>   /codesheep/webserver/server2/location2/<span class="token punctuation">;</span>
+            index  index.server2-location2.htm<span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+
+        location <span class="token operator">=</span> /404.html <span class="token punctuation">{</span>
+            root /codesheep/webserver/<span class="token punctuation">;</span>
+            index 404.html<span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+
+    <span class="token punctuation">}</span>
+
+<span class="token punctuation">}</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<h1 id="配置详细剖析"><a href="#配置详细剖析" class="headerlink" title="配置详细剖析"></a>配置详细剖析</h1><h2 id="配置运行Nginx服务器用户（组）"><a href="#配置运行Nginx服务器用户（组）" class="headerlink" title="配置运行Nginx服务器用户（组）"></a>配置运行Nginx服务器用户（组）</h2><p>指令格式：<code>user user [group];</code></p>
+<ul>
+<li>user：指定可以运行Nginx服务器的用户</li>
+<li>group：可选项，可以运行Nginx服务器的用户组</li>
+</ul>
+<p>如果user指令不配置或者配置为<code>user nobody nobody</code>，则默认所有用户都可以启动Nginx进程</p>
+<h2 id="worker-process数配置"><a href="#worker-process数配置" class="headerlink" title="worker process数配置"></a>worker process数配置</h2><p>Nginx服务器实现并发处理服务的关键，指令格式：<code>worker_processes number | auto;</code></p>
+<ul>
+<li>number：Nginx进程最多可以产生的worker process数</li>
+<li>auto：Nginx进程将自动检测</li>
+</ul>
+<p>我们给worker_processes配置的数目是：3，启动Nginx服务器后，我们可以后台看一下主机上的Nginx进程情况：</p>
+<pre class="line-numbers language-bash"><code class="language-bash"><span class="token function">ps</span> -aux <span class="token operator">|</span> <span class="token function">grep</span> nginx
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>很明显，理解 worker_processes 这个指令的含义就很容易了</p>
+<p><img src="https://www.jifu.io/images/2/20190331192643.jpg" alt=""></p>
+<h2 id="Nginx进程PID存放路径"><a href="#Nginx进程PID存放路径" class="headerlink" title="Nginx进程PID存放路径"></a>Nginx进程PID存放路径</h2><p>Nginx进程是作为系统守护进程在运行，需要在某文件中保存当前运行程序的主进程号，Nginx支持该保存文件路径的自定义</p>
+<p>指令格式：<code>pid file;</code></p>
+<ul>
+<li>file：指定存放路径和文件名称</li>
+<li>如果不指定默认置于路径 logs/nginx.pid</li>
+</ul>
+<h2 id="错误日志的存放路径"><a href="#错误日志的存放路径" class="headerlink" title="错误日志的存放路径"></a>错误日志的存放路径</h2><p>指定格式：<code>error_log file | stderr;</code></p>
+<ul>
+<li>file：日志输出到某个文件file</li>
+<li>stderr：日志输出到标准错误输出</li>
+</ul>
+<h2 id="配置文件的引入"><a href="#配置文件的引入" class="headerlink" title="配置文件的引入"></a>配置文件的引入</h2><p>指令格式：<code>include file;</code></p>
+<ul>
+<li>该指令主要用于将其他的Nginx配置或者第三方模块的配置引用到当前的主配置文件中</li>
+</ul>
+<h2 id="设置网络连接的序列化"><a href="#设置网络连接的序列化" class="headerlink" title="设置网络连接的序列化"></a>设置网络连接的序列化</h2><p>指令格式：<code>accept_mutex on | off;</code></p>
+<ul>
+<li>该指令默认为on状态，表示会对多个Nginx进程接收连接进行序列化，防止多个进程对连接的争抢。</li>
+</ul>
+<p>说到该指令，首先得阐述一下什么是所谓的 “惊群问题”，可以参考<img src="https://en.wikipedia.org/wiki/Thundering_herd_problem" alt="WIKI百科的解释">。就Nginx的场景来解释的话大致的意思就是：当一个新网络连接来到时，多个worker进程会被同时唤醒，但仅仅只有一个进程可以真正获得连接并处理之。如果每次唤醒的进程数目过多的话，其实是会影响一部分性能的。</p>
+<p>所以在这里，如果<code>accept_mutex on</code>，那么多个worker将是以串行方式来处理，其中有一个worker会被唤醒；反之若<code>accept_mutex off</code>，那么所有的worker都会被唤醒，不过只有一个worker能获取新连接，其它的worker会重新进入休眠状态</p>
+<p>这个值的开关与否其实是要和具体场景挂钩的。</p>
+<h2 id="是否允许同时接收多个网络连接"><a href="#是否允许同时接收多个网络连接" class="headerlink" title="是否允许同时接收多个网络连接"></a>是否允许同时接收多个网络连接</h2><p>指令格式：<code>multi_accept on | off;</code></p>
+<p>该指令默认为off状态，意指每个<code>worker process</code>一次只能接收一个新到达的网络连接。若想让每个Nginx的worker process都有能力同时接收多个网络连接，则需要开启此配置</p>
+<h2 id="事件驱动模型的选择"><a href="#事件驱动模型的选择" class="headerlink" title="事件驱动模型的选择"></a>事件驱动模型的选择</h2><p>指令格式：<code>use model;</code></p>
+<ul>
+<li>model模型可选择项包括：select、poll、kqueue、epoll、rtsig等……</li>
+</ul>
+<h2 id="最大连接数的配置"><a href="#最大连接数的配置" class="headerlink" title="最大连接数的配置"></a>最大连接数的配置</h2><p>指令格式：<code>worker_connections number;</code></p>
+<ul>
+<li><code>number</code>默认值为512，表示允许每一个worker process可以同时开启的最大连接数</li>
+</ul>
+<h2 id="定义MIME-Type"><a href="#定义MIME-Type" class="headerlink" title="定义MIME-Type"></a>定义MIME-Type</h2><p>指令格式：</p>
+<pre class="line-numbers language-bash"><code class="language-bash">include mime.types<span class="token punctuation">;</span>
+default_type mime-type<span class="token punctuation">;</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+<ul>
+<li>MIME-Type指的是网络资源的媒体类型，也即前端请求的资源类型</li>
+<li>include指令将mime.types文件包含进来</li>
+</ul>
+<p><code>cat mime.types</code>来查看mime.types文件内容，我们发现其就是一个types结构，里面包含了各种浏览器能够识别的MIME类型以及对应类型的文件后缀名字，如下所示：</p>
+<p><img src="https://www.jifu.io/images/2/20190331193224.png" alt=""></p>
+<h2 id="自定义服务日志"><a href="#自定义服务日志" class="headerlink" title="自定义服务日志"></a>自定义服务日志</h2><p>指令格式：</p>
+<pre class="line-numbers language-bash"><code class="language-bash">access_log path <span class="token punctuation">[</span>format<span class="token punctuation">]</span><span class="token punctuation">;</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<ul>
+<li>path：自定义服务日志的路径 + 名称</li>
+<li>format：可选项，自定义服务日志的字符串格式。其也可以使用 log_format 定义的格式</li>
+</ul>
+<h2 id="允许sendfile方式传输文件"><a href="#允许sendfile方式传输文件" class="headerlink" title="允许sendfile方式传输文件"></a>允许sendfile方式传输文件</h2><p>指令格式：</p>
+<pre class="line-numbers language-bash"><code class="language-bash">sendfile on <span class="token operator">|</span> off<span class="token punctuation">;</span>
+sendfile_max_chunk size<span class="token punctuation">;</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+<ul>
+<li>前者用于开启或关闭使用<code>sendfile()</code>传输文件，默认off</li>
+<li>后者指令若size&gt;0，则Nginx进程的每个worker process每次调用sendfile()传输的数据了最大不能超出此值；若size=0则表示不限制。默认值为0</li>
+</ul>
+<h2 id="连接超时时间配置"><a href="#连接超时时间配置" class="headerlink" title="连接超时时间配置"></a>连接超时时间配置</h2><p>指令格式：<code>keepalive_timeout timeout [header_timeout];</code></p>
+<ul>
+<li><code>timeout</code>表示server端对连接的保持时间，默认<code>75秒</code></li>
+<li><code>header_timeout</code>为可选项，表示在应答报文头部的<code>Keep-Alive</code>域设置超时时间：<code>Keep-Alive : timeout = header_timeout</code></li>
+</ul>
+<h2 id="单连接请求数上限"><a href="#单连接请求数上限" class="headerlink" title="单连接请求数上限"></a>单连接请求数上限</h2><p>指令格式：<code>keepalive_requests number;</code></p>
+<ul>
+<li>该指令用于限制用户通过某一个连接向Nginx服务器发起请求的次数</li>
+</ul>
+<h2 id="配置网络监听"><a href="#配置网络监听" class="headerlink" title="配置网络监听"></a>配置网络监听</h2><p>指令格式：</p>
+<ul>
+<li>第一种：配置监听的IP地址：<code>listen IP[:PORT];</code></li>
+<li>第二种：配置监听的端口：<code>listen PORT;</code></li>
+</ul>
+<p>实际举例：</p>
+<pre class="line-numbers language-bash"><code class="language-bash">listen 192.168.31.177:8080<span class="token punctuation">;</span> <span class="token comment" spellcheck="true"># 监听具体IP和具体端口上的连接</span>
+listen 192.168.31.177<span class="token punctuation">;</span>      <span class="token comment" spellcheck="true"># 监听IP上所有端口上的连接</span>
+listen 8080<span class="token punctuation">;</span>                <span class="token comment" spellcheck="true"># 监听具体端口上的所有IP的连接</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+<h2 id="基于名称和IP的虚拟主机配置"><a href="#基于名称和IP的虚拟主机配置" class="headerlink" title="基于名称和IP的虚拟主机配置"></a>基于名称和IP的虚拟主机配置</h2><p>指令格式：<code>server_name name1 name2 ...</code></p>
+<ul>
+<li>name可以有多个并列名称，而且此处的name支持正则表达式书写</li>
+</ul>
+<p>实际举例：</p>
+<pre class="line-numbers language-bash"><code class="language-bash">server_name ~^www\d+\.myserver\.com$
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>此时表示该虚拟主机可以接收类似域名<code>www1.myserver.com</code>等的请求而拒绝<code>www.myserver.com</code>的域名请求，所以说用正则表达式可以实现更精准的控制</p>
+<p>至于基于IP的虚拟主机配置比较简单，不再太赘述：</p>
+<p>指令格式：<code>server_name IP地址</code></p>
+<h2 id="location配置"><a href="#location配置" class="headerlink" title="location配置"></a>location配置</h2><p>指令格式为：<code>location [ = | ~ | ~* | ^~ ] uri {...}</code></p>
+<ul>
+<li>这里的uri分为标准uri和正则uri，两者的唯一区别是uri中是否包含正则表达式</li>
+</ul>
+<p>uri前面的方括号中的内容是可选项，解释如下：</p>
+<ul>
+<li><code>“=”</code>：用于标准uri前，要求请求字符串与uri严格匹配，一旦匹配成功则停止</li>
+<li><code>“~”</code>：用于正则uri前，并且区分大小写</li>
+<li><code>“~*”</code>：用于正则uri前，但不区分大小写</li>
+<li><code>“^~”</code>：用于标准uri前，要求Nginx找到标识uri和请求字符串匹配度最高的location后，立即使用此location处理请求，而不再使用location块中的正则uri和请求字符串做匹配</li>
+</ul>
+<h2 id="请求根目录配置"><a href="#请求根目录配置" class="headerlink" title="请求根目录配置"></a>请求根目录配置</h2><p>指令格式：<code>root path;</code></p>
+<ul>
+<li>path：Nginx接收到请求以后查找资源的根目录路径</li>
+</ul>
+<p>当然，还可以通过alias指令来更改location接收到的URI请求路径，指令为：</p>
+<pre class="line-numbers language-bash"><code class="language-bash"><span class="token function">alias</span> path<span class="token punctuation">;</span>  <span class="token comment" spellcheck="true"># path为修改后的根路径</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<h2 id="设置网站的默认首页"><a href="#设置网站的默认首页" class="headerlink" title="设置网站的默认首页"></a>设置网站的默认首页</h2><p>指令格式：<code>index file ......</code></p>
+<ul>
+<li>file可以包含多个用空格隔开的文件名，首先找到哪个页面，就使用哪个页面响应请求</li>
+</ul>
+
+            </div>
+        
+        <footer class="article-footer">
+        </footer>
+    </div>
+</article>
+
+
+    
+<nav id="article-nav">
+    
+        <a href="/posts/2992538737/" id="article-nav-newer" class="article-nav-link-wrap">
+            <strong class="article-nav-caption">Newer</strong>
+            <div class="article-nav-title">
+                
+                    redis.conf参数配置及解释
+                
+            </div>
+        </a>
+    
+    
+        <a href="/posts/3426016246/" id="article-nav-older" class="article-nav-link-wrap">
+            <strong class="article-nav-caption">Older</strong>
+            <div class="article-nav-title">利用windows内置工具测试硬盘速度 - winsat</div>
+        </a>
+    
+</nav>
+
+
+
+
+
+    
+    
+
+
+
+
+<!-- baidu url auto push script -->
+<script type="text/javascript">
+    !function(){var e=/([http|https]:\/\/[a-zA-Z0-9\_\.]+\.baidu\.com)/gi,r=window.location.href,o=document.referrer;if(!e.test(r)){var n="//api.share.baidu.com/s.gif";o?(n+="?r="+encodeURIComponent(document.referrer),r&&(n+="&l="+r)):r&&(n+="?l="+r);var t=new Image;t.src=n}}(window);
+</script>     
+
+<head><meta name="generator" content="Hexo 3.9.0">
+    <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+    <script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+<link rel="stylesheet" href="/css/prism-duotone-light.css" type="text/css">
+<link rel="stylesheet" href="/css/prism-line-numbers.css" type="text/css"></head>
+<body>
+    <div id="vcomments"></div>
+    <script>
+        new Valine({
+            el: '#vcomments',
+            appId: '8kLhebBkVygl1MhVcQx9dnBP-gzGzoHsz',
+            appKey: 'hrctlOb6RQBWjjwTJ9fVjb91'
+        })
+    </script>
+</body>
+
+
+</section>
+        </div>
+        <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+
+<footer id="footer">
+    <div class="outer">
+        <div id="footer-info" class="inner">
+            <a href="https://www.jifu.io">
+            Ji Fu &copy; 2021
+            </a>
+            <br> Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>. Theme - <a href="https://github.com/zthxxx/hexo-theme-Wikitten">wikitten</a>
+            <br> 您是  jifu'wiki 的第<span id="busuanzi_value_site_uv"></span>个小伙伴
+            <br>
+                本站总访问量<span id="busuanzi_value_site_pv"></span>次
+                本文总阅读量<span id="busuanzi_value_page_pv"></span>次
+        </div>
+    </div>
+</footer>
+
+
+
+        
+
+    
+        <script src="/libs/lightgallery/js/lightgallery.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-thumbnail.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-pager.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-autoplay.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-fullscreen.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-zoom.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-hash.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-share.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-video.min.js"></script>
+    
+    
+        <script src="/libs/justified-gallery/jquery.justifiedGallery.min.js"></script>
+    
+    
+
+
+
+<!-- Custom Scripts -->
+<script src="/js/main.js"></script>
+
+    </div>
+</body>
+</html>

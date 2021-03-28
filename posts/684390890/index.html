@@ -1,0 +1,1140 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+    <meta charset="utf-8">
+    
+    <title>Swift 5.4 有什么新功能？ | JiFu&#39;s Wiki</title>
+    
+    
+        <meta name="keywords" content="Swift,新特性">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="description" content="导言多个变量参数，改进隐式成员语法，结果构建器等。 Swift 5.4带来了一些巨大的编译改进，包括更好地完成带错误的表达式中的代码，以及增量编译的大提速。不过，它也增加了一些重要的新特性和改进，让我们在这里深入了解一下……  小贴士：   如果你想自己尝试代码样本，也可以下载这个作为Xcode Playground。   改进了隐式成员语法SE-0287改进了Swift使用隐式成员表达式的能力">
+<meta name="keywords" content="Swift,新特性">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Swift 5.4 有什么新功能？">
+<meta property="og:url" content="http://www.jifu.io/posts/684390890/index.html">
+<meta property="og:site_name" content="JiFu&#39;s Wiki">
+<meta property="og:description" content="导言多个变量参数，改进隐式成员语法，结果构建器等。 Swift 5.4带来了一些巨大的编译改进，包括更好地完成带错误的表达式中的代码，以及增量编译的大提速。不过，它也增加了一些重要的新特性和改进，让我们在这里深入了解一下……  小贴士：   如果你想自己尝试代码样本，也可以下载这个作为Xcode Playground。   改进了隐式成员语法SE-0287改进了Swift使用隐式成员表达式的能力">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210218225507.png">
+<meta property="og:updated_time" content="2021-02-28T13:25:18.354Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Swift 5.4 有什么新功能？">
+<meta name="twitter:description" content="导言多个变量参数，改进隐式成员语法，结果构建器等。 Swift 5.4带来了一些巨大的编译改进，包括更好地完成带错误的表达式中的代码，以及增量编译的大提速。不过，它也增加了一些重要的新特性和改进，让我们在这里深入了解一下……  小贴士：   如果你想自己尝试代码样本，也可以下载这个作为Xcode Playground。   改进了隐式成员语法SE-0287改进了Swift使用隐式成员表达式的能力">
+<meta name="twitter:image" content="https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210218225507.png">
+    
+
+    
+        <link rel="alternate" href="/atom.xml" title="JiFu&#39;s Wiki" type="application/atom+xml">
+    
+
+    
+        <link rel="icon" href="/favicon.ico">
+    
+
+    <link rel="stylesheet" href="/libs/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/libs/open-sans/styles.css">
+    <link rel="stylesheet" href="/libs/source-code-pro/styles.css">
+
+    <link rel="stylesheet" href="/css/style.css">
+    <script src="/libs/jquery/2.1.3/jquery.min.js"></script>
+    <script src="/libs/jquery/plugins/cookie/1.4.1/jquery.cookie.js"></script>
+    
+    
+        <link rel="stylesheet" href="/libs/lightgallery/css/lightgallery.min.css">
+    
+    
+        <link rel="stylesheet" href="/libs/justified-gallery/justifiedGallery.min.css">
+    
+    
+    
+    
+        <script>
+var _hmt = _hmt || [];
+(function() {
+    var hm = document.createElement("script");
+    hm.src = "//hm.baidu.com/hm.js?efa1eb5f56c438a850a0f60609fd7755";
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+    
+
+
+<link rel="stylesheet" href="/css/prism-duotone-light.css" type="text/css">
+<link rel="stylesheet" href="/css/prism-line-numbers.css" type="text/css"></head>
+</html>
+<body>
+    <div id="container">
+        <script>
+    (function(){
+        var bp = document.createElement('script');
+        var curProtocol = window.location.protocol.split(':')[0];
+        if (curProtocol === 'https') {
+            bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+        }
+        else {
+            bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+        }
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(bp, s);
+    })();
+</script>
+
+<header id="header">
+    <div id="header-main" class="header-inner">
+        <div class="outer">
+            <a href="/" id="logo">
+                <i class="logo"></i>
+                <span class="site-title">JiFu&#39;s Wiki</span>
+            </a>
+            <nav id="main-nav">
+                
+                    <a class="main-nav-link" href="/">Home</a>
+                
+                    <a class="main-nav-link" href="/archives">Archives</a>
+                
+                    <a class="main-nav-link" href="/categories">Categories</a>
+                
+                    <a class="main-nav-link" href="/tags">Tags</a>
+                
+                    <a class="main-nav-link" href="/about">About</a>
+                
+            </nav>
+            
+            <div id="search-form-wrap">
+
+    <form class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="Search" />
+        <button type="submit" class="search-form-submit"></button>
+    </form>
+    <div class="ins-search">
+    <div class="ins-search-mask"></div>
+    <div class="ins-search-container">
+        <div class="ins-input-wrapper">
+            <input type="text" class="ins-search-input" placeholder="Type something..." />
+            <span class="ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: 'Posts',
+            PAGES: 'Pages',
+            CATEGORIES: 'Categories',
+            TAGS: 'Tags',
+            UNTITLED: '(Untitled)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+<script src="/js/insight.js"></script>
+
+</div>
+        </div>
+    </div>
+    <div id="main-nav-mobile" class="header-sub header-inner">
+        <table class="menu outer">
+            <tr>
+                
+                    <td><a class="main-nav-link" href="/">Home</a></td>
+                
+                    <td><a class="main-nav-link" href="/archives">Archives</a></td>
+                
+                    <td><a class="main-nav-link" href="/categories">Categories</a></td>
+                
+                    <td><a class="main-nav-link" href="/tags">Tags</a></td>
+                
+                    <td><a class="main-nav-link" href="/about">About</a></td>
+                
+                <td>
+                    
+    <div class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="Search" />
+    </div>
+
+                </td>
+            </tr>
+        </table>
+    </div>
+</header>
+
+        <div class="outer">
+            
+            
+                <aside id="sidebar">
+   
+        
+    <div class="widget-wrap" id='categories'>
+        <h3 class="widget-title">
+            <span>categories</span>
+            &nbsp;
+            <a id='allExpand' href="#">
+                <i class="fa fa-angle-double-up fa-2x"></i>
+            </a>
+        </h3>
+
+        
+        
+         <ul class="unstyled" id="tree" style="display: block;"> 
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Android Development
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/1797699998/">深入了解 gradle 和 maven 的区别</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Design
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/1907494021/">PS快捷键使用指南</a></li>  <li class="file"><a href="/posts/729727978/">快速改善用户界面的10个技巧</a></li>  <li class="file"><a href="/posts/1525329016/">提高效率！24 个高手常用的 Sketch 技巧合集（附实用快捷键）</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                HR
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/3142539384/">HR常用的招聘邮件模板</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Hardware
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/3904818761/">MacBook十年进化史</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder-open"></i>
+                                &nbsp;
+                                OPS
+                            </a>
+                             <ul class="unstyled" id="tree" style="display: block;"> 
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Docker
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/1245529498/">Docker学习笔记</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Editor
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/151598530/">VScdoe error:Could not create temporary directory Permission denied</a></li>  <li class="file"><a href="/posts/4167799419/">Build personal development editor with vscode</a></li>  <li class="file"><a href="/posts/4165683660/">REST Client 简单好用的接口测试辅助工具</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder-open"></i>
+                                &nbsp;
+                                Linux
+                            </a>
+                             <ul class="unstyled" id="tree" style="display: block;"> 
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                CentOS
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/1867760035/">CentOS7编译安装VIM8</a></li>  <li class="file"><a href="/posts/920993072/">CentOS update Ruby</a></li>  <li class="file"><a href="/posts/4057676473/">yum提示Error: rpmdb open failed的解决方案</a></li>  <li class="file"><a href="/posts/1153610031/">centos7修改启动内核，删除无用内核</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                System Service
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/709002730/">使用 systemctl 添加自定义服务</a></li>  <li class="file"><a href="/posts/4024224000/">Linux swap分区及作用详解</a></li>  <li class="file"><a href="/posts/797311580/">服务管理工具 - systemctl</a></li>  <li class="file"><a href="/posts/55221137/">防火墙工具 - firewalld</a></li>  </ul> 
+                        </li>
+                         <li class="file"><a href="/posts/4070386720/">Linux系统目录结构及详细说明</a></li>  <li class="file"><a href="/posts/3897848060/">Mac使用SSH登录Google Cloud Platform</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                MacOS
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/3746871293/">Charles从入门到精通</a></li>  <li class="file"><a href="/posts/581320548/">Homebrew：让你从 Mac 切换到 Linux 更轻松</a></li>  <li class="file"><a href="/posts/4001059579/">Compiling PyQt5 for Python2.7 on Mac OS</a></li>  <li class="file"><a href="/posts/662287335/">MACOS BOOT CAMP – THE STARTUP DISK DOES NOT HAVE ENOUGH SPACE TO BE PARTITIONED</a></li>  <li class="file"><a href="/posts/2776773816/">Mac OS X设置SMB进行文件共享</a></li>  <li class="file"><a href="/posts/582618556/">Mac的最大连接数限制和端口的相关参数的设置</a></li>  <li class="file"><a href="/posts/1883980072/">Mac OS系统加速：干掉那些「炫酷」的动画</a></li>  <li class="file"><a href="/posts/1208074722/">Mac重置系统管理控制器SMC</a></li>  <li class="file"><a href="/posts/294187676/">Mac版迅雷优化,删除无用插件</a></li>  <li class="file"><a href="/posts/2652542772/">macOS 下 FFmpeg 视频转码入门及进阶使用心得</a></li>  <li class="file"><a href="/posts/1070186292/">SafariBookmarksSyncAgent意外退出解决方法</a></li>  <li class="file"><a href="/posts/2733308530/">Mac定时任务-利用launchctl定时启动任务</a></li>  <li class="file"><a href="/posts/2768996547/">一览Mac OS 图形界面的发展史</a></li>  <li class="file"><a href="/posts/4147446761/">Mac 时间机器 Time Machine 备份速度太慢的解决方法 (加速备份命令)</a></li>  <li class="file"><a href="/posts/4263562837/">一个惊人快速的终端录像工具，也能录制 VSCode 和 Chrome 窗口</a></li>  <li class="file"><a href="/posts/1623087360/">修复破解Mac应用启动时闪退（原因是由于苹果移除了TNT证书）</a></li>  <li class="file"><a href="/posts/1525358532/">在 M1 芯片 Mac 上使用 Homebrew</a></li>  <li class="file"><a href="/posts/646546052/">如何查看 macOS 系统日志，辅助排除应用程序和系统故障</a></li>  <li class="file"><a href="/posts/3807466731/">如何彻底和CrossOver说GoodBye</a></li>  <li class="file"><a href="/posts/1207571108/">强制退出Mac程序的六种方法</a></li>  <li class="file"><a href="/posts/3920589165/">如何重置Mac上的NVRAM</a></li>  <li class="file"><a href="/posts/3430780623/">解决Mac修改DNS卡死-命令行修改Mac OS系统DNS设置</a></li>  <li class="file"><a href="/posts/3653564083/">苹果 Mac 重置 SMC、NVRAM、PRAM 方法教程 - 解决 macOS 卡顿或无法启动</a></li>  <li class="file"><a href="/posts/3837318570/">Mac VSCode 禁用GPU加速</a></li>  <li class="file"><a href="/posts/3366946474/">Mac高效使用技巧</a></li>  <li class="file"><a href="/posts/558776221/">解决“Mac应用”已损坏，无法打开的问题</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Others
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/3101956195/">Git中.gitignore无效的解决办法</a></li>  <li class="file"><a href="/posts/2867836530/">Axel:命令行下轻量级多线程下载程序</a></li>  <li class="file"><a href="/posts/3413649842/">Linux实用工具</a></li>  <li class="file"><a href="/posts/1073812833/">linux下测试磁盘的读写IO速度(IO物理测速)</a></li>  <li class="file"><a href="/posts/3895039994/">命令行信息截图工具 - ScreenFetch</a></li>  <li class="file"><a href="/posts/3784546227/">Git忽略提交规则 - .gitignore配置总结</a></li>  <li class="file"><a href="/posts/760033837/">平铺式窗口管理器 - Awesome</a></li>  <li class="file"><a href="/posts/2006196850/">私有化TM备份与共享服务器 - Netatalk</a></li>  <li class="file"><a href="/posts/1413974522/">用好这些隐藏「小开关」，让 Chrome 浏览器更好用</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Vim
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/258379777/">VIM下使用Vundle搭建python开发环境</a></li>  <li class="file"><a href="/posts/3374749959/">Vim快捷键使用总结</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Windows
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/3669230936/">为远程桌面启用Windows防火墙例外</a></li>  <li class="file"><a href="/posts/3426016246/">利用windows内置工具测试硬盘速度 - winsat</a></li>  <li class="file"><a href="/posts/913943227/">解决EXCEL按上下左右键不是单元格移动的问题</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Wordpress
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/1067246247/">WordPress启用memcached动态缓存以及报错解决</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                command
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/2407250830/">history命令设置linux查看历史命令显示执行时间</a></li>  <li class="file"><a href="/posts/3200906184/">find命令快速技巧：如何定位一个文件</a></li>  <li class="file"><a href="/posts/3403344661/">定时任务Crontab命令详解</a></li>  <li class="file"><a href="/posts/3241041753/">通过编写 chroot 来认识 chroot 发挥的作用和它带来的好处</a></li>  </ul> 
+                        </li>
+                         <li class="file"><a href="/posts/404814820/">DevOps简介</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder-open"></i>
+                                &nbsp;
+                                Soft engineering
+                            </a>
+                             <ul class="unstyled" id="tree" style="display: block;"> 
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Algorithm
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/1453950584/">8大排序算法图文讲解</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Architecture
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/2097636152/">工作两三年了，整不明白架构图都画啥？</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Cheat Sheets
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/2623330927/">Cheat Sheets - PostgreSQL</a></li>  <li class="file"><a href="/posts/3327139081/">Cheat Sheets – C++</a></li>  <li class="file"><a href="/posts/3048024619/">Cheat Sheets - Django Reference Sheet</a></li>  <li class="file"><a href="/posts/3433268710/">Cheat Sheets - Shell Script</a></li>  <li class="file"><a href="/posts/4169548679/">Cheat Sheets - .NET</a></li>  <li class="file"><a href="/posts/2137528313/">Cheat Sheets – CSS</a></li>  <li class="file"><a href="/posts/2993634676/">Cheat Sheets - Git</a></li>  <li class="file"><a href="/posts/3766000533/">Cheat Sheets – HTTP</a></li>  <li class="file"><a href="/posts/982990798/">Cheat Sheets – Linux</a></li>  <li class="file"><a href="/posts/2663199359/">Cheat Sheets – Java</a></li>  <li class="file"><a href="/posts/316669616/">Cheat Sheets – Mac OS X</a></li>  <li class="file"><a href="/posts/2038387758/">Cheat Sheets – MySQL</a></li>  <li class="file"><a href="/posts/2920272111/">Cheat Sheets – Nodejs</a></li>  <li class="file"><a href="/posts/3167589601/">Cheat Sheets – Perl</a></li>  <li class="file"><a href="/posts/305297407/">Cheat Sheets – C</a></li>  <li class="file"><a href="/posts/1053003126/">Cheat Sheets – Python</a></li>  <li class="file"><a href="/posts/2789789845/">Cheat Sheets – jQuery</a></li>  <li class="file"><a href="/posts/59285358/">Cheat Sheets – HTML and XHTML</a></li>  <li class="file"><a href="/posts/4169548678/">Cheat Sheets - Photoshop</a></li>  <li class="file"><a href="/posts/1130312566/">Cheat Sheets – SQLite</a></li>  <li class="file"><a href="/posts/3905631645/">Cheat sheets - Xcode</a></li>  <li class="file"><a href="/posts/3586350539/">Cheat sheets - Mac OS</a></li>  <li class="file"><a href="/posts/1362596080/">Cheat Sheets – PHP</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Project
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/467054247/">如何编写开源项目的README文档</a></li>  <li class="file"><a href="/posts/1755831586/">软件发布版本区别介绍</a></li>  </ul> 
+                        </li>
+                         </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder-open"></i>
+                                &nbsp;
+                                back-end
+                            </a>
+                             <ul class="unstyled" id="tree" style="display: block;"> 
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder-open"></i>
+                                &nbsp;
+                                Middle-ware
+                            </a>
+                             <ul class="unstyled" id="tree" style="display: block;"> 
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Gogs
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/612684965/">私人Git服务器 -- gogs</a></li>  <li class="file"><a href="/posts/4076369309/">Gogs数据备份、恢复</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Jenkins
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/388825549/">利用Jenkins持续集成iOS项目</a></li>  <li class="file"><a href="/posts/2282359188/">jenkins密码重置</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Logstash
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/2615120416/">日志搜集处理框架Logstash-安装配置</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                MySQL
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/554387356/">MySQL 排序的艺术：你真的懂 Order By 吗？</a></li>  <li class="file"><a href="/posts/2625460784/">MySQL延迟复制</a></li>  <li class="file"><a href="/posts/2654174479/">分库分表 vs NewSQL数据库</a></li>  <li class="file"><a href="/posts/4284065059/">MySQL 调优/优化的 101 个建议</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Nginx
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/1350143519/">高性能 Nginx HTTPS 调优 - 如何为 HTTPS 提速 30%</a></li>  <li class="file"><a href="/posts/1544228005/">高性能Web服务器 - Nginx配置详解</a></li>  <li class="file"><a href="/posts/3996389515/">Nginx配置跨域请求 Access-Control-Allow-Origin *</a></li>  <li class="file"><a href="/posts/524919010/">Nginx正向代理与Client设置代理上网</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                RabbitMQ
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/2846671594/">RabbitMQ 集群高可用原理及实战部署介绍</a></li>  <li class="file"><a href="/posts/3135873234/">RabbitMQ入门</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Redis
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/156114019/">Redis Stream应用案例</a></li>  <li class="file"><a href="/posts/2992538737/">redis.conf参数配置及解释</a></li>  <li class="file"><a href="/posts/2864310564/">深入分析Redis特点及应用场景</a></li>  <li class="file"><a href="/posts/3909951181/">Redis Manual</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Sentry
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/1303728868/">错误日志收集平台 - Sentry(Redis+MySQL)</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Shadowsocks
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/3154796955/">Vultr快速搭建SS科学上网</a></li>  </ul> 
+                        </li>
+                         </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                NodeJS
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/2653381572/">NodeJS Package Manage Tool - NPM</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder-open"></i>
+                                &nbsp;
+                                Python
+                            </a>
+                             <ul class="unstyled" id="tree" style="display: block;"> 
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Build-in
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/2858153934/">Python build-in functions - collections</a></li>  <li class="file"><a href="/posts/857250976/">Python build-in functions - List</a></li>  <li class="file"><a href="/posts/3208674450/">Python build-in module - os</a></li>  <li class="file"><a href="/posts/5/">Python多线程和锁</a></li>  <li class="file"><a href="/posts/2434599799/">Python build-in functions</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Configuration
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/3568487154/">更改pip源至国内镜像 - 显著提升下载速度</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Library
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/4096440342/">Python Library - SQLAlchemy</a></li>  <li class="file"><a href="/posts/3634498847/">我用 Python 的 Seaborn 库，绘制了 17 个超好看图表!</a></li>  <li class="file"><a href="/posts/383305840/">Python Library - Flask SQLAlchemy</a></li>  <li class="file"><a href="/posts/55626181/">发布你自己的轮子 - PyPI打包上传实践</a></li>  </ul> 
+                        </li>
+                         <li class="file"><a href="/posts/272954362/">sys.stdout.write实现Python控制台实时刷新打印</a></li>  </ul> 
+                        </li>
+                         </ul> 
+                        </li>
+                        
+                        <li class="directory-open" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                iOS Development
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file active"><a href="/posts/684390890/">Swift 5.4 有什么新功能？</a></li>  <li class="file"><a href="/posts/1054462359/">Apple Store上iOS App上架流程</a></li>  <li class="file"><a href="/posts/1098789015/">Xcode开发中Build与version区别/build自增设置/build随时间变化？</a></li>  <li class="file"><a href="/posts/3772598043/">Swift：解包的正确姿势</a></li>  </ul> 
+                        </li>
+                         </ul> 
+    </div>
+    <script>
+        $(document).ready(function() {
+            var iconFolderOpenClass  = 'fa-folder-open';
+            var iconFolderCloseClass = 'fa-folder';
+            var iconAllExpandClass = 'fa-angle-double-down';
+            var iconAllPackClass = 'fa-angle-double-up';
+            // Handle directory-tree expansion:
+            // 左键单独展开目录
+            $(document).on('click', '#categories a[data-role="directory"]', function (event) {
+                event.preventDefault();
+
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconFolderOpenClass);
+                var subtree = $(this).siblings('ul');
+                icon.removeClass(iconFolderOpenClass).removeClass(iconFolderCloseClass);
+                if (expanded) {
+                    if (typeof subtree != 'undefined') {
+                        subtree.slideUp({ duration: 100 });
+                    }
+                    icon.addClass(iconFolderCloseClass);
+                } else {
+                    if (typeof subtree != 'undefined') {
+                        subtree.slideDown({ duration: 100 });
+                    }
+                    icon.addClass(iconFolderOpenClass);
+                }
+            });
+            // 右键展开下属所有目录
+            $('#categories a[data-role="directory"]').bind("contextmenu", function(event){
+                event.preventDefault();
+
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconFolderOpenClass);
+                var listNode = $(this).siblings('ul');
+                var subtrees = $.merge(listNode.find('li ul'), listNode);
+                var icons = $.merge(listNode.find('.fa'), icon);
+                icons.removeClass(iconFolderOpenClass).removeClass(iconFolderCloseClass);
+                if(expanded) {
+                    subtrees.slideUp({ duration: 100 });
+                    icons.addClass(iconFolderCloseClass);
+                } else {
+                    subtrees.slideDown({ duration: 100 });
+                    icons.addClass(iconFolderOpenClass);
+                }
+            })
+            // 展开关闭所有目录按钮
+            $(document).on('click', '#allExpand', function (event) {
+                event.preventDefault();
+
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconAllExpandClass);
+                icon.removeClass(iconAllExpandClass).removeClass(iconAllPackClass);
+                if(expanded) {
+                    $('#sidebar .fa.fa-folder').removeClass('fa-folder').addClass('fa-folder-open')
+                    $('#categories li ul').slideDown({ duration: 100 });
+                    icon.addClass(iconAllPackClass);
+                } else {
+                    $('#sidebar .fa.fa-folder-open').removeClass('fa-folder-open').addClass('fa-folder')
+                    $('#categories li ul').slideUp({ duration: 100 });
+                    icon.addClass(iconAllExpandClass);
+                }
+            });
+        });
+    </script>
+
+
+    
+        
+    <div class="widget-wrap">
+        <h3 class="widget-title"><span>recent</span></h3>
+        <div class="widget">
+            <ul id="recent-post" class="">
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/posts/4263562837/" class="thumbnail">
+    
+    
+        <span class="thumbnail-image thumbnail-none"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/OPS/">OPS</a><i class="fa fa-angle-right"></i><a class="article-category-link" href="/categories/OPS/MacOS/">MacOS</a></p>
+                            <p class="item-title"><a href="/posts/4263562837/" class="title">一个惊人快速的终端录像工具，也能录制 VSCode 和 Chrome 窗口</a></p>
+                            <p class="item-date"><time datetime="2021-03-28T00:02:47.000Z" itemprop="datePublished">2021-03-28</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/posts/3634498847/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210309111745.png)" alt="我用 Python 的 Seaborn 库，绘制了 17 个超好看图表!" class="thumbnail-image"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/back-end/">back-end</a><i class="fa fa-angle-right"></i><a class="article-category-link" href="/categories/back-end/Python/">Python</a></p>
+                            <p class="item-title"><a href="/posts/3634498847/" class="title">我用 Python 的 Seaborn 库，绘制了 17 个超好看图表!</a></p>
+                            <p class="item-date"><time datetime="2021-03-08T22:18:11.000Z" itemprop="datePublished">2021-03-09</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/posts/2097636152/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210303212435.jpg)" alt="工作两三年了，整不明白架构图都画啥？" class="thumbnail-image"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/Soft-engineering/">Soft engineering</a><i class="fa fa-angle-right"></i><a class="article-category-link" href="/categories/Soft-engineering/Architecture/">Architecture</a></p>
+                            <p class="item-title"><a href="/posts/2097636152/" class="title">工作两三年了，整不明白架构图都画啥？</a></p>
+                            <p class="item-date"><time datetime="2021-03-03T08:09:53.000Z" itemprop="datePublished">2021-03-03</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/posts/2846671594/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210228142136.jpg)" alt="RabbitMQ 集群高可用原理及实战部署介绍" class="thumbnail-image"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/back-end/">back-end</a><i class="fa fa-angle-right"></i><a class="article-category-link" href="/categories/back-end/Middle-ware/">Middle-ware</a></p>
+                            <p class="item-title"><a href="/posts/2846671594/" class="title">RabbitMQ 集群高可用原理及实战部署介绍</a></p>
+                            <p class="item-date"><time datetime="2021-02-28T01:06:06.000Z" itemprop="datePublished">2021-02-28</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/posts/3772598043/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210226162513.png)" alt="Swift：解包的正确姿势" class="thumbnail-image"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/iOS-Development/">iOS Development</a></p>
+                            <p class="item-title"><a href="/posts/3772598043/" class="title">Swift：解包的正确姿势</a></p>
+                            <p class="item-date"><time datetime="2021-02-26T03:32:25.000Z" itemprop="datePublished">2021-02-26</time></p>
+                        </div>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+
+    
+    <div id="toTop" class="fa fa-angle-up"></div>
+</aside>
+            
+            <section id="main"><article id="post-iOS Development/Swift 5.4 有什么新功能？" class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+        
+            <header class="article-header">
+                
+                    <div class="article-meta">
+                        
+    <div class="article-category">
+    	<i class="fa fa-folder"></i>
+        <a class="article-category-link" href="/categories/iOS-Development/">iOS Development</a>
+    </div>
+
+                        
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/tags/Swift/">Swift</a>, <a class="tag-link" href="/tags/新特性/">新特性</a>
+    </div>
+
+                        
+    <div class="article-date">
+        <i class="fa fa-calendar"></i>
+        <a href="/posts/684390890/">
+            <time datetime="2021-02-18T09:44:13.000Z" itemprop="datePublished">2021-02-18</time>
+        </a>
+    </div>
+
+
+                        
+                    </div>
+                
+                
+    
+        <h1 class="article-title" itemprop="name">
+            Swift 5.4 有什么新功能？
+        </h1>
+    
+
+            </header>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+        
+        
+            
+                <div id="toc" class="toc-article">
+                <strong class="toc-title">Catalogue</strong>
+                    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#导言"><span class="toc-number">1.</span> <span class="toc-text">导言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#改进了隐式成员语法"><span class="toc-number">2.</span> <span class="toc-text">改进了隐式成员语法</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#函数中的多变量参数"><span class="toc-number">3.</span> <span class="toc-text">函数中的多变量参数</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#结果生成器"><span class="toc-number">4.</span> <span class="toc-text">结果生成器</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#本地函数现在支持重载"><span class="toc-number">5.</span> <span class="toc-text">本地函数现在支持重载</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#软件包现在可以声明可执行目标"><span class="toc-number">6.</span> <span class="toc-text">软件包现在可以声明可执行目标</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#自己尝试"><span class="toc-number">7.</span> <span class="toc-text">自己尝试</span></a></li></ol>
+                </div>
+            
+        
+        
+            <p><img src="https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210218225507.png" alt=""></p>
+<h1 id="导言"><a href="#导言" class="headerlink" title="导言"></a>导言</h1><p>多个变量参数，改进隐式成员语法，结果构建器等。</p>
+<p>Swift 5.4带来了一些巨大的编译改进，包括更好地完成带错误的表达式中的代码，以及增量编译的大提速。不过，它也增加了一些重要的新特性和改进，让我们在这里深入了解一下……</p>
+<ul>
+<li><p>小贴士：</p>
+<p>  如果你想自己尝试代码样本，也可以下载这个作为Xcode Playground。</p>
+</li>
+</ul>
+<h1 id="改进了隐式成员语法"><a href="#改进了隐式成员语法" class="headerlink" title="改进了隐式成员语法"></a>改进了隐式成员语法</h1><p>SE-0287改进了Swift使用隐式成员表达式的能力，所以你可以制作它们的链子，而不是只支持一个单一的静态成员。</p>
+<p>Swift一直以来都有能力使用隐式成员语法来处理简单的表达式，例如，如果你想在SwiftUI中给一些文本着色，你可以使用.red而不是Color.red。</p>
+<pre class="line-numbers language-swift"><code class="language-swift">`<span class="token keyword">struct</span> <span class="token builtin">ContentView1</span><span class="token punctuation">:</span> <span class="token builtin">View</span> <span class="token punctuation">{</span>
+    <span class="token keyword">var</span> body<span class="token punctuation">:</span> some <span class="token builtin">View</span> <span class="token punctuation">{</span>
+        <span class="token function">Text</span><span class="token punctuation">(</span><span class="token string">"You're not my supervisor!"</span><span class="token punctuation">)</span>
+            <span class="token punctuation">.</span><span class="token function">foregroundColor</span><span class="token punctuation">(</span><span class="token punctuation">.</span>red<span class="token punctuation">)</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+`
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>在Swift 5.4之前，这在更复杂的表达式中是行不通的。例如，如果你想让你的红色略微透明，你就需要这样写。</p>
+<pre class="line-numbers language-swift"><code class="language-swift">`<span class="token keyword">struct</span> <span class="token builtin">ContentView2</span><span class="token punctuation">:</span> <span class="token builtin">View</span> <span class="token punctuation">{</span>
+    <span class="token keyword">var</span> body<span class="token punctuation">:</span> some <span class="token builtin">View</span> <span class="token punctuation">{</span>
+        <span class="token function">Text</span><span class="token punctuation">(</span><span class="token string">"You're not my supervisor!"</span><span class="token punctuation">)</span>
+            <span class="token punctuation">.</span><span class="token function">foregroundColor</span><span class="token punctuation">(</span><span class="token builtin">Color</span><span class="token punctuation">.</span>red<span class="token punctuation">.</span><span class="token function">opacity</span><span class="token punctuation">(</span><span class="token number">0.5</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+`
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<a id="more"></a>
+<p>从Swift 5.4开始，编译器能够理解多个链式成员，这意味着可以推断出Color类型。</p>
+<pre class="line-numbers language-swift"><code class="language-swift">`<span class="token keyword">struct</span> <span class="token builtin">ContentView3</span><span class="token punctuation">:</span> <span class="token builtin">View</span> <span class="token punctuation">{</span>
+    <span class="token keyword">var</span> body<span class="token punctuation">:</span> some <span class="token builtin">View</span> <span class="token punctuation">{</span>
+        <span class="token function">Text</span><span class="token punctuation">(</span><span class="token string">"You're not my supervisor!"</span><span class="token punctuation">)</span>
+            <span class="token punctuation">.</span><span class="token function">foregroundColor</span><span class="token punctuation">(</span><span class="token punctuation">.</span>red<span class="token punctuation">.</span><span class="token function">opacity</span><span class="token punctuation">(</span><span class="token number">0.5</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+`
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<h1 id="函数中的多变量参数"><a href="#函数中的多变量参数" class="headerlink" title="函数中的多变量参数"></a>函数中的多变量参数</h1><p>SE-0284引入了让函数、下标和初始化器使用多个变量参数的能力，只要变量参数后面的所有参数都有标签。在Swift 5.4之前，这种情况下只能有一个变量参数。</p>
+<p>所以，有了这个改进，我们可以写一个函数，接受一个变量参数，存储足球比赛中进球的次数，再加上第二个变量参数，打出进球球员的名字。</p>
+<pre class="line-numbers language-swift"><code class="language-swift">`<span class="token keyword">func</span> <span class="token function">summarizeGoals</span><span class="token punctuation">(</span>times<span class="token punctuation">:</span> <span class="token builtin">Int</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">,</span> players<span class="token punctuation">:</span> <span class="token builtin">String</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">let</span> joinedNames <span class="token operator">=</span> <span class="token builtin">ListFormatter</span><span class="token punctuation">.</span><span class="token function">localizedString</span><span class="token punctuation">(</span>byJoining<span class="token punctuation">:</span> players<span class="token punctuation">)</span>
+    <span class="token keyword">let</span> joinedTimes <span class="token operator">=</span> <span class="token builtin">ListFormatter</span><span class="token punctuation">.</span><span class="token function">localizedString</span><span class="token punctuation">(</span>byJoining<span class="token punctuation">:</span> times<span class="token punctuation">.</span><span class="token function">map</span><span class="token punctuation">(</span><span class="token builtin">String</span><span class="token punctuation">.</span><span class="token keyword">init</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+
+    <span class="token function">print</span><span class="token punctuation">(</span><span class="token string">"<span class="token interpolation"><span class="token delimiter variable">\(</span>times<span class="token punctuation">.</span><span class="token builtin">count</span><span class="token delimiter variable">)</span></span> goals where scored by <span class="token interpolation"><span class="token delimiter variable">\(</span>joinedNames<span class="token delimiter variable">)</span></span> at the follow minutes: <span class="token interpolation"><span class="token delimiter variable">\(</span>joinedTimes<span class="token delimiter variable">)</span></span>"</span><span class="token punctuation">)</span>
+<span class="token punctuation">}</span>
+`
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>要调用该函数，提供两组值作为变量参数，确保第一个变量之后的所有参数都有标签。</p>
+<pre class="line-numbers language-swift"><code class="language-swift">`<span class="token function">summarizeGoals</span><span class="token punctuation">(</span>times<span class="token punctuation">:</span> <span class="token number">18</span><span class="token punctuation">,</span> <span class="token number">33</span><span class="token punctuation">,</span> <span class="token number">55</span><span class="token punctuation">,</span> <span class="token number">90</span><span class="token punctuation">,</span> players<span class="token punctuation">:</span> <span class="token string">"Dani"</span><span class="token punctuation">,</span> <span class="token string">"Jamie"</span><span class="token punctuation">,</span> <span class="token string">"Roy"</span><span class="token punctuation">)</span>
+`
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+<h1 id="结果生成器"><a href="#结果生成器" class="headerlink" title="结果生成器"></a>结果生成器</h1><p>函数构建器在Swift 5.1中非正式地出现了，但在Swift 5.4之前，它们作为SE-0289正式通过了Swift进化提案过程，以便进行讨论和完善。作为这个过程的一部分，它们被重新命名为结果构建器以更好地反映它们的实际目的，甚至获得了一些新的功能。</p>
+<p>首先是最重要的部分：结果构建器允许我们通过在我们选择的序列中一步步地创造一个新的价值。它们为SwiftUI的视图创建系统的很大一部分提供了动力，所以当我们拥有一个内部有各种视图的VStack时，Swift会默默地将它们归为一个内部的TupleView类型，这样它们就可以作为VStack的一个子代来存储–它将一个视图序列变成了一个视图。</p>
+<p>结果构建器应该有自己的详细文章，但我至少想给你一些小的代码示例，这样你就可以看到它们的运作。</p>
+<p>下面是一个返回单个字符串的函数。</p>
+<pre class="line-numbers language-swift"><code class="language-swift">`<span class="token keyword">func</span> <span class="token function">makeSentence1</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token builtin">String</span> <span class="token punctuation">{</span>
+    <span class="token string">"Why settle for a Duke when you can have a Prince?"</span>
+<span class="token punctuation">}</span>
+
+<span class="token function">print</span><span class="token punctuation">(</span><span class="token function">makeSentence1</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+`
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>这很好用，但如果有几个字符串我们想连接在一起呢？就像SwiftUI一样，我们可能想把它们都单独提供，然后让Swift来解决。</p>
+<pre class="line-numbers language-swift"><code class="language-swift">`<span class="token comment" spellcheck="true">// This is invalid Swift, and will not compile.</span>
+<span class="token comment" spellcheck="true">// func makeSentence2() -> String {</span>
+<span class="token comment" spellcheck="true">//     "Why settle for a Duke"</span>
+<span class="token comment" spellcheck="true">//     "when you can have"</span>
+<span class="token comment" spellcheck="true">//     "a Prince?"</span>
+<span class="token comment" spellcheck="true">// }</span>
+`
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>就其本身而言，这段代码是行不通的，因为Swift不再理解我们的意思。然而，我们可以创建一个结果生成器，它可以理解如何使用我们想要的任何转换将几个字符串转换为一个字符串，就像这样。</p>
+<pre class="line-numbers language-swift"><code class="language-swift">`@resultBuilder
+<span class="token keyword">struct</span> <span class="token builtin">SimpleStringBuilder</span> <span class="token punctuation">{</span>
+    <span class="token keyword">static</span> <span class="token keyword">func</span> <span class="token function">buildBlock</span><span class="token punctuation">(</span><span class="token number">_</span> parts<span class="token punctuation">:</span> <span class="token builtin">String</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token builtin">String</span> <span class="token punctuation">{</span>
+        parts<span class="token punctuation">.</span><span class="token function">joined</span><span class="token punctuation">(</span>separator<span class="token punctuation">:</span> <span class="token string">"\n"</span><span class="token punctuation">)</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+`
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>尽管这只是少量的代码，但有很多需要解压。</p>
+<ul>
+<li><p>@resultBuilder属性告诉SwiftUI以下类型应该被视为结果构建器。</p>
+<p>  以前这种行为是通过@_functionBuilder实现的，它有一个下划线来表明这不是为一般使用而设计的。</p>
+</li>
+<li><p>每个结果构建器都必须提供至少一个名为buildBlock()的静态方法，该方法应该接收某种数据并对其进行转换。</p>
+<p>  上面的例子是接收零个或多个字符串，将它们连接起来，然后以单个字符串的形式发送回来。</p>
+</li>
+<li><p>最终的结果是，我们的SimpleStringBuilder结构变成了一个结果构建器，这意味着我们可以在任何需要它的字符串连接能力的地方使用@SimpleStringBuilder。</p>
+</li>
+</ul>
+<p>没有什么可以阻止我们直接使用SimpleStringBuilder.buildBlock()，就像这样。</p>
+<pre class="line-numbers language-swift"><code class="language-swift">`<span class="token keyword">let</span> joined <span class="token operator">=</span> <span class="token builtin">SimpleStringBuilder</span><span class="token punctuation">.</span><span class="token function">buildBlock</span><span class="token punctuation">(</span>
+    <span class="token string">"Why settle for a Duke"</span><span class="token punctuation">,</span>
+    <span class="token string">"when you can have"</span><span class="token punctuation">,</span>
+    <span class="token string">"a Prince?"</span>
+<span class="token punctuation">)</span>
+
+<span class="token function">print</span><span class="token punctuation">(</span>joined<span class="token punctuation">)</span>
+`
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>然而，由于我们在SimpleStringBuilder结构中使用了@resultBuilder注解，我们也可以将其应用到函数中，就像这样。</p>
+<pre class="line-numbers language-swift"><code class="language-swift">`@<span class="token builtin">SimpleStringBuilder</span> <span class="token keyword">func</span> <span class="token function">makeSentence3</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token builtin">String</span> <span class="token punctuation">{</span>
+    <span class="token string">"Why settle for a Duke"</span>
+    <span class="token string">"when you can have"</span>
+    <span class="token string">"a Prince?"</span>
+<span class="token punctuation">}</span>
+
+<span class="token function">print</span><span class="token punctuation">(</span><span class="token function">makeSentence3</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+`
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>请注意，我们不再需要每个字符串末尾的逗号--@resultBuilder通过使用SimpleStringBuilder自动将makeSentence()中的每个语句转换为单个字符串。</p>
+<p>在实践中，结果生成器能够做得更多，通过向你的生成器类型添加更多的方法来完成。例如，我们可以通过添加两个额外的方法来为我们的SimpleStringBuilder添加if/else支持，这两个方法描述了我们要如何转换数据。在我们的代码中，我们根本不想转换我们的字符串，所以我们可以直接把它们送回去。</p>
+<pre class="line-numbers language-swift"><code class="language-swift">`@resultBuilder
+<span class="token keyword">struct</span> <span class="token builtin">ConditionalStringBuilder</span> <span class="token punctuation">{</span>
+    <span class="token keyword">static</span> <span class="token keyword">func</span> <span class="token function">buildBlock</span><span class="token punctuation">(</span><span class="token number">_</span> parts<span class="token punctuation">:</span> <span class="token builtin">String</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token builtin">String</span> <span class="token punctuation">{</span>
+        parts<span class="token punctuation">.</span><span class="token function">joined</span><span class="token punctuation">(</span>separator<span class="token punctuation">:</span> <span class="token string">"\n"</span><span class="token punctuation">)</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">static</span> <span class="token keyword">func</span> <span class="token function">buildEither</span><span class="token punctuation">(</span><span class="token builtin">first</span> component<span class="token punctuation">:</span> <span class="token builtin">String</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token builtin">String</span> <span class="token punctuation">{</span>
+        <span class="token keyword">return</span> component
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">static</span> <span class="token keyword">func</span> <span class="token function">buildEither</span><span class="token punctuation">(</span>second component<span class="token punctuation">:</span> <span class="token builtin">String</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token builtin">String</span> <span class="token punctuation">{</span>
+        <span class="token keyword">return</span> component
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+`
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>我知道，看起来我们几乎没有做任何工作，但现在我们的函数能够使用条件。</p>
+<pre class="line-numbers language-swift"><code class="language-swift">`@<span class="token builtin">ConditionalStringBuilder</span> <span class="token keyword">func</span> <span class="token function">makeSentence4</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token builtin">String</span> <span class="token punctuation">{</span>
+    <span class="token string">"Why settle for a Duke"</span>
+    <span class="token string">"when you can have"</span>
+
+    <span class="token keyword">if</span> <span class="token builtin">Bool</span><span class="token punctuation">.</span><span class="token function">random</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token string">"a Prince?"</span>
+    <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+        <span class="token string">"a King?"</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+
+<span class="token function">print</span><span class="token punctuation">(</span><span class="token function">makeSentence4</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+`
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>同样，我们也可以通过在构建器类型中添加 buildArray() 方法来添加对循环的支持。</p>
+<pre class="line-numbers language-swift"><code class="language-swift">`@resultBuilder
+<span class="token keyword">struct</span> <span class="token builtin">ComplexStringBuilder</span> <span class="token punctuation">{</span>
+    <span class="token keyword">static</span> <span class="token keyword">func</span> <span class="token function">buildBlock</span><span class="token punctuation">(</span><span class="token number">_</span> parts<span class="token punctuation">:</span> <span class="token builtin">String</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token builtin">String</span> <span class="token punctuation">{</span>
+        parts<span class="token punctuation">.</span><span class="token function">joined</span><span class="token punctuation">(</span>separator<span class="token punctuation">:</span> <span class="token string">"\n"</span><span class="token punctuation">)</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">static</span> <span class="token keyword">func</span> <span class="token function">buildEither</span><span class="token punctuation">(</span><span class="token builtin">first</span> component<span class="token punctuation">:</span> <span class="token builtin">String</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token builtin">String</span> <span class="token punctuation">{</span>
+        <span class="token keyword">return</span> component
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">static</span> <span class="token keyword">func</span> <span class="token function">buildEither</span><span class="token punctuation">(</span>second component<span class="token punctuation">:</span> <span class="token builtin">String</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token builtin">String</span> <span class="token punctuation">{</span>
+        <span class="token keyword">return</span> component
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">static</span> <span class="token keyword">func</span> <span class="token function">buildArray</span><span class="token punctuation">(</span><span class="token number">_</span> components<span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token builtin">String</span><span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token builtin">String</span> <span class="token punctuation">{</span>
+        components<span class="token punctuation">.</span><span class="token function">joined</span><span class="token punctuation">(</span>separator<span class="token punctuation">:</span> <span class="token string">"\n"</span><span class="token punctuation">)</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+`
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>现在我们可以使用for循环。</p>
+<pre class="line-numbers language-swift"><code class="language-swift">`@<span class="token builtin">ComplexStringBuilder</span> <span class="token keyword">func</span> <span class="token function">countDown</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token builtin">String</span> <span class="token punctuation">{</span>
+    <span class="token keyword">for</span> i <span class="token keyword">in</span> <span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token number">10</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">reversed</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token string">"<span class="token interpolation"><span class="token delimiter variable">\(</span>i<span class="token delimiter variable">)</span></span>…"</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token string">"Lift off!"</span>
+<span class="token punctuation">}</span>
+
+<span class="token function">print</span><span class="token punctuation">(</span><span class="token function">countDown</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+`
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>这感觉几乎就像魔法一样，因为结果构建器系统几乎为我们做了所有的工作，尽管我们的例子已经相当简单，但我希望你能感受到结果构建器给Swift带来的非凡力量。</p>
+<p>值得补充的是，Swift 5.4扩展了结果构建器系统，支持属性被放置在存储的属性上，这将自动调整结构的隐式成员初始化器来应用结果构建器。</p>
+<p>这对于使用结果构建器的自定义SwiftUI视图特别有帮助，比如这个视图。</p>
+<pre class="line-numbers language-swift"><code class="language-swift">`<span class="token keyword">struct</span> <span class="token builtin">CustomVStack</span><span class="token operator">&lt;</span><span class="token builtin">Content</span><span class="token punctuation">:</span> <span class="token builtin">View</span><span class="token operator">></span><span class="token punctuation">:</span> <span class="token builtin">View</span> <span class="token punctuation">{</span>
+    @<span class="token builtin">ViewBuilder</span> <span class="token keyword">let</span> content<span class="token punctuation">:</span> <span class="token builtin">Content</span>
+
+    <span class="token keyword">var</span> body<span class="token punctuation">:</span> some <span class="token builtin">View</span> <span class="token punctuation">{</span>
+        <span class="token builtin">VStack</span> <span class="token punctuation">{</span>
+            <span class="token comment" spellcheck="true">// custom functionality here</span>
+            content
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+`
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>如果你想看到更多高级的、实际操作的结果构建器的例子，你应该查看GitHub上的Awesome Function Builders仓库。</p>
+<h1 id="本地函数现在支持重载"><a href="#本地函数现在支持重载" class="headerlink" title="本地函数现在支持重载"></a>本地函数现在支持重载</h1><p>SR-10069要求能够在本地上下文中重载函数，这实际上意味着嵌套函数现在可以重载，这样Swift就可以根据使用的类型来选择运行哪个函数。</p>
+<p>例如，如果我们想制作一些简单的 cookie，我们可能会写这样的代码。</p>
+<pre class="line-numbers language-swift"><code class="language-swift">`<span class="token keyword">struct</span> <span class="token builtin">Butter</span> <span class="token punctuation">{</span> <span class="token punctuation">}</span>
+<span class="token keyword">struct</span> <span class="token builtin">Flour</span> <span class="token punctuation">{</span> <span class="token punctuation">}</span>
+<span class="token keyword">struct</span> <span class="token builtin">Sugar</span> <span class="token punctuation">{</span> <span class="token punctuation">}</span>
+
+<span class="token keyword">func</span> <span class="token function">makeCookies</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">func</span> <span class="token function">add</span><span class="token punctuation">(</span>item<span class="token punctuation">:</span> <span class="token builtin">Butter</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token function">print</span><span class="token punctuation">(</span><span class="token string">"Adding butter…"</span><span class="token punctuation">)</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">func</span> <span class="token function">add</span><span class="token punctuation">(</span>item<span class="token punctuation">:</span> <span class="token builtin">Flour</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token function">print</span><span class="token punctuation">(</span><span class="token string">"Adding flour…"</span><span class="token punctuation">)</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">func</span> <span class="token function">add</span><span class="token punctuation">(</span>item<span class="token punctuation">:</span> <span class="token builtin">Sugar</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token function">print</span><span class="token punctuation">(</span><span class="token string">"Adding sugar…"</span><span class="token punctuation">)</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token function">add</span><span class="token punctuation">(</span>item<span class="token punctuation">:</span> <span class="token function">Butter</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+    <span class="token function">add</span><span class="token punctuation">(</span>item<span class="token punctuation">:</span> <span class="token function">Flour</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+    <span class="token function">add</span><span class="token punctuation">(</span>item<span class="token punctuation">:</span> <span class="token function">Sugar</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+<span class="token punctuation">}</span>
+`
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>在Swift 5.4之前，三个add()方法只有在没有嵌套在makeCookies()里面的情况下才能被重载，但从Swift 5.4开始，这种情况下也支持函数重载。</p>
+<p>现在支持本地变量的属性包装器了 属性包装器最早是在Swift 5.1中引入的，作为一种以简单、可重用的方式为属性附加额外功能的方式，但在Swift 5.4中，它们的行为得到了扩展，支持在函数中作为局部变量使用。</p>
+<p>例如，我们可以创建一个属性包装器，确保其值永远不会低于零。</p>
+<pre class="line-numbers language-swift"><code class="language-swift">`@propertyWrapper <span class="token keyword">struct</span> <span class="token builtin">NonNegative</span><span class="token operator">&lt;</span>T<span class="token punctuation">:</span> <span class="token builtin">Numeric</span> <span class="token operator">&amp;</span> <span class="token builtin">Comparable</span><span class="token operator">></span> <span class="token punctuation">{</span>
+    <span class="token keyword">var</span> value<span class="token punctuation">:</span> T
+
+    <span class="token keyword">var</span> wrappedValue<span class="token punctuation">:</span> T <span class="token punctuation">{</span>
+        <span class="token keyword">get</span> <span class="token punctuation">{</span> value <span class="token punctuation">}</span>
+
+        <span class="token keyword">set</span> <span class="token punctuation">{</span>
+            <span class="token keyword">if</span> newValue <span class="token operator">&lt;</span> <span class="token number">0</span> <span class="token punctuation">{</span>
+                value <span class="token operator">=</span> <span class="token number">0</span>
+            <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+                value <span class="token operator">=</span> newValue
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">init</span><span class="token punctuation">(</span>wrappedValue<span class="token punctuation">:</span> T<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">if</span> wrappedValue <span class="token operator">&lt;</span> <span class="token number">0</span> <span class="token punctuation">{</span>
+            <span class="token keyword">self</span><span class="token punctuation">.</span>value <span class="token operator">=</span> <span class="token number">0</span>
+        <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+            <span class="token keyword">self</span><span class="token punctuation">.</span>value <span class="token operator">=</span> wrappedValue
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+`
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>而从Swift 5.4开始，我们可以在一个常规函数里面使用这个属性包装器，而不仅仅是附加到一个属性上。例如，我们可以写一个游戏，在这个游戏中，我们的玩家可以获得或失去分数，但他们的分数绝对不能低于0。</p>
+<pre class="line-numbers language-swift"><code class="language-swift">`<span class="token keyword">func</span> <span class="token function">playGame</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    @<span class="token builtin">NonNegative</span> <span class="token keyword">var</span> score <span class="token operator">=</span> <span class="token number">0</span>
+
+    <span class="token comment" spellcheck="true">// player was correct</span>
+    score <span class="token operator">+</span><span class="token operator">=</span> <span class="token number">4</span>
+
+    <span class="token comment" spellcheck="true">// player was correct again</span>
+    score <span class="token operator">+</span><span class="token operator">=</span> <span class="token number">8</span>
+
+    <span class="token comment" spellcheck="true">// player got one wrong</span>
+    score <span class="token operator">-</span><span class="token operator">=</span> <span class="token number">15</span>
+
+    <span class="token comment" spellcheck="true">// player got another one wrong</span>
+    score <span class="token operator">-</span><span class="token operator">=</span> <span class="token number">16</span>
+
+    <span class="token function">print</span><span class="token punctuation">(</span>score<span class="token punctuation">)</span>
+<span class="token punctuation">}</span>
+`
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<h1 id="软件包现在可以声明可执行目标"><a href="#软件包现在可以声明可执行目标" class="headerlink" title="软件包现在可以声明可执行目标"></a>软件包现在可以声明可执行目标</h1><p>SE-0294 为使用 Swift 包管理器的应用程序增加了一个新的目标选项，允许我们明确声明一个可执行目标。</p>
+<p>这对于想要使用 SE-0281（使用 @main 来标记你的程序的入口点）的人来说特别重要，因为它与 Swift 包管理器玩得并不好–它总是会寻找 main.swift 文件。</p>
+<p>通过这次修改，我们现在可以删除main.swift而使用@main来代替。注意：你必须在你的Package.swift文件中指定// swift-tools-version:5.4才能获得这个新功能。</p>
+<h1 id="自己尝试"><a href="#自己尝试" class="headerlink" title="自己尝试"></a>自己尝试</h1><p>Swift 5.4可以通过Xcode 12.5获得，Xcode 12.5于2021年2月1日进入测试版。如果你还没有升级到macOS Big Sur，你将无法安装Xcode 12.5，所以你应该从<a href="https://swift.org/download/" target="_blank" rel="noopener">https://swift.org/download/</a> 下载一个Swift 5.4工具链–你可以将其安装到Xcode 12.4和更早的版本中。</p>
+<p>你最期待Swift 5.4的哪些功能？</p>
+
+            </div>
+        
+        <footer class="article-footer">
+        </footer>
+    </div>
+</article>
+
+
+    
+<nav id="article-nav">
+    
+        <a href="/posts/1350143519/" id="article-nav-newer" class="article-nav-link-wrap">
+            <strong class="article-nav-caption">Newer</strong>
+            <div class="article-nav-title">
+                
+                    高性能 Nginx HTTPS 调优 - 如何为 HTTPS 提速 30%
+                
+            </div>
+        </a>
+    
+    
+        <a href="/posts/729727978/" id="article-nav-older" class="article-nav-link-wrap">
+            <strong class="article-nav-caption">Older</strong>
+            <div class="article-nav-title">快速改善用户界面的10个技巧</div>
+        </a>
+    
+</nav>
+
+
+
+
+
+    
+    
+
+
+
+
+<!-- baidu url auto push script -->
+<script type="text/javascript">
+    !function(){var e=/([http|https]:\/\/[a-zA-Z0-9\_\.]+\.baidu\.com)/gi,r=window.location.href,o=document.referrer;if(!e.test(r)){var n="//api.share.baidu.com/s.gif";o?(n+="?r="+encodeURIComponent(document.referrer),r&&(n+="&l="+r)):r&&(n+="?l="+r);var t=new Image;t.src=n}}(window);
+</script>     
+
+<head><meta name="generator" content="Hexo 3.9.0">
+    <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+    <script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+<link rel="stylesheet" href="/css/prism-duotone-light.css" type="text/css">
+<link rel="stylesheet" href="/css/prism-line-numbers.css" type="text/css"></head>
+<body>
+    <div id="vcomments"></div>
+    <script>
+        new Valine({
+            el: '#vcomments',
+            appId: '8kLhebBkVygl1MhVcQx9dnBP-gzGzoHsz',
+            appKey: 'hrctlOb6RQBWjjwTJ9fVjb91'
+        })
+    </script>
+</body>
+
+
+</section>
+        </div>
+        <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+
+<footer id="footer">
+    <div class="outer">
+        <div id="footer-info" class="inner">
+            <a href="https://www.jifu.io">
+            Ji Fu &copy; 2021
+            </a>
+            <br> Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>. Theme - <a href="https://github.com/zthxxx/hexo-theme-Wikitten">wikitten</a>
+            <br> 您是  jifu'wiki 的第<span id="busuanzi_value_site_uv"></span>个小伙伴
+            <br>
+                本站总访问量<span id="busuanzi_value_site_pv"></span>次
+                本文总阅读量<span id="busuanzi_value_page_pv"></span>次
+        </div>
+    </div>
+</footer>
+
+
+
+        
+
+    
+        <script src="/libs/lightgallery/js/lightgallery.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-thumbnail.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-pager.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-autoplay.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-fullscreen.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-zoom.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-hash.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-share.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-video.min.js"></script>
+    
+    
+        <script src="/libs/justified-gallery/jquery.justifiedGallery.min.js"></script>
+    
+    
+
+
+
+<!-- Custom Scripts -->
+<script src="/js/main.js"></script>
+
+    </div>
+</body>
+</html>

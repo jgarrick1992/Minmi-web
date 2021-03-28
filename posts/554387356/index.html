@@ -1,0 +1,988 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+    <meta charset="utf-8">
+    
+    <title>MySQL 排序的艺术：你真的懂 Order By 吗？ | JiFu&#39;s Wiki</title>
+    
+    
+        <meta name="keywords" content="排序,MySQL,Order by">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="description" content="前言业务中的各种查询通常对应了用户所看到的各项列表，列表一般是根据某个维度进行排序。 换句话说，业务中使用 SELECT 语句的时候除了不可避免的搭配 WHERE 以外，还会配合 ORDER BY 进行使用。 今天来好好聊聊 MySQL 的 ORDER BY 排序。  排序算法说到排序算法，有插入排序、选择排序、归并排序、堆排序、快速排序、计数排序、桶排序、基数排序、冒泡排序、希尔排序、梳排序">
+<meta name="keywords" content="排序,MySQL,Order by">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MySQL 排序的艺术：你真的懂 Order By 吗？">
+<meta property="og:url" content="http://www.jifu.io/posts/554387356/index.html">
+<meta property="og:site_name" content="JiFu&#39;s Wiki">
+<meta property="og:description" content="前言业务中的各种查询通常对应了用户所看到的各项列表，列表一般是根据某个维度进行排序。 换句话说，业务中使用 SELECT 语句的时候除了不可避免的搭配 WHERE 以外，还会配合 ORDER BY 进行使用。 今天来好好聊聊 MySQL 的 ORDER BY 排序。  排序算法说到排序算法，有插入排序、选择排序、归并排序、堆排序、快速排序、计数排序、桶排序、基数排序、冒泡排序、希尔排序、梳排序">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210208225632.png">
+<meta property="og:updated_time" content="2021-02-28T13:25:18.351Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="MySQL 排序的艺术：你真的懂 Order By 吗？">
+<meta name="twitter:description" content="前言业务中的各种查询通常对应了用户所看到的各项列表，列表一般是根据某个维度进行排序。 换句话说，业务中使用 SELECT 语句的时候除了不可避免的搭配 WHERE 以外，还会配合 ORDER BY 进行使用。 今天来好好聊聊 MySQL 的 ORDER BY 排序。  排序算法说到排序算法，有插入排序、选择排序、归并排序、堆排序、快速排序、计数排序、桶排序、基数排序、冒泡排序、希尔排序、梳排序">
+<meta name="twitter:image" content="https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210208225632.png">
+    
+
+    
+        <link rel="alternate" href="/atom.xml" title="JiFu&#39;s Wiki" type="application/atom+xml">
+    
+
+    
+        <link rel="icon" href="/favicon.ico">
+    
+
+    <link rel="stylesheet" href="/libs/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/libs/open-sans/styles.css">
+    <link rel="stylesheet" href="/libs/source-code-pro/styles.css">
+
+    <link rel="stylesheet" href="/css/style.css">
+    <script src="/libs/jquery/2.1.3/jquery.min.js"></script>
+    <script src="/libs/jquery/plugins/cookie/1.4.1/jquery.cookie.js"></script>
+    
+    
+        <link rel="stylesheet" href="/libs/lightgallery/css/lightgallery.min.css">
+    
+    
+        <link rel="stylesheet" href="/libs/justified-gallery/justifiedGallery.min.css">
+    
+    
+    
+    
+        <script>
+var _hmt = _hmt || [];
+(function() {
+    var hm = document.createElement("script");
+    hm.src = "//hm.baidu.com/hm.js?efa1eb5f56c438a850a0f60609fd7755";
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+    
+
+
+<link rel="stylesheet" href="/css/prism-duotone-light.css" type="text/css">
+<link rel="stylesheet" href="/css/prism-line-numbers.css" type="text/css"></head>
+</html>
+<body>
+    <div id="container">
+        <script>
+    (function(){
+        var bp = document.createElement('script');
+        var curProtocol = window.location.protocol.split(':')[0];
+        if (curProtocol === 'https') {
+            bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+        }
+        else {
+            bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+        }
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(bp, s);
+    })();
+</script>
+
+<header id="header">
+    <div id="header-main" class="header-inner">
+        <div class="outer">
+            <a href="/" id="logo">
+                <i class="logo"></i>
+                <span class="site-title">JiFu&#39;s Wiki</span>
+            </a>
+            <nav id="main-nav">
+                
+                    <a class="main-nav-link" href="/">Home</a>
+                
+                    <a class="main-nav-link" href="/archives">Archives</a>
+                
+                    <a class="main-nav-link" href="/categories">Categories</a>
+                
+                    <a class="main-nav-link" href="/tags">Tags</a>
+                
+                    <a class="main-nav-link" href="/about">About</a>
+                
+            </nav>
+            
+            <div id="search-form-wrap">
+
+    <form class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="Search" />
+        <button type="submit" class="search-form-submit"></button>
+    </form>
+    <div class="ins-search">
+    <div class="ins-search-mask"></div>
+    <div class="ins-search-container">
+        <div class="ins-input-wrapper">
+            <input type="text" class="ins-search-input" placeholder="Type something..." />
+            <span class="ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: 'Posts',
+            PAGES: 'Pages',
+            CATEGORIES: 'Categories',
+            TAGS: 'Tags',
+            UNTITLED: '(Untitled)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+<script src="/js/insight.js"></script>
+
+</div>
+        </div>
+    </div>
+    <div id="main-nav-mobile" class="header-sub header-inner">
+        <table class="menu outer">
+            <tr>
+                
+                    <td><a class="main-nav-link" href="/">Home</a></td>
+                
+                    <td><a class="main-nav-link" href="/archives">Archives</a></td>
+                
+                    <td><a class="main-nav-link" href="/categories">Categories</a></td>
+                
+                    <td><a class="main-nav-link" href="/tags">Tags</a></td>
+                
+                    <td><a class="main-nav-link" href="/about">About</a></td>
+                
+                <td>
+                    
+    <div class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="Search" />
+    </div>
+
+                </td>
+            </tr>
+        </table>
+    </div>
+</header>
+
+        <div class="outer">
+            
+            
+                <aside id="sidebar">
+   
+        
+    <div class="widget-wrap" id='categories'>
+        <h3 class="widget-title">
+            <span>categories</span>
+            &nbsp;
+            <a id='allExpand' href="#">
+                <i class="fa fa-angle-double-up fa-2x"></i>
+            </a>
+        </h3>
+
+        
+        
+         <ul class="unstyled" id="tree" style="display: block;"> 
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Android Development
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/1797699998/">深入了解 gradle 和 maven 的区别</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Design
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/1907494021/">PS快捷键使用指南</a></li>  <li class="file"><a href="/posts/729727978/">快速改善用户界面的10个技巧</a></li>  <li class="file"><a href="/posts/1525329016/">提高效率！24 个高手常用的 Sketch 技巧合集（附实用快捷键）</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                HR
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/3142539384/">HR常用的招聘邮件模板</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Hardware
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/3904818761/">MacBook十年进化史</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder-open"></i>
+                                &nbsp;
+                                OPS
+                            </a>
+                             <ul class="unstyled" id="tree" style="display: block;"> 
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Docker
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/1245529498/">Docker学习笔记</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Editor
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/151598530/">VScdoe error:Could not create temporary directory Permission denied</a></li>  <li class="file"><a href="/posts/4167799419/">Build personal development editor with vscode</a></li>  <li class="file"><a href="/posts/4165683660/">REST Client 简单好用的接口测试辅助工具</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder-open"></i>
+                                &nbsp;
+                                Linux
+                            </a>
+                             <ul class="unstyled" id="tree" style="display: block;"> 
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                CentOS
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/1867760035/">CentOS7编译安装VIM8</a></li>  <li class="file"><a href="/posts/920993072/">CentOS update Ruby</a></li>  <li class="file"><a href="/posts/4057676473/">yum提示Error: rpmdb open failed的解决方案</a></li>  <li class="file"><a href="/posts/1153610031/">centos7修改启动内核，删除无用内核</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                System Service
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/709002730/">使用 systemctl 添加自定义服务</a></li>  <li class="file"><a href="/posts/4024224000/">Linux swap分区及作用详解</a></li>  <li class="file"><a href="/posts/797311580/">服务管理工具 - systemctl</a></li>  <li class="file"><a href="/posts/55221137/">防火墙工具 - firewalld</a></li>  </ul> 
+                        </li>
+                         <li class="file"><a href="/posts/4070386720/">Linux系统目录结构及详细说明</a></li>  <li class="file"><a href="/posts/3897848060/">Mac使用SSH登录Google Cloud Platform</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                MacOS
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/3746871293/">Charles从入门到精通</a></li>  <li class="file"><a href="/posts/581320548/">Homebrew：让你从 Mac 切换到 Linux 更轻松</a></li>  <li class="file"><a href="/posts/4001059579/">Compiling PyQt5 for Python2.7 on Mac OS</a></li>  <li class="file"><a href="/posts/662287335/">MACOS BOOT CAMP – THE STARTUP DISK DOES NOT HAVE ENOUGH SPACE TO BE PARTITIONED</a></li>  <li class="file"><a href="/posts/2776773816/">Mac OS X设置SMB进行文件共享</a></li>  <li class="file"><a href="/posts/582618556/">Mac的最大连接数限制和端口的相关参数的设置</a></li>  <li class="file"><a href="/posts/1883980072/">Mac OS系统加速：干掉那些「炫酷」的动画</a></li>  <li class="file"><a href="/posts/1208074722/">Mac重置系统管理控制器SMC</a></li>  <li class="file"><a href="/posts/294187676/">Mac版迅雷优化,删除无用插件</a></li>  <li class="file"><a href="/posts/2652542772/">macOS 下 FFmpeg 视频转码入门及进阶使用心得</a></li>  <li class="file"><a href="/posts/1070186292/">SafariBookmarksSyncAgent意外退出解决方法</a></li>  <li class="file"><a href="/posts/2733308530/">Mac定时任务-利用launchctl定时启动任务</a></li>  <li class="file"><a href="/posts/2768996547/">一览Mac OS 图形界面的发展史</a></li>  <li class="file"><a href="/posts/4147446761/">Mac 时间机器 Time Machine 备份速度太慢的解决方法 (加速备份命令)</a></li>  <li class="file"><a href="/posts/4263562837/">一个惊人快速的终端录像工具，也能录制 VSCode 和 Chrome 窗口</a></li>  <li class="file"><a href="/posts/1623087360/">修复破解Mac应用启动时闪退（原因是由于苹果移除了TNT证书）</a></li>  <li class="file"><a href="/posts/1525358532/">在 M1 芯片 Mac 上使用 Homebrew</a></li>  <li class="file"><a href="/posts/646546052/">如何查看 macOS 系统日志，辅助排除应用程序和系统故障</a></li>  <li class="file"><a href="/posts/3807466731/">如何彻底和CrossOver说GoodBye</a></li>  <li class="file"><a href="/posts/1207571108/">强制退出Mac程序的六种方法</a></li>  <li class="file"><a href="/posts/3920589165/">如何重置Mac上的NVRAM</a></li>  <li class="file"><a href="/posts/3430780623/">解决Mac修改DNS卡死-命令行修改Mac OS系统DNS设置</a></li>  <li class="file"><a href="/posts/3653564083/">苹果 Mac 重置 SMC、NVRAM、PRAM 方法教程 - 解决 macOS 卡顿或无法启动</a></li>  <li class="file"><a href="/posts/3837318570/">Mac VSCode 禁用GPU加速</a></li>  <li class="file"><a href="/posts/3366946474/">Mac高效使用技巧</a></li>  <li class="file"><a href="/posts/558776221/">解决“Mac应用”已损坏，无法打开的问题</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Others
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/3101956195/">Git中.gitignore无效的解决办法</a></li>  <li class="file"><a href="/posts/2867836530/">Axel:命令行下轻量级多线程下载程序</a></li>  <li class="file"><a href="/posts/3413649842/">Linux实用工具</a></li>  <li class="file"><a href="/posts/1073812833/">linux下测试磁盘的读写IO速度(IO物理测速)</a></li>  <li class="file"><a href="/posts/3895039994/">命令行信息截图工具 - ScreenFetch</a></li>  <li class="file"><a href="/posts/3784546227/">Git忽略提交规则 - .gitignore配置总结</a></li>  <li class="file"><a href="/posts/760033837/">平铺式窗口管理器 - Awesome</a></li>  <li class="file"><a href="/posts/2006196850/">私有化TM备份与共享服务器 - Netatalk</a></li>  <li class="file"><a href="/posts/1413974522/">用好这些隐藏「小开关」，让 Chrome 浏览器更好用</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Vim
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/258379777/">VIM下使用Vundle搭建python开发环境</a></li>  <li class="file"><a href="/posts/3374749959/">Vim快捷键使用总结</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Windows
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/3669230936/">为远程桌面启用Windows防火墙例外</a></li>  <li class="file"><a href="/posts/3426016246/">利用windows内置工具测试硬盘速度 - winsat</a></li>  <li class="file"><a href="/posts/913943227/">解决EXCEL按上下左右键不是单元格移动的问题</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Wordpress
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/1067246247/">WordPress启用memcached动态缓存以及报错解决</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                command
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/2407250830/">history命令设置linux查看历史命令显示执行时间</a></li>  <li class="file"><a href="/posts/3200906184/">find命令快速技巧：如何定位一个文件</a></li>  <li class="file"><a href="/posts/3403344661/">定时任务Crontab命令详解</a></li>  <li class="file"><a href="/posts/3241041753/">通过编写 chroot 来认识 chroot 发挥的作用和它带来的好处</a></li>  </ul> 
+                        </li>
+                         <li class="file"><a href="/posts/404814820/">DevOps简介</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder-open"></i>
+                                &nbsp;
+                                Soft engineering
+                            </a>
+                             <ul class="unstyled" id="tree" style="display: block;"> 
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Algorithm
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/1453950584/">8大排序算法图文讲解</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Architecture
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/2097636152/">工作两三年了，整不明白架构图都画啥？</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Cheat Sheets
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/2623330927/">Cheat Sheets - PostgreSQL</a></li>  <li class="file"><a href="/posts/3327139081/">Cheat Sheets – C++</a></li>  <li class="file"><a href="/posts/3048024619/">Cheat Sheets - Django Reference Sheet</a></li>  <li class="file"><a href="/posts/3433268710/">Cheat Sheets - Shell Script</a></li>  <li class="file"><a href="/posts/4169548679/">Cheat Sheets - .NET</a></li>  <li class="file"><a href="/posts/2137528313/">Cheat Sheets – CSS</a></li>  <li class="file"><a href="/posts/2993634676/">Cheat Sheets - Git</a></li>  <li class="file"><a href="/posts/3766000533/">Cheat Sheets – HTTP</a></li>  <li class="file"><a href="/posts/982990798/">Cheat Sheets – Linux</a></li>  <li class="file"><a href="/posts/2663199359/">Cheat Sheets – Java</a></li>  <li class="file"><a href="/posts/316669616/">Cheat Sheets – Mac OS X</a></li>  <li class="file"><a href="/posts/2038387758/">Cheat Sheets – MySQL</a></li>  <li class="file"><a href="/posts/2920272111/">Cheat Sheets – Nodejs</a></li>  <li class="file"><a href="/posts/3167589601/">Cheat Sheets – Perl</a></li>  <li class="file"><a href="/posts/305297407/">Cheat Sheets – C</a></li>  <li class="file"><a href="/posts/1053003126/">Cheat Sheets – Python</a></li>  <li class="file"><a href="/posts/2789789845/">Cheat Sheets – jQuery</a></li>  <li class="file"><a href="/posts/59285358/">Cheat Sheets – HTML and XHTML</a></li>  <li class="file"><a href="/posts/4169548678/">Cheat Sheets - Photoshop</a></li>  <li class="file"><a href="/posts/1130312566/">Cheat Sheets – SQLite</a></li>  <li class="file"><a href="/posts/3905631645/">Cheat sheets - Xcode</a></li>  <li class="file"><a href="/posts/3586350539/">Cheat sheets - Mac OS</a></li>  <li class="file"><a href="/posts/1362596080/">Cheat Sheets – PHP</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Project
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/467054247/">如何编写开源项目的README文档</a></li>  <li class="file"><a href="/posts/1755831586/">软件发布版本区别介绍</a></li>  </ul> 
+                        </li>
+                         </ul> 
+                        </li>
+                        
+                        <li class="directory-open" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder-open"></i>
+                                &nbsp;
+                                back-end
+                            </a>
+                             <ul class="unstyled" id="tree" style="display: block;"> 
+                        <li class="directory-open" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder-open"></i>
+                                &nbsp;
+                                Middle-ware
+                            </a>
+                             <ul class="unstyled" id="tree" style="display: block;"> 
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Gogs
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/612684965/">私人Git服务器 -- gogs</a></li>  <li class="file"><a href="/posts/4076369309/">Gogs数据备份、恢复</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Jenkins
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/388825549/">利用Jenkins持续集成iOS项目</a></li>  <li class="file"><a href="/posts/2282359188/">jenkins密码重置</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Logstash
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/2615120416/">日志搜集处理框架Logstash-安装配置</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory-open" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                MySQL
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file active"><a href="/posts/554387356/">MySQL 排序的艺术：你真的懂 Order By 吗？</a></li>  <li class="file"><a href="/posts/2625460784/">MySQL延迟复制</a></li>  <li class="file"><a href="/posts/2654174479/">分库分表 vs NewSQL数据库</a></li>  <li class="file"><a href="/posts/4284065059/">MySQL 调优/优化的 101 个建议</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Nginx
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/1350143519/">高性能 Nginx HTTPS 调优 - 如何为 HTTPS 提速 30%</a></li>  <li class="file"><a href="/posts/1544228005/">高性能Web服务器 - Nginx配置详解</a></li>  <li class="file"><a href="/posts/3996389515/">Nginx配置跨域请求 Access-Control-Allow-Origin *</a></li>  <li class="file"><a href="/posts/524919010/">Nginx正向代理与Client设置代理上网</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                RabbitMQ
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/2846671594/">RabbitMQ 集群高可用原理及实战部署介绍</a></li>  <li class="file"><a href="/posts/3135873234/">RabbitMQ入门</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Redis
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/156114019/">Redis Stream应用案例</a></li>  <li class="file"><a href="/posts/2992538737/">redis.conf参数配置及解释</a></li>  <li class="file"><a href="/posts/2864310564/">深入分析Redis特点及应用场景</a></li>  <li class="file"><a href="/posts/3909951181/">Redis Manual</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Sentry
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/1303728868/">错误日志收集平台 - Sentry(Redis+MySQL)</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Shadowsocks
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/3154796955/">Vultr快速搭建SS科学上网</a></li>  </ul> 
+                        </li>
+                         </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                NodeJS
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/2653381572/">NodeJS Package Manage Tool - NPM</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder-open"></i>
+                                &nbsp;
+                                Python
+                            </a>
+                             <ul class="unstyled" id="tree" style="display: block;"> 
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Build-in
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/2858153934/">Python build-in functions - collections</a></li>  <li class="file"><a href="/posts/857250976/">Python build-in functions - List</a></li>  <li class="file"><a href="/posts/3208674450/">Python build-in module - os</a></li>  <li class="file"><a href="/posts/5/">Python多线程和锁</a></li>  <li class="file"><a href="/posts/2434599799/">Python build-in functions</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Configuration
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/3568487154/">更改pip源至国内镜像 - 显著提升下载速度</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Library
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/4096440342/">Python Library - SQLAlchemy</a></li>  <li class="file"><a href="/posts/3634498847/">我用 Python 的 Seaborn 库，绘制了 17 个超好看图表!</a></li>  <li class="file"><a href="/posts/383305840/">Python Library - Flask SQLAlchemy</a></li>  <li class="file"><a href="/posts/55626181/">发布你自己的轮子 - PyPI打包上传实践</a></li>  </ul> 
+                        </li>
+                         <li class="file"><a href="/posts/272954362/">sys.stdout.write实现Python控制台实时刷新打印</a></li>  </ul> 
+                        </li>
+                         </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                iOS Development
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/684390890/">Swift 5.4 有什么新功能？</a></li>  <li class="file"><a href="/posts/1054462359/">Apple Store上iOS App上架流程</a></li>  <li class="file"><a href="/posts/1098789015/">Xcode开发中Build与version区别/build自增设置/build随时间变化？</a></li>  <li class="file"><a href="/posts/3772598043/">Swift：解包的正确姿势</a></li>  </ul> 
+                        </li>
+                         </ul> 
+    </div>
+    <script>
+        $(document).ready(function() {
+            var iconFolderOpenClass  = 'fa-folder-open';
+            var iconFolderCloseClass = 'fa-folder';
+            var iconAllExpandClass = 'fa-angle-double-down';
+            var iconAllPackClass = 'fa-angle-double-up';
+            // Handle directory-tree expansion:
+            // 左键单独展开目录
+            $(document).on('click', '#categories a[data-role="directory"]', function (event) {
+                event.preventDefault();
+
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconFolderOpenClass);
+                var subtree = $(this).siblings('ul');
+                icon.removeClass(iconFolderOpenClass).removeClass(iconFolderCloseClass);
+                if (expanded) {
+                    if (typeof subtree != 'undefined') {
+                        subtree.slideUp({ duration: 100 });
+                    }
+                    icon.addClass(iconFolderCloseClass);
+                } else {
+                    if (typeof subtree != 'undefined') {
+                        subtree.slideDown({ duration: 100 });
+                    }
+                    icon.addClass(iconFolderOpenClass);
+                }
+            });
+            // 右键展开下属所有目录
+            $('#categories a[data-role="directory"]').bind("contextmenu", function(event){
+                event.preventDefault();
+
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconFolderOpenClass);
+                var listNode = $(this).siblings('ul');
+                var subtrees = $.merge(listNode.find('li ul'), listNode);
+                var icons = $.merge(listNode.find('.fa'), icon);
+                icons.removeClass(iconFolderOpenClass).removeClass(iconFolderCloseClass);
+                if(expanded) {
+                    subtrees.slideUp({ duration: 100 });
+                    icons.addClass(iconFolderCloseClass);
+                } else {
+                    subtrees.slideDown({ duration: 100 });
+                    icons.addClass(iconFolderOpenClass);
+                }
+            })
+            // 展开关闭所有目录按钮
+            $(document).on('click', '#allExpand', function (event) {
+                event.preventDefault();
+
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconAllExpandClass);
+                icon.removeClass(iconAllExpandClass).removeClass(iconAllPackClass);
+                if(expanded) {
+                    $('#sidebar .fa.fa-folder').removeClass('fa-folder').addClass('fa-folder-open')
+                    $('#categories li ul').slideDown({ duration: 100 });
+                    icon.addClass(iconAllPackClass);
+                } else {
+                    $('#sidebar .fa.fa-folder-open').removeClass('fa-folder-open').addClass('fa-folder')
+                    $('#categories li ul').slideUp({ duration: 100 });
+                    icon.addClass(iconAllExpandClass);
+                }
+            });
+        });
+    </script>
+
+
+    
+        
+    <div class="widget-wrap">
+        <h3 class="widget-title"><span>recent</span></h3>
+        <div class="widget">
+            <ul id="recent-post" class="">
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/posts/4263562837/" class="thumbnail">
+    
+    
+        <span class="thumbnail-image thumbnail-none"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/OPS/">OPS</a><i class="fa fa-angle-right"></i><a class="article-category-link" href="/categories/OPS/MacOS/">MacOS</a></p>
+                            <p class="item-title"><a href="/posts/4263562837/" class="title">一个惊人快速的终端录像工具，也能录制 VSCode 和 Chrome 窗口</a></p>
+                            <p class="item-date"><time datetime="2021-03-28T00:02:47.000Z" itemprop="datePublished">2021-03-28</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/posts/3634498847/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210309111745.png)" alt="我用 Python 的 Seaborn 库，绘制了 17 个超好看图表!" class="thumbnail-image"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/back-end/">back-end</a><i class="fa fa-angle-right"></i><a class="article-category-link" href="/categories/back-end/Python/">Python</a></p>
+                            <p class="item-title"><a href="/posts/3634498847/" class="title">我用 Python 的 Seaborn 库，绘制了 17 个超好看图表!</a></p>
+                            <p class="item-date"><time datetime="2021-03-08T22:18:11.000Z" itemprop="datePublished">2021-03-09</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/posts/2097636152/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210303212435.jpg)" alt="工作两三年了，整不明白架构图都画啥？" class="thumbnail-image"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/Soft-engineering/">Soft engineering</a><i class="fa fa-angle-right"></i><a class="article-category-link" href="/categories/Soft-engineering/Architecture/">Architecture</a></p>
+                            <p class="item-title"><a href="/posts/2097636152/" class="title">工作两三年了，整不明白架构图都画啥？</a></p>
+                            <p class="item-date"><time datetime="2021-03-03T08:09:53.000Z" itemprop="datePublished">2021-03-03</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/posts/2846671594/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210228142136.jpg)" alt="RabbitMQ 集群高可用原理及实战部署介绍" class="thumbnail-image"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/back-end/">back-end</a><i class="fa fa-angle-right"></i><a class="article-category-link" href="/categories/back-end/Middle-ware/">Middle-ware</a></p>
+                            <p class="item-title"><a href="/posts/2846671594/" class="title">RabbitMQ 集群高可用原理及实战部署介绍</a></p>
+                            <p class="item-date"><time datetime="2021-02-28T01:06:06.000Z" itemprop="datePublished">2021-02-28</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/posts/3772598043/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210226162513.png)" alt="Swift：解包的正确姿势" class="thumbnail-image"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/iOS-Development/">iOS Development</a></p>
+                            <p class="item-title"><a href="/posts/3772598043/" class="title">Swift：解包的正确姿势</a></p>
+                            <p class="item-date"><time datetime="2021-02-26T03:32:25.000Z" itemprop="datePublished">2021-02-26</time></p>
+                        </div>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+
+    
+    <div id="toTop" class="fa fa-angle-up"></div>
+</aside>
+            
+            <section id="main"><article id="post-back-end/Middle-ware/MySQL/MySQL 排序的艺术：你真的懂 Order By 吗？" class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+        
+            <header class="article-header">
+                
+                    <div class="article-meta">
+                        
+    <div class="article-category">
+    	<i class="fa fa-folder"></i>
+        <a class="article-category-link" href="/categories/back-end/">back-end</a><i class="fa fa-angle-right"></i><a class="article-category-link" href="/categories/back-end/Middle-ware/">Middle-ware</a><i class="fa fa-angle-right"></i><a class="article-category-link" href="/categories/back-end/Middle-ware/MySQL/">MySQL</a>
+    </div>
+
+                        
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/tags/MySQL/">MySQL</a>, <a class="tag-link" href="/tags/Order-by/">Order by</a>, <a class="tag-link" href="/tags/排序/">排序</a>
+    </div>
+
+                        
+    <div class="article-date">
+        <i class="fa fa-calendar"></i>
+        <a href="/posts/554387356/">
+            <time datetime="2021-02-08T09:50:55.000Z" itemprop="datePublished">2021-02-08</time>
+        </a>
+    </div>
+
+
+                        
+                    </div>
+                
+                
+    
+        <h1 class="article-title" itemprop="name">
+            MySQL 排序的艺术：你真的懂 Order By 吗？
+        </h1>
+    
+
+            </header>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+        
+        
+            
+                <div id="toc" class="toc-article">
+                <strong class="toc-title">Catalogue</strong>
+                    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#前言"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#排序算法"><span class="toc-number">2.</span> <span class="toc-text">排序算法</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#MySQL-的排序方案"><span class="toc-number">2.1.</span> <span class="toc-text">MySQL 的排序方案</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#全字段排序"><span class="toc-number">2.2.</span> <span class="toc-text">全字段排序</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#rowId-排序"><span class="toc-number">2.3.</span> <span class="toc-text">rowId 排序</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#rowId-排序全过程"><span class="toc-number">2.3.1.</span> <span class="toc-text">rowId 排序全过程</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#优先队列排序"><span class="toc-number">2.4.</span> <span class="toc-text">优先队列排序</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#优先队列进行排序的流程"><span class="toc-number">2.4.1.</span> <span class="toc-text">优先队列进行排序的流程</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#如何选择"><span class="toc-number">2.5.</span> <span class="toc-text">如何选择?</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#临时表排序"><span class="toc-number">3.</span> <span class="toc-text">临时表排序</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#内存临时表排序"><span class="toc-number">3.1.</span> <span class="toc-text">内存临时表排序</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#磁盘临时表排序"><span class="toc-number">3.2.</span> <span class="toc-text">磁盘临时表排序</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#总-结"><span class="toc-number">4.</span> <span class="toc-text">总#结</span></a></li></ol>
+                </div>
+            
+        
+        
+            <p><img src="https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210208225632.png" alt=""></p>
+<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>业务中的各种查询通常对应了用户所看到的各项列表，列表一般是根据某个维度进行排序。</p>
+<p>换句话说，业务中使用 <code>SELECT</code> 语句的时候除了不可避免的搭配 <code>WHERE</code> 以外，还会配合 <code>ORDER BY</code> 进行使用。</p>
+<p>今天来好好聊聊 MySQL 的 <code>ORDER BY</code> 排序。</p>
+<hr>
+<h1 id="排序算法"><a href="#排序算法" class="headerlink" title="排序算法"></a>排序算法</h1><p>说到排序算法，有插入排序、选择排序、归并排序、堆排序、快速排序、计数排序、桶排序、基数排序、冒泡排序、希尔排序、梳排序 …</p>
+<p>关于各种排序算法的排序流程和具体实现，不是本篇博客的重点，不作详细说明。</p>
+<p>这里直接贴各类排序算法的时空复杂度：</p>
+<p><img src="https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210208225222.webp" alt=""></p>
+<p>通常我们实现的这些排序算法，都是在”纯内存“环境中进行。</p>
+<p>MySQL 作为数据库难道是在先将所有要排序的数据加载到内存，再应用排序算法吗？</p>
+<hr>
+<h2 id="MySQL-的排序方案"><a href="#MySQL-的排序方案" class="headerlink" title="MySQL 的排序方案"></a>MySQL 的排序方案</h2><p>在分析 MySQL 的不同的排序方案之前，先来了解 sort buffer 概念。</p>
+<p>MySQL 会为每个线程分配固定大小的 sort buffer 用作排序。</p>
+<a id="more"></a>
+<p>sort buffer 是具有逻辑概念的内存区域，大小由 <code>sort_buffer_size</code> 参数控制，默认为 256 kb。</p>
+<p>由于 sort buffer 大小固定，而 data（待排序的数据量）并不固定，所以根据 sort buffer 与 data（待排序数据量）的大小差值，可分为内部排序和外部排序：</p>
+<ul>
+<li><p><code>data &lt;= sort buffer</code>：即 sort buffer 够用，这时候 MySQL 只需要在内存中进行排序即可。内部排序使用的是快速排序</p>
+</li>
+<li><p><code>data &gt; sort buffer</code>：这时候 sort buffer 不够用，MySQL 需要借助外部“容器”（通常是文件）进行排序。通常会将待排序数据分成多个“小文件”，对各个“小文件”进行排序，再汇总成一个有序的“大文件”。外部排序使用的是归并排序</p>
+</li>
+</ul>
+<p>如何验证当前执行的排序语句使用的是内部排序还是外部排序？</p>
+<p>可以通过 <code>EXPLAIN</code> 命令来查看，如果在分析结果中的 <code>Extra</code> 字段里包含 <code>Using filesort</code> 字眼，说明执行了外部排序操作。</p>
+<h2 id="全字段排序"><a href="#全字段排序" class="headerlink" title="全字段排序"></a>全字段排序</h2><p><strong>「全字段排序是指，只要与最终结果集有关的字段都会被放进 sort buffer，而不管该字段本身是否参与排序。」</strong></p>
+<p>以下面的 SQL 为例子：</p>
+<pre class="line-numbers language-mysql"><code class="language-mysql">SELECT nick_name, age, phone 
+FROM t_user 
+WHERE city = "深圳" 
+ORDER BY nick_name;
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+<p>假设 city 字段上有索引，全字段排序的过程：</p>
+<ol>
+<li><p>从 city 索引树上找到第一条值为深圳的数据，取得 id 之后回表（回到主键索引）取得 nick_name、age、phone 三个字段放入 sort buffer</p>
+</li>
+<li><p>从 city 索引树取下一条值为深圳的数据，重复 1 过程，直到下一条数据不满足值为深圳条件</p>
+</li>
+<li><p>到这一步，所有 city = 深圳 的数据都在 sort buffer 了。对 nick_name 执行快速排序</p>
+</li>
+<li><p>将排序结果返回</p>
+</li>
+</ol>
+<p>可以看到当查询条件本身有索引可用的话，全字段排序的排序过程都在 sort buffer（内存）进行，回表次数为符合条件的数据个数。</p>
+<p>当然，如果我们建立的是 city、nick_name、age、phone 的联合索引，还可以实现“索引覆盖”，即在一棵索引树上取得全部所需数据，减少回表（随机读）次数。</p>
+<p>不过针对每个查询或排序语句建立联合索引，会导致索引过多，大大降低写入更新数据的速度，以及大大提升数据所需要的存储空间。</p>
+<p>生产上对索引的建立修改需要格外谨慎。</p>
+<h2 id="rowId-排序"><a href="#rowId-排序" class="headerlink" title="rowId 排序"></a>rowId 排序</h2><p>rowId 就是 MySQL 对每行数据的唯一标识符。</p>
+<p>当数据表有主键时，rowId 就是表主键；当数据表没有主键或者主键被删除时，MySQL 会自动生成一个长度为 6 字节的 rowId 为作为 rowId。</p>
+<p><strong>「rowId 排序是指只将与排序相关的字段和 rowId 放入 sort buffer，其余结果集需要用到的数据在排序完成后，通过 rowId 回表取得。」</strong></p>
+<p>全字段排序的流程看着已经十分合理，为什么还需要有个 rowId 排序？</p>
+<p>这是我们只需要输出三个字段的情况，假如我们有上百个字段需要返回呢？sort buffer 默认只有 256 kb。能够装下多少行的原始数据行？</p>
+<p>所以当待排序的数据行很大的时候，使用全字段排序必然会导致“外部排序”。而且是使用很多临时文件的“外部排序”，效率很低下。</p>
+<p>相比全字段排序，rowId 排序的好处是在 sort buffer 大小固定的情况下，sort buffer 能够容纳更多的数据行，能够避免使用或者少使用“外部排序文件”。</p>
+<p>缺点是最终返回结果集的时候，需要再次进行回表。</p>
+<p>还是之前那个例子：</p>
+<pre class="line-numbers language-mysql"><code class="language-mysql">SELECT nick_name, age, phone 
+FROM t_user 
+WHERE city = "深圳" 
+ORDER BY nick_name;
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+<h3 id="rowId-排序全过程"><a href="#rowId-排序全过程" class="headerlink" title="rowId 排序全过程"></a>rowId 排序全过程</h3><ol>
+<li><p>从 city 索引树上找到第一条值为深圳的数据，取得 id 之后回表（回到主键索引）取得 nick_name 这个与排序相关的字段和主键 id 一起放入 sort buffer</p>
+</li>
+<li><p>从 city 索引树取下一条值为深圳的数据，重复 1 过程，直到下一条数据不满足值为深圳条件</p>
+</li>
+<li><p>这时候，所有 city = 深圳 的数据都在 sort buffer 了（sort buffer 里面的数据包含两个字段： id 和 nick_name）。对 nick_name 执行快速排序</p>
+</li>
+<li><p>利用排序好的数据，使用主键 id 再次回表取其他字段，将结果返回</p>
+</li>
+</ol>
+<p>注意：在步骤 4 中不会等所有排序好的 id 回表完再返回，而是每个 id 回表一次，取得该行数据之后立即返回，所以不会消耗额外的内存。</p>
+<h2 id="优先队列排序"><a href="#优先队列排序" class="headerlink" title="优先队列排序"></a>优先队列排序</h2><p>无论是使用全字段排序还是 rowId 排序，都不可避免了对所有符合 <code>WHRER</code> 条件的数据进行了排序。</p>
+<p>有读者可能会认为，那不是应该的吗？</p>
+<p>设想一下，如果我们还搭配着 <code>LIMIT</code> 使用呢？</p>
+<p>例如我们在排序语句后添加 <code>LIMIT 3</code> ，哪怕查出来的数据有 10W 行，我们也只需要前 3 行有序。</p>
+<p>为了得到前 3 行数据，而不得不将 10W 行数据载入内存，大大降低了 sort buffer 的利用率。</p>
+<p>这时候你可能想到利用“最小堆”、“最大堆”来进行排序。</p>
+<p>没错，这正是 MySQL 针对带有 <code>LIMIT</code> 的 <code>ORDER BY</code> 语句的优化：使用优先队列进行排序。</p>
+<p>以下面的 SQL 为例子：</p>
+<pre class="line-numbers language-mysql"><code class="language-mysql">SELECT nick_name, age, phone 
+FROM t_user 
+WHERE city = "深圳" 
+ORDER BY nick_name LIMIT 3;
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+<h3 id="优先队列进行排序的流程"><a href="#优先队列进行排序的流程" class="headerlink" title="优先队列进行排序的流程"></a>优先队列进行排序的流程</h3><ol>
+<li><p>在所有待排序的数据，取数量为 <code>LIMIT</code> （本例中为 3）的数据，构建一个堆</p>
+</li>
+<li><p>不断的取下一行数据，更新堆节点</p>
+</li>
+<li><p>当所有行的扫描完，得到最终的排序结果</p>
+</li>
+</ol>
+<h2 id="如何选择"><a href="#如何选择" class="headerlink" title="如何选择?"></a>如何选择?</h2><p>现在我们知道有全字段排序和 rowId 排序，那么 MySQL 是如何在这两种排序方案中做选择呢？</p>
+<p>由于 rowId 排序相对于全字段排序，不可避免的多了一次回表操作，回表操作意味着随机读，而随机 IO 是数据库中最昂贵的操作。</p>
+<p>所以 MySQL 会在尽可能的情况下选择全字段排序。</p>
+<p>那么什么情况下 MySQL 会选择 rowId 排序呢，是否有具体的值可以量度？</p>
+<p>答案是有的，通过参数 <code>max_length_for_sort_data</code> 可以控制用于排序的行数据最大长度，默认值为 1024 字节。</p>
+<p>当单行数据长度超过该值，MySQL 就会觉得如果还用全字段排序，会导致 sort buffer 容纳下的行数太少，从而转为使用 rowId 排序。</p>
+<hr>
+<h1 id="临时表排序"><a href="#临时表排序" class="headerlink" title="临时表排序"></a>临时表排序</h1><p>通常对于一个执行较慢的排序语句，在使用 <code>EXPLAIN</code> 进行执行过程分析的时候除了能看到 <code>Using filesort</code> 以外，还能看到 <code>Using temporary</code>，代表在排序过程中使用到了临时表。</p>
+<h2 id="内存临时表排序"><a href="#内存临时表排序" class="headerlink" title="内存临时表排序"></a>内存临时表排序</h2><p>MySQL 优先使用内存临时表。当 MySQL 使用内存临时表时，临时表存储引擎为 memory 。</p>
+<p>如果当前 MySQL 使用的是内存临时表的话，将会直接使用 rowId 排序，因为这时候所谓的“回表”只是在内存表中读数据，操作不涉及硬盘的随机 IO 读。</p>
+<p>使用 rowId 可以在 sort buffer 容纳给多的行，避免或减少外部排序文件的使用。</p>
+<h2 id="磁盘临时表排序"><a href="#磁盘临时表排序" class="headerlink" title="磁盘临时表排序"></a>磁盘临时表排序</h2><p>如果系统中很多需要使用临时表的排序语句执行，而又不加以限制，全都使用临时表的话，内存很快就会被打满。</p>
+<p>所以 MySQL 提供了 <code>tmp_table_size</code> 参数限制了内存临时表的大小，默认值是 16M。</p>
+<p><code>如果临时表大小超过了tmp_table_size</code>，那么内存临时表就会转成磁盘临时表。</p>
+<p>当使用磁盘临时表的时候，表储存引擎将不再是 memory，而是由 <code>internal_tmp_disk_storage_engine</code> 参数控制，默认为 <code>InnoDB</code> 。</p>
+<p>这时候 MySQL 会根据单行大小是否超过 <code>max_length_for_sort_data</code> 决定采用全字段排序还是 rowId 排序。</p>
+<hr>
+<h1 id="总-结"><a href="#总-结" class="headerlink" title="总#结"></a>总#结</h1><p>总结一下，MySQL 总是使用 <strong>「“最快”」</strong> 的排序方案：</p>
+<ul>
+<li><p>当排序数据量不超过 sort buffer 容量时，MySQL 将会在内存使用快速排序算法进行排序（内部排序）；当排序数据量超过 sort buffer 容量时，MySQL 将会借助临时磁盘文件使用归并排序算法进行排序（外部排序）</p>
+</li>
+<li><p>在进行真正排序时，MySQL 又会根据数据单行长度是否超过 <code>max_length_for_sort_data而决定使用</code> rowId 排序还是全字段排序，优先选择全字段排序，以减少回表次数</p>
+</li>
+<li><p>当需要借助临时表的时候，MySQL 会优先使用内存临时表（此时表引擎为 memory 引擎），回内存临时表取数据并不涉及随机读，也不涉及扫描行，效率较高。所以在配合内存临时表的时候，会使用 rowId 排序方式；当内存临时表大小超过 <code>tmp_table_size</code> 限制时，则需要将内存临时表转换为磁盘临时表，这时候由于回表意味着随机读，所以会搭配全字段排序方式</p>
+</li>
+</ul>
+
+            </div>
+        
+        <footer class="article-footer">
+        </footer>
+    </div>
+</article>
+
+
+    
+<nav id="article-nav">
+    
+        <a href="/posts/729727978/" id="article-nav-newer" class="article-nav-link-wrap">
+            <strong class="article-nav-caption">Newer</strong>
+            <div class="article-nav-title">
+                
+                    快速改善用户界面的10个技巧
+                
+            </div>
+        </a>
+    
+    
+        <a href="/posts/2776773816/" id="article-nav-older" class="article-nav-link-wrap">
+            <strong class="article-nav-caption">Older</strong>
+            <div class="article-nav-title">Mac OS X设置SMB进行文件共享</div>
+        </a>
+    
+</nav>
+
+
+
+
+
+    
+    
+
+
+
+
+<!-- baidu url auto push script -->
+<script type="text/javascript">
+    !function(){var e=/([http|https]:\/\/[a-zA-Z0-9\_\.]+\.baidu\.com)/gi,r=window.location.href,o=document.referrer;if(!e.test(r)){var n="//api.share.baidu.com/s.gif";o?(n+="?r="+encodeURIComponent(document.referrer),r&&(n+="&l="+r)):r&&(n+="?l="+r);var t=new Image;t.src=n}}(window);
+</script>     
+
+<head><meta name="generator" content="Hexo 3.9.0">
+    <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+    <script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+<link rel="stylesheet" href="/css/prism-duotone-light.css" type="text/css">
+<link rel="stylesheet" href="/css/prism-line-numbers.css" type="text/css"></head>
+<body>
+    <div id="vcomments"></div>
+    <script>
+        new Valine({
+            el: '#vcomments',
+            appId: '8kLhebBkVygl1MhVcQx9dnBP-gzGzoHsz',
+            appKey: 'hrctlOb6RQBWjjwTJ9fVjb91'
+        })
+    </script>
+</body>
+
+
+</section>
+        </div>
+        <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+
+<footer id="footer">
+    <div class="outer">
+        <div id="footer-info" class="inner">
+            <a href="https://www.jifu.io">
+            Ji Fu &copy; 2021
+            </a>
+            <br> Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>. Theme - <a href="https://github.com/zthxxx/hexo-theme-Wikitten">wikitten</a>
+            <br> 您是  jifu'wiki 的第<span id="busuanzi_value_site_uv"></span>个小伙伴
+            <br>
+                本站总访问量<span id="busuanzi_value_site_pv"></span>次
+                本文总阅读量<span id="busuanzi_value_page_pv"></span>次
+        </div>
+    </div>
+</footer>
+
+
+
+        
+
+    
+        <script src="/libs/lightgallery/js/lightgallery.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-thumbnail.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-pager.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-autoplay.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-fullscreen.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-zoom.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-hash.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-share.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-video.min.js"></script>
+    
+    
+        <script src="/libs/justified-gallery/jquery.justifiedGallery.min.js"></script>
+    
+    
+
+
+
+<!-- Custom Scripts -->
+<script src="/js/main.js"></script>
+
+    </div>
+</body>
+</html>

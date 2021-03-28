@@ -1,0 +1,132 @@
+---
+title: About
+layout: page
+date: 2018-04-04 23:30:14
+---
+
+# Here's a self-report from a patient with mild code cleanliness
+
+> When you see this, thank you for your patience with this resume.
+
+I’m a software engineer who emphasizes on good design and code quality.
+
+Here is my development Wiki: [www.jifu.io](https://www.jifu.io)
+
+---
+
+<!--
+## Contact Me
+
+- Mobile:   ```0220165484```
+- Email：   ```ji.fu@icloud.com```
+- GitHub：  [https://github.com/jgarrick1992/](https://github.com/jgarrick1992/)
+
+---
+
+## Experience in work
+
+- 2019.9 ~ Now
+
+    *DAIKOKU CORPORATION LIMITED*
+
+    *As Web Development Engineer & Operation Engineer(party time)*
+
+- 2019.5 ~ Now
+
+    *KIWI ISLAND LIMITED*
+
+    *As Sales & Operation Engineer*
+
+- 2018.4 ~ 2019.03
+
+    *Wholesale Club Palmerston North (CZC GROUP LIMITED)*
+
+    *As Supervisor*
+
+- 2016.7 ~ 2017.12
+
+    *Shanghai QiAn Information and Technology Co.LTD.*
+
+    *As Project Manager & Python Development Engineer*
+
+- 2015.7 ~ 2016.6
+
+    *Nanjing AllInPalm Information and Technology Co.LTD.*
+
+    *As iOS Development Engineer*
+
+---
+
+## List of skills
+
+### * Basic skills
+
+Keywords（in no particular order): Docker / Nginx / MySQL / SQLite / Redis / RabbitMQ / Git / SVN / Vim / Linux / Markdown / Github / Saas / Shell
+
+### * Python
+
+Keywords（in no particular order): Python / Flask / Jinja2  / SQLAlchemy / RESTful / Gevent / Selenium / fabric
+
+### * iOS
+
+Keywords（in no particular order): Objective-c / Swift / MVVM / CocoaPods / AFNetworking / Masonry / Notification / Protocol
+
+### * UI Design
+
+Keywords（in no particular order): Photoshop / Illustrator / After Effects / Premiere / Sketch
+
+---
+
+## Experience in project
+
+### Terminal Information Acquisition Platform - Device fingerprint(Stalker)
+
+> Device fingerprint is the unique ID generated for the device in real time by using different characteristics of the device, such as browser, operating system and network connection. The use of device fingerprints can help identify whether the device is trustworthy and provide a persistent device marker for business risks.
+
+### HAPPEN发生! - Overseas Study Societies Based on Big Data Analysis
+
+<!-- > **项目**： 采用Objective-C开发，基于亚马逊推送服务，UI界面采用 StoryBoard与Masonry自动布局混合编程，使用英语与中文双语言环境。 -->
+> Developed by Objective-C and based on Amazon push service, the UI interface is programmed by StoryBoard and Masonry automatic layout, using English and Chinese bilingual environment.
+
+### 京彩E-bank - The First App Application of Mobile Payment Password launched by Bank of Beijing
+
+<!-- > **项目**： 采用Objective-C开发、MVC 设计模式，基于百度云推送服务，UI界面采用 StoryBoard设计。使用第三方GPUImage完成图像的处理使达到银行对支票录入的标准。 -->
+> Using Objective-C development, MVC design mode, based on Baidu cloud push service, UI interface using StoryBoard design. The third-party GPUImage is used to complete image processing so as to appropriate the bank's check entry standard.
+
+### College Colors - American Campus Style
+
+<!-- > **项目**： 采用Objective-C开发、MVVM 设计模式，基于百度云推送服务，UI界面采用 StoryBoard设计。使用第三方GPUImage完成图像的处理使达到银行对支票录入的标准。 -->
+> Using Objective-C development, MVVM design pattern, based on Amazon push service, UI interface using StoryBoard design.
+
+---
+
+## Personal project
+
+### OCR_BankCheck
+
+<!-- > **介绍**： 支票的OCR识别，通过摄像头对支票票面进行信息采集，采用边界识别技术，在较大颜色反差背景下可以自动对支票边框进行截取，并采用图像校正技术修复应拍摄角度造成的支票倾斜。同时支持对拍摄后的图像进行手动选取范围，用户通过选取支票的四个定点来确定支票边界，获取到支票票号、出账人帐号、银行行号等信息。 -->
+
+> In OCR recognition of cheque, the information of cheque face is collected by camera, and the cheque border can be intercepted automatically under the background of larger color contrast by using boundary recognition technology. The image correction technology is used to repair the cheque tilt caused by the shooting angle. At the same time, it supports the manual selection of the range of the captured image. Users can determine the boundary of the check by selecting four fixed points of the check, and obtain the information of the check number, the account number of the debtor, the bank number and so on.
+
+### JGImagePlus
+
+<!-- > **特点**： 在大部分tableViewCell设计过程中，往往需要预先设计好图片大小，动态的调整 cell 的高度。但是网络图片的下载普遍采取 SDWebImage 等异步下载的方式，造成了 cell 计算高度困难。而 JGImagePlus 通过对 URL 的头部信息分析获取图片的大小，免去了先下载图片后再进行 cell 高度的调整，同时支持已换图片的读取。 -->
+
+>In most tableViewCell design processes, it is often necessary to pre-design the image size and dynamically adjust the cell height. However, the way of asynchronous downloading such as SDWebImage is widely used in the downloading of network pictures, which makes cell computing very difficult. JGImagePlus obtains the size of the image by analyzing the header information of the URL, eliminating the need to download the image first and then adjust the cell height, while supporting the reading of the replaced image.
+
+---
+
+## Awards
+
+- *2017/03 Excellent Employees of Shanghai QiAn Technology Co.Ltd.*
+
+- *2013/09 Adobe China Certifide Designer(ACCD)*
+
+- *2012/10 Second-Class of China National Software Competition c/c++*
+
+- *2012/10 First-Class No.2 of Jiangsu Competition Area in China National Software Competition c/c++*
+
+- *2010/10 Second-Class of Jiangsu Competition Area in China National Youth Informatics Olympic Competition Senior High School Group*
+
+- *2009/10 Third-Class of Jiangsu Competition Area in China National Youth Informatics Olympic Competition Senior High School Group*
+-->

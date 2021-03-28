@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+    <meta charset="utf-8">
+    
+    <title>高性能 Nginx HTTPS 调优 - 如何为 HTTPS 提速 30% | JiFu&#39;s Wiki</title>
+    
+    
+        <meta name="keywords" content="Nginx,高性能,调优,提速">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="description" content="为什么要优化 Nginx HTTPS 延迟  Nginx 常作为最常见的服务器，常被用作负载均衡 (Load Balancer)、反向代理 (Reverse Proxy)，以及网关 (Gateway) 等等。一个配置得当的 Nginx 服务器单机应该可以期望承受住 50K 到 80K 左右每秒的请求，同时将 CPU 负载在可控范围内。 但在很多时候，负载并不是需要首要优化的重点。比如对于卡拉搜索">
+<meta name="keywords" content="Nginx,高性能,调优,提速">
+<meta property="og:type" content="article">
+<meta property="og:title" content="高性能 Nginx HTTPS 调优 - 如何为 HTTPS 提速 30%">
+<meta property="og:url" content="http://www.jifu.io/posts/1350143519/index.html">
+<meta property="og:site_name" content="JiFu&#39;s Wiki">
+<meta property="og:description" content="为什么要优化 Nginx HTTPS 延迟  Nginx 常作为最常见的服务器，常被用作负载均衡 (Load Balancer)、反向代理 (Reverse Proxy)，以及网关 (Gateway) 等等。一个配置得当的 Nginx 服务器单机应该可以期望承受住 50K 到 80K 左右每秒的请求，同时将 CPU 负载在可控范围内。 但在很多时候，负载并不是需要首要优化的重点。比如对于卡拉搜索">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210223202509.png">
+<meta property="og:updated_time" content="2021-02-28T13:25:18.351Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="高性能 Nginx HTTPS 调优 - 如何为 HTTPS 提速 30%">
+<meta name="twitter:description" content="为什么要优化 Nginx HTTPS 延迟  Nginx 常作为最常见的服务器，常被用作负载均衡 (Load Balancer)、反向代理 (Reverse Proxy)，以及网关 (Gateway) 等等。一个配置得当的 Nginx 服务器单机应该可以期望承受住 50K 到 80K 左右每秒的请求，同时将 CPU 负载在可控范围内。 但在很多时候，负载并不是需要首要优化的重点。比如对于卡拉搜索">
+<meta name="twitter:image" content="https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210223202509.png">
+    
+
+    
+        <link rel="alternate" href="/atom.xml" title="JiFu&#39;s Wiki" type="application/atom+xml">
+    
+
+    
+        <link rel="icon" href="/favicon.ico">
+    
+
+    <link rel="stylesheet" href="/libs/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/libs/open-sans/styles.css">
+    <link rel="stylesheet" href="/libs/source-code-pro/styles.css">
+
+    <link rel="stylesheet" href="/css/style.css">
+    <script src="/libs/jquery/2.1.3/jquery.min.js"></script>
+    <script src="/libs/jquery/plugins/cookie/1.4.1/jquery.cookie.js"></script>
+    
+    
+        <link rel="stylesheet" href="/libs/lightgallery/css/lightgallery.min.css">
+    
+    
+        <link rel="stylesheet" href="/libs/justified-gallery/justifiedGallery.min.css">
+    
+    
+    
+    
+        <script>
+var _hmt = _hmt || [];
+(function() {
+    var hm = document.createElement("script");
+    hm.src = "//hm.baidu.com/hm.js?efa1eb5f56c438a850a0f60609fd7755";
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+    
+
+
+<link rel="stylesheet" href="/css/prism-duotone-light.css" type="text/css">
+<link rel="stylesheet" href="/css/prism-line-numbers.css" type="text/css"></head>
+</html>
+<body>
+    <div id="container">
+        <script>
+    (function(){
+        var bp = document.createElement('script');
+        var curProtocol = window.location.protocol.split(':')[0];
+        if (curProtocol === 'https') {
+            bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+        }
+        else {
+            bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+        }
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(bp, s);
+    })();
+</script>
+
+<header id="header">
+    <div id="header-main" class="header-inner">
+        <div class="outer">
+            <a href="/" id="logo">
+                <i class="logo"></i>
+                <span class="site-title">JiFu&#39;s Wiki</span>
+            </a>
+            <nav id="main-nav">
+                
+                    <a class="main-nav-link" href="/">Home</a>
+                
+                    <a class="main-nav-link" href="/archives">Archives</a>
+                
+                    <a class="main-nav-link" href="/categories">Categories</a>
+                
+                    <a class="main-nav-link" href="/tags">Tags</a>
+                
+                    <a class="main-nav-link" href="/about">About</a>
+                
+            </nav>
+            
+            <div id="search-form-wrap">
+
+    <form class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="Search" />
+        <button type="submit" class="search-form-submit"></button>
+    </form>
+    <div class="ins-search">
+    <div class="ins-search-mask"></div>
+    <div class="ins-search-container">
+        <div class="ins-input-wrapper">
+            <input type="text" class="ins-search-input" placeholder="Type something..." />
+            <span class="ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: 'Posts',
+            PAGES: 'Pages',
+            CATEGORIES: 'Categories',
+            TAGS: 'Tags',
+            UNTITLED: '(Untitled)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+<script src="/js/insight.js"></script>
+
+</div>
+        </div>
+    </div>
+    <div id="main-nav-mobile" class="header-sub header-inner">
+        <table class="menu outer">
+            <tr>
+                
+                    <td><a class="main-nav-link" href="/">Home</a></td>
+                
+                    <td><a class="main-nav-link" href="/archives">Archives</a></td>
+                
+                    <td><a class="main-nav-link" href="/categories">Categories</a></td>
+                
+                    <td><a class="main-nav-link" href="/tags">Tags</a></td>
+                
+                    <td><a class="main-nav-link" href="/about">About</a></td>
+                
+                <td>
+                    
+    <div class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="Search" />
+    </div>
+
+                </td>
+            </tr>
+        </table>
+    </div>
+</header>
+
+        <div class="outer">
+            
+            
+                <aside id="sidebar">
+   
+        
+    <div class="widget-wrap" id='categories'>
+        <h3 class="widget-title">
+            <span>categories</span>
+            &nbsp;
+            <a id='allExpand' href="#">
+                <i class="fa fa-angle-double-up fa-2x"></i>
+            </a>
+        </h3>
+
+        
+        
+         <ul class="unstyled" id="tree" style="display: block;"> 
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Android Development
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/1797699998/">深入了解 gradle 和 maven 的区别</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Design
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/1907494021/">PS快捷键使用指南</a></li>  <li class="file"><a href="/posts/729727978/">快速改善用户界面的10个技巧</a></li>  <li class="file"><a href="/posts/1525329016/">提高效率！24 个高手常用的 Sketch 技巧合集（附实用快捷键）</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                HR
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/3142539384/">HR常用的招聘邮件模板</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Hardware
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/3904818761/">MacBook十年进化史</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder-open"></i>
+                                &nbsp;
+                                OPS
+                            </a>
+                             <ul class="unstyled" id="tree" style="display: block;"> 
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Docker
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/1245529498/">Docker学习笔记</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Editor
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/151598530/">VScdoe error:Could not create temporary directory Permission denied</a></li>  <li class="file"><a href="/posts/4167799419/">Build personal development editor with vscode</a></li>  <li class="file"><a href="/posts/4165683660/">REST Client 简单好用的接口测试辅助工具</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder-open"></i>
+                                &nbsp;
+                                Linux
+                            </a>
+                             <ul class="unstyled" id="tree" style="display: block;"> 
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                CentOS
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/1867760035/">CentOS7编译安装VIM8</a></li>  <li class="file"><a href="/posts/920993072/">CentOS update Ruby</a></li>  <li class="file"><a href="/posts/4057676473/">yum提示Error: rpmdb open failed的解决方案</a></li>  <li class="file"><a href="/posts/1153610031/">centos7修改启动内核，删除无用内核</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                System Service
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/709002730/">使用 systemctl 添加自定义服务</a></li>  <li class="file"><a href="/posts/4024224000/">Linux swap分区及作用详解</a></li>  <li class="file"><a href="/posts/797311580/">服务管理工具 - systemctl</a></li>  <li class="file"><a href="/posts/55221137/">防火墙工具 - firewalld</a></li>  </ul> 
+                        </li>
+                         <li class="file"><a href="/posts/4070386720/">Linux系统目录结构及详细说明</a></li>  <li class="file"><a href="/posts/3897848060/">Mac使用SSH登录Google Cloud Platform</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                MacOS
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/3746871293/">Charles从入门到精通</a></li>  <li class="file"><a href="/posts/581320548/">Homebrew：让你从 Mac 切换到 Linux 更轻松</a></li>  <li class="file"><a href="/posts/4001059579/">Compiling PyQt5 for Python2.7 on Mac OS</a></li>  <li class="file"><a href="/posts/662287335/">MACOS BOOT CAMP – THE STARTUP DISK DOES NOT HAVE ENOUGH SPACE TO BE PARTITIONED</a></li>  <li class="file"><a href="/posts/2776773816/">Mac OS X设置SMB进行文件共享</a></li>  <li class="file"><a href="/posts/582618556/">Mac的最大连接数限制和端口的相关参数的设置</a></li>  <li class="file"><a href="/posts/1883980072/">Mac OS系统加速：干掉那些「炫酷」的动画</a></li>  <li class="file"><a href="/posts/1208074722/">Mac重置系统管理控制器SMC</a></li>  <li class="file"><a href="/posts/294187676/">Mac版迅雷优化,删除无用插件</a></li>  <li class="file"><a href="/posts/2652542772/">macOS 下 FFmpeg 视频转码入门及进阶使用心得</a></li>  <li class="file"><a href="/posts/1070186292/">SafariBookmarksSyncAgent意外退出解决方法</a></li>  <li class="file"><a href="/posts/2733308530/">Mac定时任务-利用launchctl定时启动任务</a></li>  <li class="file"><a href="/posts/2768996547/">一览Mac OS 图形界面的发展史</a></li>  <li class="file"><a href="/posts/4147446761/">Mac 时间机器 Time Machine 备份速度太慢的解决方法 (加速备份命令)</a></li>  <li class="file"><a href="/posts/4263562837/">一个惊人快速的终端录像工具，也能录制 VSCode 和 Chrome 窗口</a></li>  <li class="file"><a href="/posts/1623087360/">修复破解Mac应用启动时闪退（原因是由于苹果移除了TNT证书）</a></li>  <li class="file"><a href="/posts/1525358532/">在 M1 芯片 Mac 上使用 Homebrew</a></li>  <li class="file"><a href="/posts/646546052/">如何查看 macOS 系统日志，辅助排除应用程序和系统故障</a></li>  <li class="file"><a href="/posts/3807466731/">如何彻底和CrossOver说GoodBye</a></li>  <li class="file"><a href="/posts/1207571108/">强制退出Mac程序的六种方法</a></li>  <li class="file"><a href="/posts/3920589165/">如何重置Mac上的NVRAM</a></li>  <li class="file"><a href="/posts/3430780623/">解决Mac修改DNS卡死-命令行修改Mac OS系统DNS设置</a></li>  <li class="file"><a href="/posts/3653564083/">苹果 Mac 重置 SMC、NVRAM、PRAM 方法教程 - 解决 macOS 卡顿或无法启动</a></li>  <li class="file"><a href="/posts/3837318570/">Mac VSCode 禁用GPU加速</a></li>  <li class="file"><a href="/posts/3366946474/">Mac高效使用技巧</a></li>  <li class="file"><a href="/posts/558776221/">解决“Mac应用”已损坏，无法打开的问题</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Others
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/3101956195/">Git中.gitignore无效的解决办法</a></li>  <li class="file"><a href="/posts/2867836530/">Axel:命令行下轻量级多线程下载程序</a></li>  <li class="file"><a href="/posts/3413649842/">Linux实用工具</a></li>  <li class="file"><a href="/posts/1073812833/">linux下测试磁盘的读写IO速度(IO物理测速)</a></li>  <li class="file"><a href="/posts/3895039994/">命令行信息截图工具 - ScreenFetch</a></li>  <li class="file"><a href="/posts/3784546227/">Git忽略提交规则 - .gitignore配置总结</a></li>  <li class="file"><a href="/posts/760033837/">平铺式窗口管理器 - Awesome</a></li>  <li class="file"><a href="/posts/2006196850/">私有化TM备份与共享服务器 - Netatalk</a></li>  <li class="file"><a href="/posts/1413974522/">用好这些隐藏「小开关」，让 Chrome 浏览器更好用</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Vim
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/258379777/">VIM下使用Vundle搭建python开发环境</a></li>  <li class="file"><a href="/posts/3374749959/">Vim快捷键使用总结</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Windows
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/3669230936/">为远程桌面启用Windows防火墙例外</a></li>  <li class="file"><a href="/posts/3426016246/">利用windows内置工具测试硬盘速度 - winsat</a></li>  <li class="file"><a href="/posts/913943227/">解决EXCEL按上下左右键不是单元格移动的问题</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Wordpress
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/1067246247/">WordPress启用memcached动态缓存以及报错解决</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                command
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/2407250830/">history命令设置linux查看历史命令显示执行时间</a></li>  <li class="file"><a href="/posts/3200906184/">find命令快速技巧：如何定位一个文件</a></li>  <li class="file"><a href="/posts/3403344661/">定时任务Crontab命令详解</a></li>  <li class="file"><a href="/posts/3241041753/">通过编写 chroot 来认识 chroot 发挥的作用和它带来的好处</a></li>  </ul> 
+                        </li>
+                         <li class="file"><a href="/posts/404814820/">DevOps简介</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder-open"></i>
+                                &nbsp;
+                                Soft engineering
+                            </a>
+                             <ul class="unstyled" id="tree" style="display: block;"> 
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Algorithm
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/1453950584/">8大排序算法图文讲解</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Architecture
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/2097636152/">工作两三年了，整不明白架构图都画啥？</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Cheat Sheets
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/2623330927/">Cheat Sheets - PostgreSQL</a></li>  <li class="file"><a href="/posts/3327139081/">Cheat Sheets – C++</a></li>  <li class="file"><a href="/posts/3048024619/">Cheat Sheets - Django Reference Sheet</a></li>  <li class="file"><a href="/posts/3433268710/">Cheat Sheets - Shell Script</a></li>  <li class="file"><a href="/posts/4169548679/">Cheat Sheets - .NET</a></li>  <li class="file"><a href="/posts/2137528313/">Cheat Sheets – CSS</a></li>  <li class="file"><a href="/posts/2993634676/">Cheat Sheets - Git</a></li>  <li class="file"><a href="/posts/3766000533/">Cheat Sheets – HTTP</a></li>  <li class="file"><a href="/posts/982990798/">Cheat Sheets – Linux</a></li>  <li class="file"><a href="/posts/2663199359/">Cheat Sheets – Java</a></li>  <li class="file"><a href="/posts/316669616/">Cheat Sheets – Mac OS X</a></li>  <li class="file"><a href="/posts/2038387758/">Cheat Sheets – MySQL</a></li>  <li class="file"><a href="/posts/2920272111/">Cheat Sheets – Nodejs</a></li>  <li class="file"><a href="/posts/3167589601/">Cheat Sheets – Perl</a></li>  <li class="file"><a href="/posts/305297407/">Cheat Sheets – C</a></li>  <li class="file"><a href="/posts/1053003126/">Cheat Sheets – Python</a></li>  <li class="file"><a href="/posts/2789789845/">Cheat Sheets – jQuery</a></li>  <li class="file"><a href="/posts/59285358/">Cheat Sheets – HTML and XHTML</a></li>  <li class="file"><a href="/posts/4169548678/">Cheat Sheets - Photoshop</a></li>  <li class="file"><a href="/posts/1130312566/">Cheat Sheets – SQLite</a></li>  <li class="file"><a href="/posts/3905631645/">Cheat sheets - Xcode</a></li>  <li class="file"><a href="/posts/3586350539/">Cheat sheets - Mac OS</a></li>  <li class="file"><a href="/posts/1362596080/">Cheat Sheets – PHP</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Project
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/467054247/">如何编写开源项目的README文档</a></li>  <li class="file"><a href="/posts/1755831586/">软件发布版本区别介绍</a></li>  </ul> 
+                        </li>
+                         </ul> 
+                        </li>
+                        
+                        <li class="directory-open" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder-open"></i>
+                                &nbsp;
+                                back-end
+                            </a>
+                             <ul class="unstyled" id="tree" style="display: block;"> 
+                        <li class="directory-open" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder-open"></i>
+                                &nbsp;
+                                Middle-ware
+                            </a>
+                             <ul class="unstyled" id="tree" style="display: block;"> 
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Gogs
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/612684965/">私人Git服务器 -- gogs</a></li>  <li class="file"><a href="/posts/4076369309/">Gogs数据备份、恢复</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Jenkins
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/388825549/">利用Jenkins持续集成iOS项目</a></li>  <li class="file"><a href="/posts/2282359188/">jenkins密码重置</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Logstash
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/2615120416/">日志搜集处理框架Logstash-安装配置</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                MySQL
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/554387356/">MySQL 排序的艺术：你真的懂 Order By 吗？</a></li>  <li class="file"><a href="/posts/2625460784/">MySQL延迟复制</a></li>  <li class="file"><a href="/posts/2654174479/">分库分表 vs NewSQL数据库</a></li>  <li class="file"><a href="/posts/4284065059/">MySQL 调优/优化的 101 个建议</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory-open" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Nginx
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file active"><a href="/posts/1350143519/">高性能 Nginx HTTPS 调优 - 如何为 HTTPS 提速 30%</a></li>  <li class="file"><a href="/posts/1544228005/">高性能Web服务器 - Nginx配置详解</a></li>  <li class="file"><a href="/posts/3996389515/">Nginx配置跨域请求 Access-Control-Allow-Origin *</a></li>  <li class="file"><a href="/posts/524919010/">Nginx正向代理与Client设置代理上网</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                RabbitMQ
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/2846671594/">RabbitMQ 集群高可用原理及实战部署介绍</a></li>  <li class="file"><a href="/posts/3135873234/">RabbitMQ入门</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Redis
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/156114019/">Redis Stream应用案例</a></li>  <li class="file"><a href="/posts/2992538737/">redis.conf参数配置及解释</a></li>  <li class="file"><a href="/posts/2864310564/">深入分析Redis特点及应用场景</a></li>  <li class="file"><a href="/posts/3909951181/">Redis Manual</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Sentry
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/1303728868/">错误日志收集平台 - Sentry(Redis+MySQL)</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Shadowsocks
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/3154796955/">Vultr快速搭建SS科学上网</a></li>  </ul> 
+                        </li>
+                         </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                NodeJS
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/2653381572/">NodeJS Package Manage Tool - NPM</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder-open"></i>
+                                &nbsp;
+                                Python
+                            </a>
+                             <ul class="unstyled" id="tree" style="display: block;"> 
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Build-in
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/2858153934/">Python build-in functions - collections</a></li>  <li class="file"><a href="/posts/857250976/">Python build-in functions - List</a></li>  <li class="file"><a href="/posts/3208674450/">Python build-in module - os</a></li>  <li class="file"><a href="/posts/5/">Python多线程和锁</a></li>  <li class="file"><a href="/posts/2434599799/">Python build-in functions</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Configuration
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/3568487154/">更改pip源至国内镜像 - 显著提升下载速度</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Library
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/4096440342/">Python Library - SQLAlchemy</a></li>  <li class="file"><a href="/posts/3634498847/">我用 Python 的 Seaborn 库，绘制了 17 个超好看图表!</a></li>  <li class="file"><a href="/posts/383305840/">Python Library - Flask SQLAlchemy</a></li>  <li class="file"><a href="/posts/55626181/">发布你自己的轮子 - PyPI打包上传实践</a></li>  </ul> 
+                        </li>
+                         <li class="file"><a href="/posts/272954362/">sys.stdout.write实现Python控制台实时刷新打印</a></li>  </ul> 
+                        </li>
+                         </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                iOS Development
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/684390890/">Swift 5.4 有什么新功能？</a></li>  <li class="file"><a href="/posts/1054462359/">Apple Store上iOS App上架流程</a></li>  <li class="file"><a href="/posts/1098789015/">Xcode开发中Build与version区别/build自增设置/build随时间变化？</a></li>  <li class="file"><a href="/posts/3772598043/">Swift：解包的正确姿势</a></li>  </ul> 
+                        </li>
+                         </ul> 
+    </div>
+    <script>
+        $(document).ready(function() {
+            var iconFolderOpenClass  = 'fa-folder-open';
+            var iconFolderCloseClass = 'fa-folder';
+            var iconAllExpandClass = 'fa-angle-double-down';
+            var iconAllPackClass = 'fa-angle-double-up';
+            // Handle directory-tree expansion:
+            // 左键单独展开目录
+            $(document).on('click', '#categories a[data-role="directory"]', function (event) {
+                event.preventDefault();
+
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconFolderOpenClass);
+                var subtree = $(this).siblings('ul');
+                icon.removeClass(iconFolderOpenClass).removeClass(iconFolderCloseClass);
+                if (expanded) {
+                    if (typeof subtree != 'undefined') {
+                        subtree.slideUp({ duration: 100 });
+                    }
+                    icon.addClass(iconFolderCloseClass);
+                } else {
+                    if (typeof subtree != 'undefined') {
+                        subtree.slideDown({ duration: 100 });
+                    }
+                    icon.addClass(iconFolderOpenClass);
+                }
+            });
+            // 右键展开下属所有目录
+            $('#categories a[data-role="directory"]').bind("contextmenu", function(event){
+                event.preventDefault();
+
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconFolderOpenClass);
+                var listNode = $(this).siblings('ul');
+                var subtrees = $.merge(listNode.find('li ul'), listNode);
+                var icons = $.merge(listNode.find('.fa'), icon);
+                icons.removeClass(iconFolderOpenClass).removeClass(iconFolderCloseClass);
+                if(expanded) {
+                    subtrees.slideUp({ duration: 100 });
+                    icons.addClass(iconFolderCloseClass);
+                } else {
+                    subtrees.slideDown({ duration: 100 });
+                    icons.addClass(iconFolderOpenClass);
+                }
+            })
+            // 展开关闭所有目录按钮
+            $(document).on('click', '#allExpand', function (event) {
+                event.preventDefault();
+
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconAllExpandClass);
+                icon.removeClass(iconAllExpandClass).removeClass(iconAllPackClass);
+                if(expanded) {
+                    $('#sidebar .fa.fa-folder').removeClass('fa-folder').addClass('fa-folder-open')
+                    $('#categories li ul').slideDown({ duration: 100 });
+                    icon.addClass(iconAllPackClass);
+                } else {
+                    $('#sidebar .fa.fa-folder-open').removeClass('fa-folder-open').addClass('fa-folder')
+                    $('#categories li ul').slideUp({ duration: 100 });
+                    icon.addClass(iconAllExpandClass);
+                }
+            });
+        });
+    </script>
+
+
+    
+        
+    <div class="widget-wrap">
+        <h3 class="widget-title"><span>recent</span></h3>
+        <div class="widget">
+            <ul id="recent-post" class="">
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/posts/4263562837/" class="thumbnail">
+    
+    
+        <span class="thumbnail-image thumbnail-none"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/OPS/">OPS</a><i class="fa fa-angle-right"></i><a class="article-category-link" href="/categories/OPS/MacOS/">MacOS</a></p>
+                            <p class="item-title"><a href="/posts/4263562837/" class="title">一个惊人快速的终端录像工具，也能录制 VSCode 和 Chrome 窗口</a></p>
+                            <p class="item-date"><time datetime="2021-03-28T00:02:47.000Z" itemprop="datePublished">2021-03-28</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/posts/3634498847/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210309111745.png)" alt="我用 Python 的 Seaborn 库，绘制了 17 个超好看图表!" class="thumbnail-image"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/back-end/">back-end</a><i class="fa fa-angle-right"></i><a class="article-category-link" href="/categories/back-end/Python/">Python</a></p>
+                            <p class="item-title"><a href="/posts/3634498847/" class="title">我用 Python 的 Seaborn 库，绘制了 17 个超好看图表!</a></p>
+                            <p class="item-date"><time datetime="2021-03-08T22:18:11.000Z" itemprop="datePublished">2021-03-09</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/posts/2097636152/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210303212435.jpg)" alt="工作两三年了，整不明白架构图都画啥？" class="thumbnail-image"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/Soft-engineering/">Soft engineering</a><i class="fa fa-angle-right"></i><a class="article-category-link" href="/categories/Soft-engineering/Architecture/">Architecture</a></p>
+                            <p class="item-title"><a href="/posts/2097636152/" class="title">工作两三年了，整不明白架构图都画啥？</a></p>
+                            <p class="item-date"><time datetime="2021-03-03T08:09:53.000Z" itemprop="datePublished">2021-03-03</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/posts/2846671594/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210228142136.jpg)" alt="RabbitMQ 集群高可用原理及实战部署介绍" class="thumbnail-image"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/back-end/">back-end</a><i class="fa fa-angle-right"></i><a class="article-category-link" href="/categories/back-end/Middle-ware/">Middle-ware</a></p>
+                            <p class="item-title"><a href="/posts/2846671594/" class="title">RabbitMQ 集群高可用原理及实战部署介绍</a></p>
+                            <p class="item-date"><time datetime="2021-02-28T01:06:06.000Z" itemprop="datePublished">2021-02-28</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/posts/3772598043/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210226162513.png)" alt="Swift：解包的正确姿势" class="thumbnail-image"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/iOS-Development/">iOS Development</a></p>
+                            <p class="item-title"><a href="/posts/3772598043/" class="title">Swift：解包的正确姿势</a></p>
+                            <p class="item-date"><time datetime="2021-02-26T03:32:25.000Z" itemprop="datePublished">2021-02-26</time></p>
+                        </div>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+
+    
+    <div id="toTop" class="fa fa-angle-up"></div>
+</aside>
+            
+            <section id="main"><article id="post-back-end/Middle-ware/Nginx/高性能NginxHTTPS调优" class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+        
+            <header class="article-header">
+                
+                    <div class="article-meta">
+                        
+    <div class="article-category">
+    	<i class="fa fa-folder"></i>
+        <a class="article-category-link" href="/categories/back-end/">back-end</a><i class="fa fa-angle-right"></i><a class="article-category-link" href="/categories/back-end/Middle-ware/">Middle-ware</a><i class="fa fa-angle-right"></i><a class="article-category-link" href="/categories/back-end/Middle-ware/Nginx/">Nginx</a>
+    </div>
+
+                        
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/tags/Nginx/">Nginx</a>, <a class="tag-link" href="/tags/提速/">提速</a>, <a class="tag-link" href="/tags/调优/">调优</a>, <a class="tag-link" href="/tags/高性能/">高性能</a>
+    </div>
+
+                        
+    <div class="article-date">
+        <i class="fa fa-calendar"></i>
+        <a href="/posts/1350143519/">
+            <time datetime="2021-02-23T07:11:15.000Z" itemprop="datePublished">2021-02-23</time>
+        </a>
+    </div>
+
+
+                        
+                    </div>
+                
+                
+    
+        <h1 class="article-title" itemprop="name">
+            高性能 Nginx HTTPS 调优 - 如何为 HTTPS 提速 30%
+        </h1>
+    
+
+            </header>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+        
+        
+            
+                <div id="toc" class="toc-article">
+                <strong class="toc-title">Catalogue</strong>
+                    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#为什么要优化-Nginx-HTTPS-延迟"><span class="toc-number">1.</span> <span class="toc-text">为什么要优化 Nginx HTTPS 延迟</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#TLS-握手和延迟"><span class="toc-number">2.</span> <span class="toc-text">TLS 握手和延迟</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Nginx-中的-TLS-设置"><span class="toc-number">3.</span> <span class="toc-text">Nginx 中的 TLS 设置</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#开启-HTTP-2"><span class="toc-number">3.1.</span> <span class="toc-text">开启 HTTP/2</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#如何确认你的网站或者-API-开启了-HTTP-2"><span class="toc-number">3.2.</span> <span class="toc-text">如何确认你的网站或者 API 开启了 HTTP 2</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#调整-Cipher-优先级"><span class="toc-number">3.3.</span> <span class="toc-text">调整 Cipher 优先级</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#启用-OCSP-Stapling"><span class="toc-number">3.4.</span> <span class="toc-text">启用 OCSP Stapling</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#如何检测-OCSP-Stapling-是否已经开启？"><span class="toc-number">3.5.</span> <span class="toc-text">如何检测 OCSP Stapling 是否已经开启？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#调整-ssl-buffer-size"><span class="toc-number">3.6.</span> <span class="toc-text">调整 ssl_buffer_size</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#启用-SSL-Session-缓存"><span class="toc-number">3.7.</span> <span class="toc-text">启用 SSL Session 缓存</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#卡拉搜索如何减少-30-的请求延迟"><span class="toc-number">4.</span> <span class="toc-text">卡拉搜索如何减少 30% 的请求延迟</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#总结"><span class="toc-number">5.</span> <span class="toc-text">总结</span></a></li></ol>
+                </div>
+            
+        
+        
+            <p><img src="https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210223202509.png" alt=""></p>
+<h1 id="为什么要优化-Nginx-HTTPS-延迟"><a href="#为什么要优化-Nginx-HTTPS-延迟" class="headerlink" title="为什么要优化 Nginx HTTPS 延迟"></a>为什么要优化 Nginx HTTPS 延迟</h1><p>  Nginx 常作为最常见的服务器，常被用作负载均衡 (Load Balancer)、反向代理 (Reverse Proxy)，以及网关 (Gateway) 等等。一个配置得当的 Nginx 服务器单机应该可以期望承受住 50K 到 80K 左右每秒的请求，同时将 CPU 负载在可控范围内。 但在很多时候，负载并不是需要首要优化的重点。比如对于卡拉搜索来说，我们希望用户在每次击键的时候，可以体验即时搜索的感觉，也就是说，每个搜索请求必须在 100ms - 200ms 的时间内端对端地返回给用户，才能让用户搜索时没有“卡顿”和“加载”。因此，对于我们来说，优化请求延迟才是最重要的优化方向。</p>
+<p>这篇文章中，我们先介绍 Nginx 中的 TLS 设置有哪些与请求延迟可能相关，如何调整才能最大化加速。然后我们用优化卡拉搜索 Nginx 服务器的实例来分享如何调整 Nginx TLS/SSL 设置，为首次搜索的用户提速 30% 左右。我们会详细讨论每一步我们做了一些什么优化，优化的动机和效果。希望可以对其它遇到类似问题的同学提供帮助。 照例，本文的 Nginx 设置文件放置于 github，欢迎直接使用: 高性能 Nginx HTTPS 调优(<a href="https://github.com/Kalasearch/high-performance-nginx-tls-tuning" target="_blank" rel="noopener">https://github.com/Kalasearch/high-performance-nginx-tls-tuning</a>)</p>
+<h1 id="TLS-握手和延迟"><a href="#TLS-握手和延迟" class="headerlink" title="TLS 握手和延迟"></a>TLS 握手和延迟</h1><p>  很多时候开发者会认为：如果不是绝对在意性能，那么了解底层和更细节的优化没有必要。这句话在很多时候是恰当的，因为很多时候复杂的底层逻辑必须包起来，才能让更高层的应用开发复杂度可控。比如说，如果你就只需要开发一个 APP 或者网站，可能并没有必要关注汇编细节，关注编译器如何优化你的代码——毕竟在苹果或者安卓上很多优化在底层就做好了。 那么，了解底层的 TLS 和应用层的 Nginx 延迟优化有什么关系呢？ 答案是多数情况下，优化网络延迟其实是在尝试减少用户和服务器之间的数据传输次数，也就是所谓的 roundtrip。由于物理限制，北京到云南的光速传播差不多就是要跑 20 来毫秒，如果你不小心让数据必须多次往返于北京和云南之间，那么必然延迟就上去了。 因此如果你需要优化请求延迟，那么了解一点底层网络的上下文则会大有裨益，很多时候甚至是你是否可以轻松理解一个优化的关键。本文中我们不深入讨论太多 TCP 或者 TLS 机制的细节，如果有兴趣的话请参考 High Performance Browser Networking 一书。 举个例子，下图中展示了如果你的服务启用了 HTTPS，在开始传输任何数据之前的数据传输情况。 <img src="https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210223201646.png" alt="">     可以看到，在你的用户拿到他需要的数据前，底层的数据包就已经在用户和你的服务器之间跑了 3 个来回。 假设每次来回需要 28 毫秒的话，用户已经等了 224 毫秒之后才开始接收数据。 同时这个 28 毫秒其实是非常乐观的假设，在国内电信、联通和移动以及各种复杂的网络状况下，用户与服务器之间的延迟更不可控。另一方面，通常一个网页需要数十个请求，这些请求不一定可以全部并行，因此几十乘以 224 毫秒，页面打开可能就是数秒之后了。 所以，原则上如果可能的话，我们需要尽量减少用户和服务器之间的往返程 (roundtrip)，在下文的设置中，对于每个设置我们会讨论为什么这个设置有可能帮助减少往返程。</p>
+<h1 id="Nginx-中的-TLS-设置"><a href="#Nginx-中的-TLS-设置" class="headerlink" title="Nginx 中的 TLS 设置"></a>Nginx 中的 TLS 设置</h1><p>  那么在 Nginx 设置中，怎样调整参数会减少延迟呢？</p>
+<a id="more"></a>
+<h2 id="开启-HTTP-2"><a href="#开启-HTTP-2" class="headerlink" title="开启 HTTP/2"></a>开启 HTTP/2</h2><p>HTTP/2 标准是从 Google 的 SPDY 上进行的改进，比起 HTTP 1.1 提升了不少性能，尤其是需要并行多个请求的时候可以显著减少延迟。在现在的网络上，一个网页平均需要请求几十次，而在 HTTP 1.1 时代浏览器能做的就是多开几个连接（通常是 6 个）进行并行请求，而 HTTP 2 中可以在一个连接中进行并行请求。HTTP 2 原生支持多个并行请求，因此大大减少了顺序执行的请求的往返程，可以首要考虑开启。 如果你想自己看一下 HTTP 1.1 和 HTTP 2.0 的速度差异，可以试一下：<a href="https://www.httpvshttps.com/。我的网络测试下来" target="_blank" rel="noopener">https://www.httpvshttps.com/。我的网络测试下来</a> HTTP/2 比 HTTP 1.1 快了 66%。 <img src="https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210223201836.png" alt="">在 Nginx 中开启 HTTP 2.0 非常简单，只需要增加一个 http2 标志即可</p>
+<pre class="line-numbers language-bash"><code class="language-bash">listen 443 ssl<span class="token punctuation">;</span>
+<span class="token comment" spellcheck="true"># 改为</span>
+listen 443 ssl http2<span class="token punctuation">;</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+<p>如果你担心你的用户用的是旧的客户端，比如 Python 的 requests，暂时还不支持 HTTP 2 的话，那么其实不用担心。如果用户的客户端不支持 HTTP 2，那么连接会自动降级为 HTTP 1.1，保持了后向兼容。因此，所有使用旧 Client 的用户，仍然不受影响，而新的客户端则可以享受 HTTP/2 的新特性。</p>
+<h2 id="如何确认你的网站或者-API-开启了-HTTP-2"><a href="#如何确认你的网站或者-API-开启了-HTTP-2" class="headerlink" title="如何确认你的网站或者 API 开启了 HTTP 2"></a>如何确认你的网站或者 API 开启了 HTTP 2</h2><p>在 Chrome 中打开开发者工具，点开 Protocol 之后在所有的请求中都可以看到请求用的协议了。如果 protocol 这列的值是 h2 的话，那么用的就是 HTTP 2 了 <img src="https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210223201917.png" alt=""> 当然另一个办法是直接用 curl 如果返回的 status 前有 HTTP/2 的话自然也就是 HTTP/2 开启了。</p>
+<pre class="line-numbers language-bash"><code class="language-bash">➜  ~ curl --http2 -I https://kalasearch.cn
+HTTP/2 403
+server: Tengine
+content-type: application/xml
+content-length: 264
+date: Tue, 22 Dec 2020 18:38:46 GMT
+x-oss-request-id: 5FE23D363ADDB93430197043
+x-oss-cdn-auth: success
+x-oss-server-time: 0
+x-alicdn-da-ups-status: endOs,0,403
+via: cache13.l2et2<span class="token punctuation">[</span>148,0<span class="token punctuation">]</span>, cache10.l2ot7<span class="token punctuation">[</span>291,0<span class="token punctuation">]</span>, cache4.us13<span class="token punctuation">[</span>360,0<span class="token punctuation">]</span>
+timing-allow-origin: *
+eagleid: 2ff6169816086623266688093e
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<h2 id="调整-Cipher-优先级"><a href="#调整-Cipher-优先级" class="headerlink" title="调整 Cipher 优先级"></a>调整 Cipher 优先级</h2><p>尽量挑选更新更快的 Cipher，有助于减少延迟:</p>
+<pre class="line-numbers language-bash"><code class="language-bash"><span class="token comment" spellcheck="true"># 手动启用 cipher 列表</span>
+ssl_prefer_server_ciphers on<span class="token punctuation">;</span>  <span class="token comment" spellcheck="true"># prefer a list of ciphers to prevent old and slow ciphers</span>
+ssl_ciphers <span class="token string">'EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH'</span><span class="token punctuation">;</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+<h2 id="启用-OCSP-Stapling"><a href="#启用-OCSP-Stapling" class="headerlink" title="启用 OCSP Stapling"></a>启用 OCSP Stapling</h2><p>在国内这可能是对使用 Let’s Encrypt 证书的服务或网站影响最大的延迟优化了。如果不启用 OCSP Stapling 的话，在用户连接你的服务器的时候，有时候需要去验证证书。而因为一些不可知的原因（这个就不说穿了）Let’s Encrypt 的验证服务器并不是非常通畅，因此可以造成有时候数秒甚至十几秒延迟的问题，这个问题在 iOS 设备上特别严重 解决这个问题的方法有两个：</p>
+<ol>
+<li>不使用 Let’s Encrypt，可以尝试替换为阿里云提供的免费 DV 证书</li>
+<li>开启 OCSP Stapling</li>
+</ol>
+<p>开启了 OCSP Stapling 的话，跑到证书验证这一步可以省略掉。省掉一个 roundtrip，特别是网络状况不可控的 roundtrip，可能可以将你的延迟大大减少。 在 Nginx 中启用 OCSP Stapling 也非常简单，只需要设置：</p>
+<pre class="line-numbers language-bash"><code class="language-bash">ssl_stapling on<span class="token punctuation">;</span>
+ssl_stapling_verify on<span class="token punctuation">;</span>
+ssl_trusted_certificate /path/to/full_chain.pem<span class="token punctuation">;</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+<h2 id="如何检测-OCSP-Stapling-是否已经开启？"><a href="#如何检测-OCSP-Stapling-是否已经开启？" class="headerlink" title="如何检测 OCSP Stapling 是否已经开启？"></a>如何检测 OCSP Stapling 是否已经开启？</h2><p>可以通过以下命令</p>
+<pre class="line-numbers language-bash"><code class="language-bash">openssl s_client -connect test.kalasearch.cn:443 -servername kalasearch.cn -status -tlsextdebug <span class="token operator">&lt;</span> /dev/null 2<span class="token operator">></span><span class="token operator">&amp;</span>1 <span class="token operator">|</span> <span class="token function">grep</span> -i <span class="token string">"OCSP response"</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>来测试。如果结果为</p>
+<pre class="line-numbers language-bash"><code class="language-bash">OCSP response:
+OCSP Response Data:
+    OCSP Response Status: successful <span class="token punctuation">(</span>0x0<span class="token punctuation">)</span>
+    Response Type: Basic OCSP Response
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+<p>则表明已经开启。参考 HTTPS 在 iPhone 上慢的问题 一文</p>
+<h2 id="调整-ssl-buffer-size"><a href="#调整-ssl-buffer-size" class="headerlink" title="调整 ssl_buffer_size"></a>调整 ssl_buffer_size</h2><p>sslbuffersize 控制在发送数据时的 buffer 大小，默认设置是 16k。这个值越小，则延迟越小，而添加的报头之类会使 overhead 会变大，反之则延迟越大，overhead 越小。 因此如果你的服务是 REST API或者网站的话，将这个值调小可以减小延迟和 TTFB，但如果你的服务器是用来传输大文件的，那么可以维持 16k。关于这个值的讨论和更通用的 TLS Record Size 的讨论，可以参考：Best value for nginx’s sslbuffersize option 如果是网站或者 REST API，建议值为 4k，但是这个值的最佳取值显然会因为数据的不同而不一样，因此请尝试 2 - 16k 间不同的值。在 Nginx 中调整这个值也非常容易</p>
+<pre class="line-numbers language-bash"><code class="language-bash">ssl_buffer_size 4k<span class="token punctuation">;</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<h2 id="启用-SSL-Session-缓存"><a href="#启用-SSL-Session-缓存" class="headerlink" title="启用 SSL Session 缓存"></a>启用 SSL Session 缓存</h2><p>启用 SSL Session 缓存可以大大减少 TLS 的反复验证，减少 TLS 握手的 roundtrip。虽然 session 缓存会占用一定内存，但是用 1M 的内存就可以缓存 4000 个连接，可以说是非常非常划算的。同时，对于绝大多数网站和服务，要达到 4000 个同时连接本身就需要非常非常大的用户基数，因此可以放心开启。 这里 ssl_session_cache 设置为使用 50M 内存，以及 4 小时的连接超时关闭时间 ssl_session_timeout</p>
+<pre class="line-numbers language-bash"><code class="language-bash"><span class="token comment" spellcheck="true"># Enable SSL cache to speed up for return visitors</span>
+ssl_session_cache   shared:SSL:50m<span class="token punctuation">;</span> <span class="token comment" spellcheck="true"># speed up first time. 1m ~= 4000 connections</span>
+ssl_session_timeout 4h<span class="token punctuation">;</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+<h1 id="卡拉搜索如何减少-30-的请求延迟"><a href="#卡拉搜索如何减少-30-的请求延迟" class="headerlink" title="卡拉搜索如何减少 30% 的请求延迟"></a>卡拉搜索如何减少 30% 的请求延迟</h1><p>  卡拉搜索是国内的 Algolia，致力于帮助开发者快速搭建即时搜索功能(instant search)，做国内最快最易用的搜索即服务。 开发者接入后，所有搜索请求通过卡拉 API 即可直接返回给终端用户。为了让用户有即时搜索的体验，我们需要在用户每次击键后极短的时间内（通常是 100ms 到 200ms）将结果返回给用户。因此每次搜索需要可以达到 50 毫秒以内的引擎处理时间和 200 毫秒以内的端对端时间。</p>
+<blockquote>
+<p>我们用豆瓣电影的数据做了一个电影搜索的 Demo，如果感兴趣的话欢迎体验一下即时搜索，尝试一下搜索“无间道”或者“大话西游”体验一下速度和相关度：<a href="https://movies-demo.kalasearch.cn/" target="_blank" rel="noopener">https://movies-demo.kalasearch.cn/</a></p>
+</blockquote>
+<p>对于每个请求只有 100 到 200 毫秒的延迟预算，我们必须把每一步的延迟都考虑在内。 简化一下，每个搜索请求需要经历的延迟有 <img src="https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210223202216.png" alt=""> 总延迟 = 用户请求到达服务器(T1) + 反代处理(Nginx T2) + 数据中心延迟(T3) + 服务器处理 (卡拉引擎 T4) + 用户请求返回(T3+T1) 在上述延迟中，T1 只与用户与服务器的物理距离相关，而 T3 非常小（参考Jeff Dean Numbe)可以忽略不计。 所以我们能控制的大致只有 T2 和 T4，即 Nginx 服务器的处理时间和卡拉的引擎处理时间。 Nginx 在这里作为反向代理，处理一些安全、流量控制和 TLS 的逻辑，而卡拉的引擎则是一个在 Lucene 基础上的倒排引擎。 我们首先考虑的第一个可能性是：延迟是不是来自卡拉引擎呢？ 在下图展示的 Grafana 仪表盘中，我们看到除了几个时不时的慢查询，搜索的 95% 服务器处理延迟小于 20 毫秒。对比同样的数据集上 benchmark 的 Elastic Search 引擎的 P95 搜索延迟则在 200 毫秒左右，所以排除了引擎速度慢的可能。 <img src="https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210223202234.png" alt=""> 而在阿里云监控中，我们设置了从全国各地向卡拉服务器发送搜索请求。我们终于发现 SSL 处理时间时常会超过 300 毫秒，也就是说在 T2 这一步，光处理 TLS 握手之类的事情，Nginx 已经用掉了我们所有的请求时间预算。 同时检查之后我们发现，在苹果设备上搜索速度格外慢，特别是第一次访问的设备。因此我们大致判断应该是因为我们使用的 Let’s Encrypt 证书的问题。 我们按照上文中的步骤对 Nginx 设置进行了调整，并将步骤总结出来写了这篇文章。在调整了 Nginx TLS 的设置后，SSL 时间从平均的 140ms 降低到了 110ms 左右（全国所有省份联通和移动测试点），同时苹果设备上首次访问慢的问题也消失了。 <img src="https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210223202249.png" alt=""> 在调整过后，全国范围内测试的搜索延迟降低到了 150 毫秒左右。</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>  调整 Nginx 中的 TLS 设置对于使用 HTTPS 的服务和网站延迟有非常大的影响。<br>  本文中总结了 Nginx 中与 TLS 相关的设置，详细讨论各个设置可能对延迟的影响，并给出了调整建议。之后我们会继续讨论 HTTP/2 对比 HTTP 1.x 有哪些具体改进，以及在 REST API 使用 HTTP/2 有哪些优缺点</p>
+
+            </div>
+        
+        <footer class="article-footer">
+        </footer>
+    </div>
+</article>
+
+
+    
+<nav id="article-nav">
+    
+        <a href="/posts/3669230936/" id="article-nav-newer" class="article-nav-link-wrap">
+            <strong class="article-nav-caption">Newer</strong>
+            <div class="article-nav-title">
+                
+                    为远程桌面启用Windows防火墙例外
+                
+            </div>
+        </a>
+    
+    
+        <a href="/posts/684390890/" id="article-nav-older" class="article-nav-link-wrap">
+            <strong class="article-nav-caption">Older</strong>
+            <div class="article-nav-title">Swift 5.4 有什么新功能？</div>
+        </a>
+    
+</nav>
+
+
+
+
+
+    
+    
+
+
+
+
+<!-- baidu url auto push script -->
+<script type="text/javascript">
+    !function(){var e=/([http|https]:\/\/[a-zA-Z0-9\_\.]+\.baidu\.com)/gi,r=window.location.href,o=document.referrer;if(!e.test(r)){var n="//api.share.baidu.com/s.gif";o?(n+="?r="+encodeURIComponent(document.referrer),r&&(n+="&l="+r)):r&&(n+="?l="+r);var t=new Image;t.src=n}}(window);
+</script>     
+
+<head><meta name="generator" content="Hexo 3.9.0">
+    <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+    <script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+<link rel="stylesheet" href="/css/prism-duotone-light.css" type="text/css">
+<link rel="stylesheet" href="/css/prism-line-numbers.css" type="text/css"></head>
+<body>
+    <div id="vcomments"></div>
+    <script>
+        new Valine({
+            el: '#vcomments',
+            appId: '8kLhebBkVygl1MhVcQx9dnBP-gzGzoHsz',
+            appKey: 'hrctlOb6RQBWjjwTJ9fVjb91'
+        })
+    </script>
+</body>
+
+
+</section>
+        </div>
+        <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+
+<footer id="footer">
+    <div class="outer">
+        <div id="footer-info" class="inner">
+            <a href="https://www.jifu.io">
+            Ji Fu &copy; 2021
+            </a>
+            <br> Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>. Theme - <a href="https://github.com/zthxxx/hexo-theme-Wikitten">wikitten</a>
+            <br> 您是  jifu'wiki 的第<span id="busuanzi_value_site_uv"></span>个小伙伴
+            <br>
+                本站总访问量<span id="busuanzi_value_site_pv"></span>次
+                本文总阅读量<span id="busuanzi_value_page_pv"></span>次
+        </div>
+    </div>
+</footer>
+
+
+
+        
+
+    
+        <script src="/libs/lightgallery/js/lightgallery.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-thumbnail.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-pager.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-autoplay.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-fullscreen.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-zoom.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-hash.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-share.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-video.min.js"></script>
+    
+    
+        <script src="/libs/justified-gallery/jquery.justifiedGallery.min.js"></script>
+    
+    
+
+
+
+<!-- Custom Scripts -->
+<script src="/js/main.js"></script>
+
+    </div>
+</body>
+</html>

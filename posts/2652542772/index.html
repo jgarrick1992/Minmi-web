@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+    <meta charset="utf-8">
+    
+    <title>macOS 下 FFmpeg 视频转码入门及进阶使用心得 | JiFu&#39;s Wiki</title>
+    
+    
+        <meta name="keywords" content="MacOS,FFmpeg,视频转码,H.265">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="description" content="简介如今较为常见的视频封装格式有 mp4 和 mkv 等， 内部的视频编码格式从前几年盛行的 H.264/x264 逐渐开始向新一代的 HEVC/x265（ High Efficiency Video Coding 高效视频编码）过渡，而常见的音频编码格式无非 AC3、DTS 或者 AAC 等。无论是借助带有 GUI 的编码软件，还是使用命令行，FFmpeg 是最为广泛使用的工具，理论上 FFm">
+<meta name="keywords" content="MacOS,FFmpeg,视频转码,H.265">
+<meta property="og:type" content="article">
+<meta property="og:title" content="macOS 下 FFmpeg 视频转码入门及进阶使用心得">
+<meta property="og:url" content="http://www.jifu.io/posts/2652542772/index.html">
+<meta property="og:site_name" content="JiFu&#39;s Wiki">
+<meta property="og:description" content="简介如今较为常见的视频封装格式有 mp4 和 mkv 等， 内部的视频编码格式从前几年盛行的 H.264/x264 逐渐开始向新一代的 HEVC/x265（ High Efficiency Video Coding 高效视频编码）过渡，而常见的音频编码格式无非 AC3、DTS 或者 AAC 等。无论是借助带有 GUI 的编码软件，还是使用命令行，FFmpeg 是最为广泛使用的工具，理论上 FFm">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210223204447.png">
+<meta property="og:updated_time" content="2021-02-28T13:25:18.351Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="macOS 下 FFmpeg 视频转码入门及进阶使用心得">
+<meta name="twitter:description" content="简介如今较为常见的视频封装格式有 mp4 和 mkv 等， 内部的视频编码格式从前几年盛行的 H.264/x264 逐渐开始向新一代的 HEVC/x265（ High Efficiency Video Coding 高效视频编码）过渡，而常见的音频编码格式无非 AC3、DTS 或者 AAC 等。无论是借助带有 GUI 的编码软件，还是使用命令行，FFmpeg 是最为广泛使用的工具，理论上 FFm">
+<meta name="twitter:image" content="https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210223204447.png">
+    
+
+    
+        <link rel="alternate" href="/atom.xml" title="JiFu&#39;s Wiki" type="application/atom+xml">
+    
+
+    
+        <link rel="icon" href="/favicon.ico">
+    
+
+    <link rel="stylesheet" href="/libs/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/libs/open-sans/styles.css">
+    <link rel="stylesheet" href="/libs/source-code-pro/styles.css">
+
+    <link rel="stylesheet" href="/css/style.css">
+    <script src="/libs/jquery/2.1.3/jquery.min.js"></script>
+    <script src="/libs/jquery/plugins/cookie/1.4.1/jquery.cookie.js"></script>
+    
+    
+        <link rel="stylesheet" href="/libs/lightgallery/css/lightgallery.min.css">
+    
+    
+        <link rel="stylesheet" href="/libs/justified-gallery/justifiedGallery.min.css">
+    
+    
+    
+    
+        <script>
+var _hmt = _hmt || [];
+(function() {
+    var hm = document.createElement("script");
+    hm.src = "//hm.baidu.com/hm.js?efa1eb5f56c438a850a0f60609fd7755";
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+    
+
+
+<link rel="stylesheet" href="/css/prism-duotone-light.css" type="text/css">
+<link rel="stylesheet" href="/css/prism-line-numbers.css" type="text/css"></head>
+</html>
+<body>
+    <div id="container">
+        <script>
+    (function(){
+        var bp = document.createElement('script');
+        var curProtocol = window.location.protocol.split(':')[0];
+        if (curProtocol === 'https') {
+            bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+        }
+        else {
+            bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+        }
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(bp, s);
+    })();
+</script>
+
+<header id="header">
+    <div id="header-main" class="header-inner">
+        <div class="outer">
+            <a href="/" id="logo">
+                <i class="logo"></i>
+                <span class="site-title">JiFu&#39;s Wiki</span>
+            </a>
+            <nav id="main-nav">
+                
+                    <a class="main-nav-link" href="/">Home</a>
+                
+                    <a class="main-nav-link" href="/archives">Archives</a>
+                
+                    <a class="main-nav-link" href="/categories">Categories</a>
+                
+                    <a class="main-nav-link" href="/tags">Tags</a>
+                
+                    <a class="main-nav-link" href="/about">About</a>
+                
+            </nav>
+            
+            <div id="search-form-wrap">
+
+    <form class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="Search" />
+        <button type="submit" class="search-form-submit"></button>
+    </form>
+    <div class="ins-search">
+    <div class="ins-search-mask"></div>
+    <div class="ins-search-container">
+        <div class="ins-input-wrapper">
+            <input type="text" class="ins-search-input" placeholder="Type something..." />
+            <span class="ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: 'Posts',
+            PAGES: 'Pages',
+            CATEGORIES: 'Categories',
+            TAGS: 'Tags',
+            UNTITLED: '(Untitled)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+<script src="/js/insight.js"></script>
+
+</div>
+        </div>
+    </div>
+    <div id="main-nav-mobile" class="header-sub header-inner">
+        <table class="menu outer">
+            <tr>
+                
+                    <td><a class="main-nav-link" href="/">Home</a></td>
+                
+                    <td><a class="main-nav-link" href="/archives">Archives</a></td>
+                
+                    <td><a class="main-nav-link" href="/categories">Categories</a></td>
+                
+                    <td><a class="main-nav-link" href="/tags">Tags</a></td>
+                
+                    <td><a class="main-nav-link" href="/about">About</a></td>
+                
+                <td>
+                    
+    <div class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="Search" />
+    </div>
+
+                </td>
+            </tr>
+        </table>
+    </div>
+</header>
+
+        <div class="outer">
+            
+            
+                <aside id="sidebar">
+   
+        
+    <div class="widget-wrap" id='categories'>
+        <h3 class="widget-title">
+            <span>categories</span>
+            &nbsp;
+            <a id='allExpand' href="#">
+                <i class="fa fa-angle-double-up fa-2x"></i>
+            </a>
+        </h3>
+
+        
+        
+         <ul class="unstyled" id="tree" style="display: block;"> 
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Android Development
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/1797699998/">深入了解 gradle 和 maven 的区别</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Design
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/1907494021/">PS快捷键使用指南</a></li>  <li class="file"><a href="/posts/729727978/">快速改善用户界面的10个技巧</a></li>  <li class="file"><a href="/posts/1525329016/">提高效率！24 个高手常用的 Sketch 技巧合集（附实用快捷键）</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                HR
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/3142539384/">HR常用的招聘邮件模板</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Hardware
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/3904818761/">MacBook十年进化史</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory-open" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder-open"></i>
+                                &nbsp;
+                                OPS
+                            </a>
+                             <ul class="unstyled" id="tree" style="display: block;"> 
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Docker
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/1245529498/">Docker学习笔记</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Editor
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/151598530/">VScdoe error:Could not create temporary directory Permission denied</a></li>  <li class="file"><a href="/posts/4167799419/">Build personal development editor with vscode</a></li>  <li class="file"><a href="/posts/4165683660/">REST Client 简单好用的接口测试辅助工具</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder-open"></i>
+                                &nbsp;
+                                Linux
+                            </a>
+                             <ul class="unstyled" id="tree" style="display: block;"> 
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                CentOS
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/1867760035/">CentOS7编译安装VIM8</a></li>  <li class="file"><a href="/posts/920993072/">CentOS update Ruby</a></li>  <li class="file"><a href="/posts/4057676473/">yum提示Error: rpmdb open failed的解决方案</a></li>  <li class="file"><a href="/posts/1153610031/">centos7修改启动内核，删除无用内核</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                System Service
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/709002730/">使用 systemctl 添加自定义服务</a></li>  <li class="file"><a href="/posts/4024224000/">Linux swap分区及作用详解</a></li>  <li class="file"><a href="/posts/797311580/">服务管理工具 - systemctl</a></li>  <li class="file"><a href="/posts/55221137/">防火墙工具 - firewalld</a></li>  </ul> 
+                        </li>
+                         <li class="file"><a href="/posts/4070386720/">Linux系统目录结构及详细说明</a></li>  <li class="file"><a href="/posts/3897848060/">Mac使用SSH登录Google Cloud Platform</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory-open" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                MacOS
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/3746871293/">Charles从入门到精通</a></li>  <li class="file"><a href="/posts/581320548/">Homebrew：让你从 Mac 切换到 Linux 更轻松</a></li>  <li class="file"><a href="/posts/4001059579/">Compiling PyQt5 for Python2.7 on Mac OS</a></li>  <li class="file"><a href="/posts/662287335/">MACOS BOOT CAMP – THE STARTUP DISK DOES NOT HAVE ENOUGH SPACE TO BE PARTITIONED</a></li>  <li class="file"><a href="/posts/2776773816/">Mac OS X设置SMB进行文件共享</a></li>  <li class="file"><a href="/posts/582618556/">Mac的最大连接数限制和端口的相关参数的设置</a></li>  <li class="file"><a href="/posts/1883980072/">Mac OS系统加速：干掉那些「炫酷」的动画</a></li>  <li class="file"><a href="/posts/1208074722/">Mac重置系统管理控制器SMC</a></li>  <li class="file"><a href="/posts/294187676/">Mac版迅雷优化,删除无用插件</a></li>  <li class="file active"><a href="/posts/2652542772/">macOS 下 FFmpeg 视频转码入门及进阶使用心得</a></li>  <li class="file"><a href="/posts/1070186292/">SafariBookmarksSyncAgent意外退出解决方法</a></li>  <li class="file"><a href="/posts/2733308530/">Mac定时任务-利用launchctl定时启动任务</a></li>  <li class="file"><a href="/posts/2768996547/">一览Mac OS 图形界面的发展史</a></li>  <li class="file"><a href="/posts/4147446761/">Mac 时间机器 Time Machine 备份速度太慢的解决方法 (加速备份命令)</a></li>  <li class="file"><a href="/posts/4263562837/">一个惊人快速的终端录像工具，也能录制 VSCode 和 Chrome 窗口</a></li>  <li class="file"><a href="/posts/1623087360/">修复破解Mac应用启动时闪退（原因是由于苹果移除了TNT证书）</a></li>  <li class="file"><a href="/posts/1525358532/">在 M1 芯片 Mac 上使用 Homebrew</a></li>  <li class="file"><a href="/posts/646546052/">如何查看 macOS 系统日志，辅助排除应用程序和系统故障</a></li>  <li class="file"><a href="/posts/3807466731/">如何彻底和CrossOver说GoodBye</a></li>  <li class="file"><a href="/posts/1207571108/">强制退出Mac程序的六种方法</a></li>  <li class="file"><a href="/posts/3920589165/">如何重置Mac上的NVRAM</a></li>  <li class="file"><a href="/posts/3430780623/">解决Mac修改DNS卡死-命令行修改Mac OS系统DNS设置</a></li>  <li class="file"><a href="/posts/3653564083/">苹果 Mac 重置 SMC、NVRAM、PRAM 方法教程 - 解决 macOS 卡顿或无法启动</a></li>  <li class="file"><a href="/posts/3837318570/">Mac VSCode 禁用GPU加速</a></li>  <li class="file"><a href="/posts/3366946474/">Mac高效使用技巧</a></li>  <li class="file"><a href="/posts/558776221/">解决“Mac应用”已损坏，无法打开的问题</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Others
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/3101956195/">Git中.gitignore无效的解决办法</a></li>  <li class="file"><a href="/posts/2867836530/">Axel:命令行下轻量级多线程下载程序</a></li>  <li class="file"><a href="/posts/3413649842/">Linux实用工具</a></li>  <li class="file"><a href="/posts/1073812833/">linux下测试磁盘的读写IO速度(IO物理测速)</a></li>  <li class="file"><a href="/posts/3895039994/">命令行信息截图工具 - ScreenFetch</a></li>  <li class="file"><a href="/posts/3784546227/">Git忽略提交规则 - .gitignore配置总结</a></li>  <li class="file"><a href="/posts/760033837/">平铺式窗口管理器 - Awesome</a></li>  <li class="file"><a href="/posts/2006196850/">私有化TM备份与共享服务器 - Netatalk</a></li>  <li class="file"><a href="/posts/1413974522/">用好这些隐藏「小开关」，让 Chrome 浏览器更好用</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Vim
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/258379777/">VIM下使用Vundle搭建python开发环境</a></li>  <li class="file"><a href="/posts/3374749959/">Vim快捷键使用总结</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Windows
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/3669230936/">为远程桌面启用Windows防火墙例外</a></li>  <li class="file"><a href="/posts/3426016246/">利用windows内置工具测试硬盘速度 - winsat</a></li>  <li class="file"><a href="/posts/913943227/">解决EXCEL按上下左右键不是单元格移动的问题</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Wordpress
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/1067246247/">WordPress启用memcached动态缓存以及报错解决</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                command
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/2407250830/">history命令设置linux查看历史命令显示执行时间</a></li>  <li class="file"><a href="/posts/3200906184/">find命令快速技巧：如何定位一个文件</a></li>  <li class="file"><a href="/posts/3403344661/">定时任务Crontab命令详解</a></li>  <li class="file"><a href="/posts/3241041753/">通过编写 chroot 来认识 chroot 发挥的作用和它带来的好处</a></li>  </ul> 
+                        </li>
+                         <li class="file"><a href="/posts/404814820/">DevOps简介</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder-open"></i>
+                                &nbsp;
+                                Soft engineering
+                            </a>
+                             <ul class="unstyled" id="tree" style="display: block;"> 
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Algorithm
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/1453950584/">8大排序算法图文讲解</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Architecture
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/2097636152/">工作两三年了，整不明白架构图都画啥？</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Cheat Sheets
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/2623330927/">Cheat Sheets - PostgreSQL</a></li>  <li class="file"><a href="/posts/3327139081/">Cheat Sheets – C++</a></li>  <li class="file"><a href="/posts/3048024619/">Cheat Sheets - Django Reference Sheet</a></li>  <li class="file"><a href="/posts/3433268710/">Cheat Sheets - Shell Script</a></li>  <li class="file"><a href="/posts/4169548679/">Cheat Sheets - .NET</a></li>  <li class="file"><a href="/posts/2137528313/">Cheat Sheets – CSS</a></li>  <li class="file"><a href="/posts/2993634676/">Cheat Sheets - Git</a></li>  <li class="file"><a href="/posts/3766000533/">Cheat Sheets – HTTP</a></li>  <li class="file"><a href="/posts/982990798/">Cheat Sheets – Linux</a></li>  <li class="file"><a href="/posts/2663199359/">Cheat Sheets – Java</a></li>  <li class="file"><a href="/posts/316669616/">Cheat Sheets – Mac OS X</a></li>  <li class="file"><a href="/posts/2038387758/">Cheat Sheets – MySQL</a></li>  <li class="file"><a href="/posts/2920272111/">Cheat Sheets – Nodejs</a></li>  <li class="file"><a href="/posts/3167589601/">Cheat Sheets – Perl</a></li>  <li class="file"><a href="/posts/305297407/">Cheat Sheets – C</a></li>  <li class="file"><a href="/posts/1053003126/">Cheat Sheets – Python</a></li>  <li class="file"><a href="/posts/2789789845/">Cheat Sheets – jQuery</a></li>  <li class="file"><a href="/posts/59285358/">Cheat Sheets – HTML and XHTML</a></li>  <li class="file"><a href="/posts/4169548678/">Cheat Sheets - Photoshop</a></li>  <li class="file"><a href="/posts/1130312566/">Cheat Sheets – SQLite</a></li>  <li class="file"><a href="/posts/3905631645/">Cheat sheets - Xcode</a></li>  <li class="file"><a href="/posts/3586350539/">Cheat sheets - Mac OS</a></li>  <li class="file"><a href="/posts/1362596080/">Cheat Sheets – PHP</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Project
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/467054247/">如何编写开源项目的README文档</a></li>  <li class="file"><a href="/posts/1755831586/">软件发布版本区别介绍</a></li>  </ul> 
+                        </li>
+                         </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder-open"></i>
+                                &nbsp;
+                                back-end
+                            </a>
+                             <ul class="unstyled" id="tree" style="display: block;"> 
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder-open"></i>
+                                &nbsp;
+                                Middle-ware
+                            </a>
+                             <ul class="unstyled" id="tree" style="display: block;"> 
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Gogs
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/612684965/">私人Git服务器 -- gogs</a></li>  <li class="file"><a href="/posts/4076369309/">Gogs数据备份、恢复</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Jenkins
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/388825549/">利用Jenkins持续集成iOS项目</a></li>  <li class="file"><a href="/posts/2282359188/">jenkins密码重置</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Logstash
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/2615120416/">日志搜集处理框架Logstash-安装配置</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                MySQL
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/554387356/">MySQL 排序的艺术：你真的懂 Order By 吗？</a></li>  <li class="file"><a href="/posts/2625460784/">MySQL延迟复制</a></li>  <li class="file"><a href="/posts/2654174479/">分库分表 vs NewSQL数据库</a></li>  <li class="file"><a href="/posts/4284065059/">MySQL 调优/优化的 101 个建议</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Nginx
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/1350143519/">高性能 Nginx HTTPS 调优 - 如何为 HTTPS 提速 30%</a></li>  <li class="file"><a href="/posts/1544228005/">高性能Web服务器 - Nginx配置详解</a></li>  <li class="file"><a href="/posts/3996389515/">Nginx配置跨域请求 Access-Control-Allow-Origin *</a></li>  <li class="file"><a href="/posts/524919010/">Nginx正向代理与Client设置代理上网</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                RabbitMQ
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/2846671594/">RabbitMQ 集群高可用原理及实战部署介绍</a></li>  <li class="file"><a href="/posts/3135873234/">RabbitMQ入门</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Redis
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/156114019/">Redis Stream应用案例</a></li>  <li class="file"><a href="/posts/2992538737/">redis.conf参数配置及解释</a></li>  <li class="file"><a href="/posts/2864310564/">深入分析Redis特点及应用场景</a></li>  <li class="file"><a href="/posts/3909951181/">Redis Manual</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Sentry
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/1303728868/">错误日志收集平台 - Sentry(Redis+MySQL)</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Shadowsocks
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/3154796955/">Vultr快速搭建SS科学上网</a></li>  </ul> 
+                        </li>
+                         </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                NodeJS
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/2653381572/">NodeJS Package Manage Tool - NPM</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder-open"></i>
+                                &nbsp;
+                                Python
+                            </a>
+                             <ul class="unstyled" id="tree" style="display: block;"> 
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Build-in
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/2858153934/">Python build-in functions - collections</a></li>  <li class="file"><a href="/posts/857250976/">Python build-in functions - List</a></li>  <li class="file"><a href="/posts/3208674450/">Python build-in module - os</a></li>  <li class="file"><a href="/posts/5/">Python多线程和锁</a></li>  <li class="file"><a href="/posts/2434599799/">Python build-in functions</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Configuration
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/3568487154/">更改pip源至国内镜像 - 显著提升下载速度</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Library
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/4096440342/">Python Library - SQLAlchemy</a></li>  <li class="file"><a href="/posts/3634498847/">我用 Python 的 Seaborn 库，绘制了 17 个超好看图表!</a></li>  <li class="file"><a href="/posts/383305840/">Python Library - Flask SQLAlchemy</a></li>  <li class="file"><a href="/posts/55626181/">发布你自己的轮子 - PyPI打包上传实践</a></li>  </ul> 
+                        </li>
+                         <li class="file"><a href="/posts/272954362/">sys.stdout.write实现Python控制台实时刷新打印</a></li>  </ul> 
+                        </li>
+                         </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                iOS Development
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/684390890/">Swift 5.4 有什么新功能？</a></li>  <li class="file"><a href="/posts/1054462359/">Apple Store上iOS App上架流程</a></li>  <li class="file"><a href="/posts/1098789015/">Xcode开发中Build与version区别/build自增设置/build随时间变化？</a></li>  <li class="file"><a href="/posts/3772598043/">Swift：解包的正确姿势</a></li>  </ul> 
+                        </li>
+                         </ul> 
+    </div>
+    <script>
+        $(document).ready(function() {
+            var iconFolderOpenClass  = 'fa-folder-open';
+            var iconFolderCloseClass = 'fa-folder';
+            var iconAllExpandClass = 'fa-angle-double-down';
+            var iconAllPackClass = 'fa-angle-double-up';
+            // Handle directory-tree expansion:
+            // 左键单独展开目录
+            $(document).on('click', '#categories a[data-role="directory"]', function (event) {
+                event.preventDefault();
+
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconFolderOpenClass);
+                var subtree = $(this).siblings('ul');
+                icon.removeClass(iconFolderOpenClass).removeClass(iconFolderCloseClass);
+                if (expanded) {
+                    if (typeof subtree != 'undefined') {
+                        subtree.slideUp({ duration: 100 });
+                    }
+                    icon.addClass(iconFolderCloseClass);
+                } else {
+                    if (typeof subtree != 'undefined') {
+                        subtree.slideDown({ duration: 100 });
+                    }
+                    icon.addClass(iconFolderOpenClass);
+                }
+            });
+            // 右键展开下属所有目录
+            $('#categories a[data-role="directory"]').bind("contextmenu", function(event){
+                event.preventDefault();
+
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconFolderOpenClass);
+                var listNode = $(this).siblings('ul');
+                var subtrees = $.merge(listNode.find('li ul'), listNode);
+                var icons = $.merge(listNode.find('.fa'), icon);
+                icons.removeClass(iconFolderOpenClass).removeClass(iconFolderCloseClass);
+                if(expanded) {
+                    subtrees.slideUp({ duration: 100 });
+                    icons.addClass(iconFolderCloseClass);
+                } else {
+                    subtrees.slideDown({ duration: 100 });
+                    icons.addClass(iconFolderOpenClass);
+                }
+            })
+            // 展开关闭所有目录按钮
+            $(document).on('click', '#allExpand', function (event) {
+                event.preventDefault();
+
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconAllExpandClass);
+                icon.removeClass(iconAllExpandClass).removeClass(iconAllPackClass);
+                if(expanded) {
+                    $('#sidebar .fa.fa-folder').removeClass('fa-folder').addClass('fa-folder-open')
+                    $('#categories li ul').slideDown({ duration: 100 });
+                    icon.addClass(iconAllPackClass);
+                } else {
+                    $('#sidebar .fa.fa-folder-open').removeClass('fa-folder-open').addClass('fa-folder')
+                    $('#categories li ul').slideUp({ duration: 100 });
+                    icon.addClass(iconAllExpandClass);
+                }
+            });
+        });
+    </script>
+
+
+    
+        
+    <div class="widget-wrap">
+        <h3 class="widget-title"><span>recent</span></h3>
+        <div class="widget">
+            <ul id="recent-post" class="">
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/posts/4263562837/" class="thumbnail">
+    
+    
+        <span class="thumbnail-image thumbnail-none"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/OPS/">OPS</a><i class="fa fa-angle-right"></i><a class="article-category-link" href="/categories/OPS/MacOS/">MacOS</a></p>
+                            <p class="item-title"><a href="/posts/4263562837/" class="title">一个惊人快速的终端录像工具，也能录制 VSCode 和 Chrome 窗口</a></p>
+                            <p class="item-date"><time datetime="2021-03-28T00:02:47.000Z" itemprop="datePublished">2021-03-28</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/posts/3634498847/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210309111745.png)" alt="我用 Python 的 Seaborn 库，绘制了 17 个超好看图表!" class="thumbnail-image"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/back-end/">back-end</a><i class="fa fa-angle-right"></i><a class="article-category-link" href="/categories/back-end/Python/">Python</a></p>
+                            <p class="item-title"><a href="/posts/3634498847/" class="title">我用 Python 的 Seaborn 库，绘制了 17 个超好看图表!</a></p>
+                            <p class="item-date"><time datetime="2021-03-08T22:18:11.000Z" itemprop="datePublished">2021-03-09</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/posts/2097636152/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210303212435.jpg)" alt="工作两三年了，整不明白架构图都画啥？" class="thumbnail-image"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/Soft-engineering/">Soft engineering</a><i class="fa fa-angle-right"></i><a class="article-category-link" href="/categories/Soft-engineering/Architecture/">Architecture</a></p>
+                            <p class="item-title"><a href="/posts/2097636152/" class="title">工作两三年了，整不明白架构图都画啥？</a></p>
+                            <p class="item-date"><time datetime="2021-03-03T08:09:53.000Z" itemprop="datePublished">2021-03-03</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/posts/2846671594/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210228142136.jpg)" alt="RabbitMQ 集群高可用原理及实战部署介绍" class="thumbnail-image"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/back-end/">back-end</a><i class="fa fa-angle-right"></i><a class="article-category-link" href="/categories/back-end/Middle-ware/">Middle-ware</a></p>
+                            <p class="item-title"><a href="/posts/2846671594/" class="title">RabbitMQ 集群高可用原理及实战部署介绍</a></p>
+                            <p class="item-date"><time datetime="2021-02-28T01:06:06.000Z" itemprop="datePublished">2021-02-28</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/posts/3772598043/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210226162513.png)" alt="Swift：解包的正确姿势" class="thumbnail-image"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/iOS-Development/">iOS Development</a></p>
+                            <p class="item-title"><a href="/posts/3772598043/" class="title">Swift：解包的正确姿势</a></p>
+                            <p class="item-date"><time datetime="2021-02-26T03:32:25.000Z" itemprop="datePublished">2021-02-26</time></p>
+                        </div>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+
+    
+    <div id="toTop" class="fa fa-angle-up"></div>
+</aside>
+            
+            <section id="main"><article id="post-OPS/MacOS/macOS 下 FFmpeg 视频转码入门及进阶使用心得" class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+        
+            <header class="article-header">
+                
+                    <div class="article-meta">
+                        
+    <div class="article-category">
+    	<i class="fa fa-folder"></i>
+        <a class="article-category-link" href="/categories/OPS/">OPS</a><i class="fa fa-angle-right"></i><a class="article-category-link" href="/categories/OPS/MacOS/">MacOS</a>
+    </div>
+
+                        
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/tags/FFmpeg/">FFmpeg</a>, <a class="tag-link" href="/tags/H-265/">H.265</a>, <a class="tag-link" href="/tags/MacOS/">MacOS</a>, <a class="tag-link" href="/tags/视频转码/">视频转码</a>
+    </div>
+
+                        
+    <div class="article-date">
+        <i class="fa fa-calendar"></i>
+        <a href="/posts/2652542772/">
+            <time datetime="2021-02-23T07:38:50.000Z" itemprop="datePublished">2021-02-23</time>
+        </a>
+    </div>
+
+
+                        
+                    </div>
+                
+                
+    
+        <h1 class="article-title" itemprop="name">
+            macOS 下 FFmpeg 视频转码入门及进阶使用心得
+        </h1>
+    
+
+            </header>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+        
+        
+            
+                <div id="toc" class="toc-article">
+                <strong class="toc-title">Catalogue</strong>
+                    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#简介"><span class="toc-number">1.</span> <span class="toc-text">简介</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#FFmpeg安装"><span class="toc-number">2.</span> <span class="toc-text">FFmpeg安装</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#基础篇"><span class="toc-number">3.</span> <span class="toc-text">基础篇</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#压制-x264-编码视频文件"><span class="toc-number">3.1.</span> <span class="toc-text">压制 x264 编码视频文件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#压制-HEVC-10bit-编码视频文件"><span class="toc-number">3.2.</span> <span class="toc-text">压制 HEVC 10bit 编码视频文件</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#进阶篇"><span class="toc-number">4.</span> <span class="toc-text">进阶篇</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#修改视频分辨率"><span class="toc-number">4.1.</span> <span class="toc-text">修改视频分辨率</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#反交错（-Deinterlace-）"><span class="toc-number">4.2.</span> <span class="toc-text">反交错（ Deinterlace ）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#旋转视频"><span class="toc-number">4.3.</span> <span class="toc-text">旋转视频</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#一个复杂的“栗子”"><span class="toc-number">4.4.</span> <span class="toc-text">一个复杂的“栗子”</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#补充-用来自动切黑边的脚本"><span class="toc-number">4.5.</span> <span class="toc-text">补充 - 用来自动切黑边的脚本</span></a></li></ol></li></ol>
+                </div>
+            
+        
+        
+            <p><img src="https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210223204447.png" alt=""></p>
+<h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>如今较为常见的视频封装格式有 <code>mp4</code> 和 <code>mkv</code> 等， 内部的视频编码格式从前几年盛行的 <code>H.264</code>/<code>x264</code> 逐渐开始向新一代的 <code>HEVC/x265</code>（ High Efficiency Video Coding 高效视频编码）过渡，而常见的音频编码格式无非 AC3、DTS 或者 AAC 等。无论是借助带有 GUI 的编码软件，还是使用命令行，FFmpeg 是最为广泛使用的工具，理论上 FFmpeg 支持各个平台，包括 Windows、macOS、iOS 以及 Android 等，这里只介绍在 macOS 下的使用。通过简单的命令，你可以大致了解 FFmpeg 在视频转换上的强大之处，视频编码部分也集中在 x264、x265，以及如何压制 macOS High Sierra 和 iOS 11 可以正确识别并生成缩略图的 HEVC 10bit 视频。最后会用一个较为复杂的例子，应用 -filter_complex 进行视频帧率的插值运算、嵌入 pgs 图形字幕，以及最后输出 HEVC 编码进行说明。</p>
+<h1 id="FFmpeg安装"><a href="#FFmpeg安装" class="headerlink" title="FFmpeg安装"></a>FFmpeg安装</h1><p>如果有看过我以前文章的朋友，可能会注意到使用 Homebrew 编译 mpv 的一个重要依赖就是 FFmpeg。不过，如果将其用作视频转码，默认编译的 FFmpeg 会缺少一部分组件，因此这里可能需要重新安装 FFmpeg。以我个人编译版本为例，使用 –HEAD 来配合最新的 mpv，在 Terminal 中输入如下命令：</p>
+<pre class="line-numbers language-bash"><code class="language-bash">brew <span class="token function">install</span> ffmpeg --HEAD --with-fdk-aac --with-sdl2 --with-freetype --with-libass --with-libbluray --with-libvorbis --with-libvpx --with-opus --with-webp --with-x265
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>等待安装结束即可。</p>
+<h1 id="基础篇"><a href="#基础篇" class="headerlink" title="基础篇"></a>基础篇</h1><h2 id="压制-x264-编码视频文件"><a href="#压制-x264-编码视频文件" class="headerlink" title="压制 x264 编码视频文件"></a>压制 x264 编码视频文件</h2><pre class="line-numbers language-bash"><code class="language-bash">ffmpeg -i input.mp4 -c:a libfdk_aac -c:v libx264 -crf 20 -preset slow output.mp4
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>使用 FFmpeg 编码的基本规则， -i 之后的文件为输入的视频文件，即 input.mp4 ，支持的格式众多，例如 mkv、flv、vob 等等，文件可以包含目录，使用 macOS 的文件拖拽功能很方便。output.mp4 即为输出文件，文件名可自定义，视频封装格式建议对应编码格式，不应将 mpeg-2 或者 vp8 编码的视频也封装为 mp4。-c:a 之后表示输出文件的音频编码器，一般 mp4 常用的音频编码为 AAC-LC，按照官方 Wiki 指南，建议使用编码器 <code>libfdk_aac</code> 而不是 aac，libfdk_aac 音质更好，这也是为什么在前文中编译 FFmpeg 增加 –with-fdk-aac 的原因。<code>-c:v</code> 之后代表输出文件的视频编码器，使用 <code>libx264</code> 即可压制 x264 编码的视频流。<code>-crf 20</code> 代表视频编码的码率系数，数字越大，压制的效果越差，建议选择范围在 16 - 28，压制高质量的视频建议取值 20 以下。<code>-preset slow</code> 代表一组控制压缩时间和文件大小的参数选择，一般常选 fast、medium 和 slow。</p>
+<p>以上都是基于 <code>one-pass</code> 压制，如果需要严格控制码率则需要使用 <code>two-pass</code>，更详细的介绍，可以参考 Encode / H.264。</p>
+<h2 id="压制-HEVC-10bit-编码视频文件"><a href="#压制-HEVC-10bit-编码视频文件" class="headerlink" title="压制 HEVC 10bit 编码视频文件"></a>压制 HEVC 10bit 编码视频文件</h2><a id="more"></a>
+<p>其实 FFmpeg 很早就开始支持 HEVC (x265) 的视频转码，只是一直改动较大，而最近的版本也终于支持编码 macOS High Sierra 下 Quicktime 可以播放，并且在系统中能够正确预览并生成缩略图的视频文件。编码命令的改动很小，添加一个 format tag 参数即可，如下：</p>
+<pre class="line-numbers language-bash"><code class="language-bash">ffmpeg -i input.mp4 \
+       -c:v libx265 -preset medium -crf 18 -pix_fmt yuv420p10le \
+       -c:a libfdk_aac -b:a 256k \
+       -tag:v hvc1 \
+       output_10bit.mp4
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>和压制 x264 视频非常类似，主要的不同点在于 -c:v 视频编码器需换为 libx265，并且压制 10bit 需要指定色彩空间，添加 -pix_fmt yuv420p10le。在音频编码参数中，如何增加的 -b:a，可以控制音频文件的码率，按需使用。最后，非常重要的一点，必须添加参数 tag:v hvc1，这样输出的 Video Stream 会被标记为 hvc1，可以被 macOS 以及 iOS 11 原生支持播放，否则默认会被标记为 hev1，不被原生支持，第三方播放器播放倒没什么问题。</p>
+<h1 id="进阶篇"><a href="#进阶篇" class="headerlink" title="进阶篇"></a>进阶篇</h1><h2 id="修改视频分辨率"><a href="#修改视频分辨率" class="headerlink" title="修改视频分辨率"></a>修改视频分辨率</h2><p>假如原视频的分辨率为 1920x1080，为了降低文件大小，最简单的办法是将其转压成一个分辨率较低的版本，例如 720p，即 1280x720，那么我们可以使用 scale 视频滤镜来缩放视频：</p>
+<pre class="line-numbers language-bash"><code class="language-bash">ffmpeg -i input.mp4 -vf scale<span class="token operator">=</span>-2:720 -c:v libx264 -crf 20 -preset slow -c:a copy output.mp4
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p><code>-vf scale=-2:720</code> 会自动计算对应的横向分辨率（需为 2 的倍数，因此为 -2 ），源文件音频编码保持不变，因此设为 copy 即可。特殊情况下，遇到源文件视频比例错误，除了修改分辨率数值，还需要设置 dar 参数，例如：</p>
+<pre class="line-numbers language-bash"><code class="language-bash">ffmpeg -i input.avi -vf scale<span class="token operator">=</span>722x406,setdar<span class="token operator">=</span>16/9 -c:v libx264 -c:a libfdk_aac -preset slow -crf 20 output.mp4
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>另外，绝对不建议增大分辨率，因为毫无意义，受限于原视频的视频质量，增大分辨率除了体积增大，画质只会更差。</p>
+<h2 id="反交错（-Deinterlace-）"><a href="#反交错（-Deinterlace-）" class="headerlink" title="反交错（ Deinterlace ）"></a>反交错（ Deinterlace ）</h2><p>偶尔我会遇到一些早期使用 VCD/DVD 时代编码的视频，其中一个重要的特点就是隔行扫描，而直接转码的结果就是视频中快速运动的物体都能看到非常明显的扫描线。解决办法同样需要应用 vf 视频滤镜中的 yadif 来进行反交错，如下：</p>
+<pre class="line-numbers language-bash"><code class="language-bash">ffmpeg -i input.vob -vf yadif -c:v libx264 -preset slow -crf 20 -c:a libfdk_aac -b:a 256k output.mp4
+如果压制出来的效果不佳（还是有扫描线），可以尝试将 vf 的部分改为 -vf yadif<span class="token operator">=</span>1:-1:0,mcdeint<span class="token operator">=</span>2:1:10。
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+<h2 id="旋转视频"><a href="#旋转视频" class="headerlink" title="旋转视频"></a>旋转视频</h2><p>需要将原视频进行旋转，同样可以应用视频滤镜来达到目的，如下：</p>
+<pre class="line-numbers language-bash"><code class="language-bash">ffmpeg -i input.mov -vf <span class="token string">"transpose=1"</span> -c:a copy output.mov
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>其中，</p>
+<ul>
+<li>0 = 90 Counter Clockwise and Vertical Flip  (default)</li>
+<li>1 = 90 Clockwise</li>
+<li>2 = 90 Counter Clockwise</li>
+<li>3 = 90 Clockwise and Vertical Flip</li>
+</ul>
+<p>如果想要 180 度翻转视频，则需要改为 -vf “transpose=2,transpose=2”。值得注意的是，旋转视频意味着对视频进行重编码，输出质量会稍微受到影响，可以添加 crf 参数控制视频输出质量，音频部分可以使用 copy。</p>
+<h2 id="一个复杂的“栗子”"><a href="#一个复杂的“栗子”" class="headerlink" title="一个复杂的“栗子”"></a>一个复杂的“栗子”</h2><p>最后的这个例子，是我最近遇到的一个视频，简要的编码信息如下：</p>
+<pre class="line-numbers language-bash"><code class="language-bash">Input <span class="token comment" spellcheck="true">#0, matroska,webm, from 'Input.mkv':</span>
+    Duration: 00:23:55.97, start: 0.000000, bitrate: 16372 kb/s
+    Stream <span class="token comment" spellcheck="true">#0:0: Video: hevc (Main 10), yuv420p10le(tv, bt709), 1920x1080, SAR 1:1 DAR 16:9, 59.94 fps, 59.94 tbr, 1k tbn, 59.94 tbc (default)</span>
+    Stream <span class="token comment" spellcheck="true">#0:1(jpn): Audio: flac, 48000 Hz, stereo, s32 (24 bit) (default)</span>
+    Stream <span class="token comment" spellcheck="true">#0:2(jpn): Audio: flac, 48000 Hz, stereo, s32 (24 bit)</span>
+    Stream <span class="token comment" spellcheck="true">#0:3(chi): Subtitle: hdmv_pgs_subtitle (default)</span>
+    Stream <span class="token comment" spellcheck="true">#0:4(chi): Subtitle: hdmv_pgs_subtitle</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>可以看到，这是一个 HEVC 10bit 编码，分辨率 1080p，帧率 59.94 fps 的视频文件，带有两条 flac 编码的音轨，另有两条是 pgs 格式的图形字幕。我自己的 Macbook Pro 已经无法完全流畅地播放这个视频了，除了 HEVC 带来的巨大计算量，高帧率也是一个麻烦，可惜网上没有其它好的片源，因此，我只有自己尝试压缩。目标：维持分辨率但帧率减半，即降为 29. 97 fps，音轨只需要第一条，并且重编码为 AAC-LC，原片为日语，因此必须带有字幕，图形字幕直接嵌入视频，最后以 HEVC 10bit 重编码，少许降低码率。</p>
+<p>改变帧率普遍会使用 -vf fps=fps=29.97 这类的参数，但自己尝试后发现一个问题，视频观看的感觉有跳跃性，不流畅，很像是丢帧的感觉。因为将帧率减半，意味着有一半的信息都丢弃了，而普通降低帧率的算法只有简单的插值运算甚至完全没有，造成了视频不连贯的效果。因此，改变帧率正确的做法是进行运动插值运算（ Motion Interpolation ），此法既可用在提高帧率上，也可以用于降低帧率，最终的结果都是提高视频播放的流畅度。这里会使用 -filter_complex 代替 vf，联合应用 minterpolate、overlay 以及 map 来解决帧率、嵌入视频，和保留一条音轨的问题。压制命令如下：</p>
+<pre class="line-numbers language-bash"><code class="language-bash">ffmpeg -i input.mkv \
+-filter_complex <span class="token string">"[0:v]minterpolate='fps=29.97:mi_mode=mci:me_mode=bidir:mc_mode=aobmc:vsbmc=1'[bg],[bg][0:s:0]overlay[v]"</span> -map <span class="token string">"[v]"</span> -map 0:a:0 \
+-c:v libx265 -preset medium -crf 18 -pix_fmt yuv420p10le \
+-c:a libfdk_aac -b:a 256k \
+-tag:v hvc1 \
+output_10bit.mp4
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>这里看起来会很复杂，实际上 -filter_complex 的工作模式就像是 pipe，[0:v] 表示输入文件的视频流，对应 Stream #0:0。从 minterpolate 到 vsbmc=1 都是插补滤镜的设置参数，具体的作用可以查看官方文档。[bg]代表该滤镜输出后的视频流，并传递给下一个滤镜 overlay。[0:s:0]表示输入文件的第一个字幕通，对应 Stream #0:3，所以如果是 [0:s:1] 则对应 Stream #0:4。 overlay 就会将该图形字幕嵌入到视频中，然后输出为 [v]，进行 mapping。视频取处理后的 [v]，音频取原输入文件的第一个音频通道，[0:a:0] 即代表 Stream #0:1。最后和此前压制视频的参数就一模一样了，压制为 HEVC 10bit 编码的视频文件。</p>
+<p>需要注意的是，运动插值运算非常耗时，CPU 占用确不高，应该是 minterpolate 滤镜只能调用单核的缘故。在我的电脑上， 此 23 分钟左右的视频压制一次耗时约 20 小时，请谨慎使用。</p>
+<h2 id="补充-用来自动切黑边的脚本"><a href="#补充-用来自动切黑边的脚本" class="headerlink" title="补充 - 用来自动切黑边的脚本"></a>补充 - 用来自动切黑边的脚本</h2><p>有时候碰到比较懒的小组发的片源，连黑边都不切，这样外挂字幕就跑到黑边去了，我很不喜欢……. 保存代码为 crop-border.sh 并修改权限，用法：./crop-border.sh input.mp4 output.mp4</p>
+<pre class="line-numbers language-bash"><code class="language-bash"><span class="token shebang important">#!/bin/bash</span>
+
+<span class="token comment" spellcheck="true"># autodetect crop size</span>
+crop<span class="token operator">=</span>`ffmpeg -i <span class="token variable">$1</span> -t 1 -vf cropdetect -f null - 2<span class="token operator">></span><span class="token operator">&amp;</span>1 <span class="token operator">|</span> <span class="token function">awk</span> <span class="token string">'/crop/ { print <span class="token variable">$NF</span> }'</span> <span class="token operator">|</span> <span class="token function">tail</span> -1`
+<span class="token keyword">echo</span> <span class="token string">"detected crop fromat:    <span class="token variable">$crop</span>"</span>
+<span class="token keyword">echo</span> <span class="token string">"input:            <span class="token variable">$1</span>"</span>
+<span class="token keyword">echo</span> <span class="token string">"output:            <span class="token variable">$2</span>"</span>
+<span class="token function">date</span> <span class="token punctuation">;</span> <span class="token function">read</span> -t 5 -p <span class="token string">"Hit ENTER or wait five seconds"</span> <span class="token punctuation">;</span> <span class="token function">date</span>
+ffmpeg -i <span class="token variable">$1</span> -c:a copy -c:v libx265 -preset medium -crf 18 -pix_fmt yuv420p10le -tag:v hvc1 -vf <span class="token variable">$crop</span> -y <span class="token variable">$2</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>压制的参数 <code>-c:a</code> 和 <code>-c:v</code> 部分还需调整</p>
+
+            </div>
+        
+        <footer class="article-footer">
+        </footer>
+    </div>
+</article>
+
+
+    
+<nav id="article-nav">
+    
+        <a href="/posts/3772598043/" id="article-nav-newer" class="article-nav-link-wrap">
+            <strong class="article-nav-caption">Newer</strong>
+            <div class="article-nav-title">
+                
+                    Swift：解包的正确姿势
+                
+            </div>
+        </a>
+    
+    
+        <a href="/posts/3669230936/" id="article-nav-older" class="article-nav-link-wrap">
+            <strong class="article-nav-caption">Older</strong>
+            <div class="article-nav-title">为远程桌面启用Windows防火墙例外</div>
+        </a>
+    
+</nav>
+
+
+
+
+
+    
+    
+
+
+
+
+<!-- baidu url auto push script -->
+<script type="text/javascript">
+    !function(){var e=/([http|https]:\/\/[a-zA-Z0-9\_\.]+\.baidu\.com)/gi,r=window.location.href,o=document.referrer;if(!e.test(r)){var n="//api.share.baidu.com/s.gif";o?(n+="?r="+encodeURIComponent(document.referrer),r&&(n+="&l="+r)):r&&(n+="?l="+r);var t=new Image;t.src=n}}(window);
+</script>     
+
+<head><meta name="generator" content="Hexo 3.9.0">
+    <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+    <script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+<link rel="stylesheet" href="/css/prism-duotone-light.css" type="text/css">
+<link rel="stylesheet" href="/css/prism-line-numbers.css" type="text/css"></head>
+<body>
+    <div id="vcomments"></div>
+    <script>
+        new Valine({
+            el: '#vcomments',
+            appId: '8kLhebBkVygl1MhVcQx9dnBP-gzGzoHsz',
+            appKey: 'hrctlOb6RQBWjjwTJ9fVjb91'
+        })
+    </script>
+</body>
+
+
+</section>
+        </div>
+        <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+
+<footer id="footer">
+    <div class="outer">
+        <div id="footer-info" class="inner">
+            <a href="https://www.jifu.io">
+            Ji Fu &copy; 2021
+            </a>
+            <br> Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>. Theme - <a href="https://github.com/zthxxx/hexo-theme-Wikitten">wikitten</a>
+            <br> 您是  jifu'wiki 的第<span id="busuanzi_value_site_uv"></span>个小伙伴
+            <br>
+                本站总访问量<span id="busuanzi_value_site_pv"></span>次
+                本文总阅读量<span id="busuanzi_value_page_pv"></span>次
+        </div>
+    </div>
+</footer>
+
+
+
+        
+
+    
+        <script src="/libs/lightgallery/js/lightgallery.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-thumbnail.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-pager.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-autoplay.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-fullscreen.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-zoom.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-hash.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-share.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-video.min.js"></script>
+    
+    
+        <script src="/libs/justified-gallery/jquery.justifiedGallery.min.js"></script>
+    
+    
+
+
+
+<!-- Custom Scripts -->
+<script src="/js/main.js"></script>
+
+    </div>
+</body>
+</html>

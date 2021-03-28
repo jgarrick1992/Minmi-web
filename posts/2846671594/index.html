@@ -1,0 +1,1223 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+    <meta charset="utf-8">
+    
+    <title>RabbitMQ 集群高可用原理及实战部署介绍 | JiFu&#39;s Wiki</title>
+    
+    
+        <meta name="keywords" content="RabbitMQ,集群,高可用性">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="description" content="前言 在项目中想要 RabbitMQ 变得更加健壮，就要使得其变成高可用，今天我们一起来聊聊关于 RabbitMQ 集群原理和部署流程  1. 介绍在前几篇文章中，我们详细的介绍了 RabbitMQ 的内部结构和使用，以及 SpringBoot 和 RabbitMQ 整合，都是基于单台 RabbitMQ 进行使用的。 我们知道在微服务流行的当下，一旦单台服务器挂了，基本上就无法提供高可用的服务了">
+<meta name="keywords" content="RabbitMQ,集群,高可用性">
+<meta property="og:type" content="article">
+<meta property="og:title" content="RabbitMQ 集群高可用原理及实战部署介绍">
+<meta property="og:url" content="http://www.jifu.io/posts/2846671594/index.html">
+<meta property="og:site_name" content="JiFu&#39;s Wiki">
+<meta property="og:description" content="前言 在项目中想要 RabbitMQ 变得更加健壮，就要使得其变成高可用，今天我们一起来聊聊关于 RabbitMQ 集群原理和部署流程  1. 介绍在前几篇文章中，我们详细的介绍了 RabbitMQ 的内部结构和使用，以及 SpringBoot 和 RabbitMQ 整合，都是基于单台 RabbitMQ 进行使用的。 我们知道在微服务流行的当下，一旦单台服务器挂了，基本上就无法提供高可用的服务了">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210228142136.jpg">
+<meta property="og:updated_time" content="2021-02-28T13:25:18.352Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="RabbitMQ 集群高可用原理及实战部署介绍">
+<meta name="twitter:description" content="前言 在项目中想要 RabbitMQ 变得更加健壮，就要使得其变成高可用，今天我们一起来聊聊关于 RabbitMQ 集群原理和部署流程  1. 介绍在前几篇文章中，我们详细的介绍了 RabbitMQ 的内部结构和使用，以及 SpringBoot 和 RabbitMQ 整合，都是基于单台 RabbitMQ 进行使用的。 我们知道在微服务流行的当下，一旦单台服务器挂了，基本上就无法提供高可用的服务了">
+<meta name="twitter:image" content="https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210228142136.jpg">
+    
+
+    
+        <link rel="alternate" href="/atom.xml" title="JiFu&#39;s Wiki" type="application/atom+xml">
+    
+
+    
+        <link rel="icon" href="/favicon.ico">
+    
+
+    <link rel="stylesheet" href="/libs/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/libs/open-sans/styles.css">
+    <link rel="stylesheet" href="/libs/source-code-pro/styles.css">
+
+    <link rel="stylesheet" href="/css/style.css">
+    <script src="/libs/jquery/2.1.3/jquery.min.js"></script>
+    <script src="/libs/jquery/plugins/cookie/1.4.1/jquery.cookie.js"></script>
+    
+    
+        <link rel="stylesheet" href="/libs/lightgallery/css/lightgallery.min.css">
+    
+    
+        <link rel="stylesheet" href="/libs/justified-gallery/justifiedGallery.min.css">
+    
+    
+    
+    
+        <script>
+var _hmt = _hmt || [];
+(function() {
+    var hm = document.createElement("script");
+    hm.src = "//hm.baidu.com/hm.js?efa1eb5f56c438a850a0f60609fd7755";
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+    
+
+
+<link rel="stylesheet" href="/css/prism-duotone-light.css" type="text/css">
+<link rel="stylesheet" href="/css/prism-line-numbers.css" type="text/css"></head>
+</html>
+<body>
+    <div id="container">
+        <script>
+    (function(){
+        var bp = document.createElement('script');
+        var curProtocol = window.location.protocol.split(':')[0];
+        if (curProtocol === 'https') {
+            bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+        }
+        else {
+            bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+        }
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(bp, s);
+    })();
+</script>
+
+<header id="header">
+    <div id="header-main" class="header-inner">
+        <div class="outer">
+            <a href="/" id="logo">
+                <i class="logo"></i>
+                <span class="site-title">JiFu&#39;s Wiki</span>
+            </a>
+            <nav id="main-nav">
+                
+                    <a class="main-nav-link" href="/">Home</a>
+                
+                    <a class="main-nav-link" href="/archives">Archives</a>
+                
+                    <a class="main-nav-link" href="/categories">Categories</a>
+                
+                    <a class="main-nav-link" href="/tags">Tags</a>
+                
+                    <a class="main-nav-link" href="/about">About</a>
+                
+            </nav>
+            
+            <div id="search-form-wrap">
+
+    <form class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="Search" />
+        <button type="submit" class="search-form-submit"></button>
+    </form>
+    <div class="ins-search">
+    <div class="ins-search-mask"></div>
+    <div class="ins-search-container">
+        <div class="ins-input-wrapper">
+            <input type="text" class="ins-search-input" placeholder="Type something..." />
+            <span class="ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: 'Posts',
+            PAGES: 'Pages',
+            CATEGORIES: 'Categories',
+            TAGS: 'Tags',
+            UNTITLED: '(Untitled)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+<script src="/js/insight.js"></script>
+
+</div>
+        </div>
+    </div>
+    <div id="main-nav-mobile" class="header-sub header-inner">
+        <table class="menu outer">
+            <tr>
+                
+                    <td><a class="main-nav-link" href="/">Home</a></td>
+                
+                    <td><a class="main-nav-link" href="/archives">Archives</a></td>
+                
+                    <td><a class="main-nav-link" href="/categories">Categories</a></td>
+                
+                    <td><a class="main-nav-link" href="/tags">Tags</a></td>
+                
+                    <td><a class="main-nav-link" href="/about">About</a></td>
+                
+                <td>
+                    
+    <div class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="Search" />
+    </div>
+
+                </td>
+            </tr>
+        </table>
+    </div>
+</header>
+
+        <div class="outer">
+            
+            
+                <aside id="sidebar">
+   
+        
+    <div class="widget-wrap" id='categories'>
+        <h3 class="widget-title">
+            <span>categories</span>
+            &nbsp;
+            <a id='allExpand' href="#">
+                <i class="fa fa-angle-double-up fa-2x"></i>
+            </a>
+        </h3>
+
+        
+        
+         <ul class="unstyled" id="tree" style="display: block;"> 
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Android Development
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/1797699998/">深入了解 gradle 和 maven 的区别</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Design
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/1907494021/">PS快捷键使用指南</a></li>  <li class="file"><a href="/posts/729727978/">快速改善用户界面的10个技巧</a></li>  <li class="file"><a href="/posts/1525329016/">提高效率！24 个高手常用的 Sketch 技巧合集（附实用快捷键）</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                HR
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/3142539384/">HR常用的招聘邮件模板</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Hardware
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/3904818761/">MacBook十年进化史</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder-open"></i>
+                                &nbsp;
+                                OPS
+                            </a>
+                             <ul class="unstyled" id="tree" style="display: block;"> 
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Docker
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/1245529498/">Docker学习笔记</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Editor
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/151598530/">VScdoe error:Could not create temporary directory Permission denied</a></li>  <li class="file"><a href="/posts/4167799419/">Build personal development editor with vscode</a></li>  <li class="file"><a href="/posts/4165683660/">REST Client 简单好用的接口测试辅助工具</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder-open"></i>
+                                &nbsp;
+                                Linux
+                            </a>
+                             <ul class="unstyled" id="tree" style="display: block;"> 
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                CentOS
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/1867760035/">CentOS7编译安装VIM8</a></li>  <li class="file"><a href="/posts/920993072/">CentOS update Ruby</a></li>  <li class="file"><a href="/posts/4057676473/">yum提示Error: rpmdb open failed的解决方案</a></li>  <li class="file"><a href="/posts/1153610031/">centos7修改启动内核，删除无用内核</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                System Service
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/709002730/">使用 systemctl 添加自定义服务</a></li>  <li class="file"><a href="/posts/4024224000/">Linux swap分区及作用详解</a></li>  <li class="file"><a href="/posts/797311580/">服务管理工具 - systemctl</a></li>  <li class="file"><a href="/posts/55221137/">防火墙工具 - firewalld</a></li>  </ul> 
+                        </li>
+                         <li class="file"><a href="/posts/4070386720/">Linux系统目录结构及详细说明</a></li>  <li class="file"><a href="/posts/3897848060/">Mac使用SSH登录Google Cloud Platform</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                MacOS
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/3746871293/">Charles从入门到精通</a></li>  <li class="file"><a href="/posts/581320548/">Homebrew：让你从 Mac 切换到 Linux 更轻松</a></li>  <li class="file"><a href="/posts/4001059579/">Compiling PyQt5 for Python2.7 on Mac OS</a></li>  <li class="file"><a href="/posts/662287335/">MACOS BOOT CAMP – THE STARTUP DISK DOES NOT HAVE ENOUGH SPACE TO BE PARTITIONED</a></li>  <li class="file"><a href="/posts/2776773816/">Mac OS X设置SMB进行文件共享</a></li>  <li class="file"><a href="/posts/582618556/">Mac的最大连接数限制和端口的相关参数的设置</a></li>  <li class="file"><a href="/posts/1883980072/">Mac OS系统加速：干掉那些「炫酷」的动画</a></li>  <li class="file"><a href="/posts/1208074722/">Mac重置系统管理控制器SMC</a></li>  <li class="file"><a href="/posts/294187676/">Mac版迅雷优化,删除无用插件</a></li>  <li class="file"><a href="/posts/2652542772/">macOS 下 FFmpeg 视频转码入门及进阶使用心得</a></li>  <li class="file"><a href="/posts/1070186292/">SafariBookmarksSyncAgent意外退出解决方法</a></li>  <li class="file"><a href="/posts/2733308530/">Mac定时任务-利用launchctl定时启动任务</a></li>  <li class="file"><a href="/posts/2768996547/">一览Mac OS 图形界面的发展史</a></li>  <li class="file"><a href="/posts/4147446761/">Mac 时间机器 Time Machine 备份速度太慢的解决方法 (加速备份命令)</a></li>  <li class="file"><a href="/posts/4263562837/">一个惊人快速的终端录像工具，也能录制 VSCode 和 Chrome 窗口</a></li>  <li class="file"><a href="/posts/1623087360/">修复破解Mac应用启动时闪退（原因是由于苹果移除了TNT证书）</a></li>  <li class="file"><a href="/posts/1525358532/">在 M1 芯片 Mac 上使用 Homebrew</a></li>  <li class="file"><a href="/posts/646546052/">如何查看 macOS 系统日志，辅助排除应用程序和系统故障</a></li>  <li class="file"><a href="/posts/3807466731/">如何彻底和CrossOver说GoodBye</a></li>  <li class="file"><a href="/posts/1207571108/">强制退出Mac程序的六种方法</a></li>  <li class="file"><a href="/posts/3920589165/">如何重置Mac上的NVRAM</a></li>  <li class="file"><a href="/posts/3430780623/">解决Mac修改DNS卡死-命令行修改Mac OS系统DNS设置</a></li>  <li class="file"><a href="/posts/3653564083/">苹果 Mac 重置 SMC、NVRAM、PRAM 方法教程 - 解决 macOS 卡顿或无法启动</a></li>  <li class="file"><a href="/posts/3837318570/">Mac VSCode 禁用GPU加速</a></li>  <li class="file"><a href="/posts/3366946474/">Mac高效使用技巧</a></li>  <li class="file"><a href="/posts/558776221/">解决“Mac应用”已损坏，无法打开的问题</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Others
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/3101956195/">Git中.gitignore无效的解决办法</a></li>  <li class="file"><a href="/posts/2867836530/">Axel:命令行下轻量级多线程下载程序</a></li>  <li class="file"><a href="/posts/3413649842/">Linux实用工具</a></li>  <li class="file"><a href="/posts/1073812833/">linux下测试磁盘的读写IO速度(IO物理测速)</a></li>  <li class="file"><a href="/posts/3895039994/">命令行信息截图工具 - ScreenFetch</a></li>  <li class="file"><a href="/posts/3784546227/">Git忽略提交规则 - .gitignore配置总结</a></li>  <li class="file"><a href="/posts/760033837/">平铺式窗口管理器 - Awesome</a></li>  <li class="file"><a href="/posts/2006196850/">私有化TM备份与共享服务器 - Netatalk</a></li>  <li class="file"><a href="/posts/1413974522/">用好这些隐藏「小开关」，让 Chrome 浏览器更好用</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Vim
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/258379777/">VIM下使用Vundle搭建python开发环境</a></li>  <li class="file"><a href="/posts/3374749959/">Vim快捷键使用总结</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Windows
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/3669230936/">为远程桌面启用Windows防火墙例外</a></li>  <li class="file"><a href="/posts/3426016246/">利用windows内置工具测试硬盘速度 - winsat</a></li>  <li class="file"><a href="/posts/913943227/">解决EXCEL按上下左右键不是单元格移动的问题</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Wordpress
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/1067246247/">WordPress启用memcached动态缓存以及报错解决</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                command
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/2407250830/">history命令设置linux查看历史命令显示执行时间</a></li>  <li class="file"><a href="/posts/3200906184/">find命令快速技巧：如何定位一个文件</a></li>  <li class="file"><a href="/posts/3403344661/">定时任务Crontab命令详解</a></li>  <li class="file"><a href="/posts/3241041753/">通过编写 chroot 来认识 chroot 发挥的作用和它带来的好处</a></li>  </ul> 
+                        </li>
+                         <li class="file"><a href="/posts/404814820/">DevOps简介</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder-open"></i>
+                                &nbsp;
+                                Soft engineering
+                            </a>
+                             <ul class="unstyled" id="tree" style="display: block;"> 
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Algorithm
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/1453950584/">8大排序算法图文讲解</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Architecture
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/2097636152/">工作两三年了，整不明白架构图都画啥？</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Cheat Sheets
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/2623330927/">Cheat Sheets - PostgreSQL</a></li>  <li class="file"><a href="/posts/3327139081/">Cheat Sheets – C++</a></li>  <li class="file"><a href="/posts/3048024619/">Cheat Sheets - Django Reference Sheet</a></li>  <li class="file"><a href="/posts/3433268710/">Cheat Sheets - Shell Script</a></li>  <li class="file"><a href="/posts/4169548679/">Cheat Sheets - .NET</a></li>  <li class="file"><a href="/posts/2137528313/">Cheat Sheets – CSS</a></li>  <li class="file"><a href="/posts/2993634676/">Cheat Sheets - Git</a></li>  <li class="file"><a href="/posts/3766000533/">Cheat Sheets – HTTP</a></li>  <li class="file"><a href="/posts/982990798/">Cheat Sheets – Linux</a></li>  <li class="file"><a href="/posts/2663199359/">Cheat Sheets – Java</a></li>  <li class="file"><a href="/posts/316669616/">Cheat Sheets – Mac OS X</a></li>  <li class="file"><a href="/posts/2038387758/">Cheat Sheets – MySQL</a></li>  <li class="file"><a href="/posts/2920272111/">Cheat Sheets – Nodejs</a></li>  <li class="file"><a href="/posts/3167589601/">Cheat Sheets – Perl</a></li>  <li class="file"><a href="/posts/305297407/">Cheat Sheets – C</a></li>  <li class="file"><a href="/posts/1053003126/">Cheat Sheets – Python</a></li>  <li class="file"><a href="/posts/2789789845/">Cheat Sheets – jQuery</a></li>  <li class="file"><a href="/posts/59285358/">Cheat Sheets – HTML and XHTML</a></li>  <li class="file"><a href="/posts/4169548678/">Cheat Sheets - Photoshop</a></li>  <li class="file"><a href="/posts/1130312566/">Cheat Sheets – SQLite</a></li>  <li class="file"><a href="/posts/3905631645/">Cheat sheets - Xcode</a></li>  <li class="file"><a href="/posts/3586350539/">Cheat sheets - Mac OS</a></li>  <li class="file"><a href="/posts/1362596080/">Cheat Sheets – PHP</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Project
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/467054247/">如何编写开源项目的README文档</a></li>  <li class="file"><a href="/posts/1755831586/">软件发布版本区别介绍</a></li>  </ul> 
+                        </li>
+                         </ul> 
+                        </li>
+                        
+                        <li class="directory-open" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder-open"></i>
+                                &nbsp;
+                                back-end
+                            </a>
+                             <ul class="unstyled" id="tree" style="display: block;"> 
+                        <li class="directory-open" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder-open"></i>
+                                &nbsp;
+                                Middle-ware
+                            </a>
+                             <ul class="unstyled" id="tree" style="display: block;"> 
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Gogs
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/612684965/">私人Git服务器 -- gogs</a></li>  <li class="file"><a href="/posts/4076369309/">Gogs数据备份、恢复</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Jenkins
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/388825549/">利用Jenkins持续集成iOS项目</a></li>  <li class="file"><a href="/posts/2282359188/">jenkins密码重置</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Logstash
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/2615120416/">日志搜集处理框架Logstash-安装配置</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                MySQL
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/554387356/">MySQL 排序的艺术：你真的懂 Order By 吗？</a></li>  <li class="file"><a href="/posts/2625460784/">MySQL延迟复制</a></li>  <li class="file"><a href="/posts/2654174479/">分库分表 vs NewSQL数据库</a></li>  <li class="file"><a href="/posts/4284065059/">MySQL 调优/优化的 101 个建议</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Nginx
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/1350143519/">高性能 Nginx HTTPS 调优 - 如何为 HTTPS 提速 30%</a></li>  <li class="file"><a href="/posts/1544228005/">高性能Web服务器 - Nginx配置详解</a></li>  <li class="file"><a href="/posts/3996389515/">Nginx配置跨域请求 Access-Control-Allow-Origin *</a></li>  <li class="file"><a href="/posts/524919010/">Nginx正向代理与Client设置代理上网</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory-open" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                RabbitMQ
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file active"><a href="/posts/2846671594/">RabbitMQ 集群高可用原理及实战部署介绍</a></li>  <li class="file"><a href="/posts/3135873234/">RabbitMQ入门</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Redis
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/156114019/">Redis Stream应用案例</a></li>  <li class="file"><a href="/posts/2992538737/">redis.conf参数配置及解释</a></li>  <li class="file"><a href="/posts/2864310564/">深入分析Redis特点及应用场景</a></li>  <li class="file"><a href="/posts/3909951181/">Redis Manual</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Sentry
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/1303728868/">错误日志收集平台 - Sentry(Redis+MySQL)</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Shadowsocks
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/3154796955/">Vultr快速搭建SS科学上网</a></li>  </ul> 
+                        </li>
+                         </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                NodeJS
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/2653381572/">NodeJS Package Manage Tool - NPM</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder-open"></i>
+                                &nbsp;
+                                Python
+                            </a>
+                             <ul class="unstyled" id="tree" style="display: block;"> 
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Build-in
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/2858153934/">Python build-in functions - collections</a></li>  <li class="file"><a href="/posts/857250976/">Python build-in functions - List</a></li>  <li class="file"><a href="/posts/3208674450/">Python build-in module - os</a></li>  <li class="file"><a href="/posts/5/">Python多线程和锁</a></li>  <li class="file"><a href="/posts/2434599799/">Python build-in functions</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Configuration
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/3568487154/">更改pip源至国内镜像 - 显著提升下载速度</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Library
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/4096440342/">Python Library - SQLAlchemy</a></li>  <li class="file"><a href="/posts/3634498847/">我用 Python 的 Seaborn 库，绘制了 17 个超好看图表!</a></li>  <li class="file"><a href="/posts/383305840/">Python Library - Flask SQLAlchemy</a></li>  <li class="file"><a href="/posts/55626181/">发布你自己的轮子 - PyPI打包上传实践</a></li>  </ul> 
+                        </li>
+                         <li class="file"><a href="/posts/272954362/">sys.stdout.write实现Python控制台实时刷新打印</a></li>  </ul> 
+                        </li>
+                         </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                iOS Development
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/684390890/">Swift 5.4 有什么新功能？</a></li>  <li class="file"><a href="/posts/1054462359/">Apple Store上iOS App上架流程</a></li>  <li class="file"><a href="/posts/1098789015/">Xcode开发中Build与version区别/build自增设置/build随时间变化？</a></li>  <li class="file"><a href="/posts/3772598043/">Swift：解包的正确姿势</a></li>  </ul> 
+                        </li>
+                         </ul> 
+    </div>
+    <script>
+        $(document).ready(function() {
+            var iconFolderOpenClass  = 'fa-folder-open';
+            var iconFolderCloseClass = 'fa-folder';
+            var iconAllExpandClass = 'fa-angle-double-down';
+            var iconAllPackClass = 'fa-angle-double-up';
+            // Handle directory-tree expansion:
+            // 左键单独展开目录
+            $(document).on('click', '#categories a[data-role="directory"]', function (event) {
+                event.preventDefault();
+
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconFolderOpenClass);
+                var subtree = $(this).siblings('ul');
+                icon.removeClass(iconFolderOpenClass).removeClass(iconFolderCloseClass);
+                if (expanded) {
+                    if (typeof subtree != 'undefined') {
+                        subtree.slideUp({ duration: 100 });
+                    }
+                    icon.addClass(iconFolderCloseClass);
+                } else {
+                    if (typeof subtree != 'undefined') {
+                        subtree.slideDown({ duration: 100 });
+                    }
+                    icon.addClass(iconFolderOpenClass);
+                }
+            });
+            // 右键展开下属所有目录
+            $('#categories a[data-role="directory"]').bind("contextmenu", function(event){
+                event.preventDefault();
+
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconFolderOpenClass);
+                var listNode = $(this).siblings('ul');
+                var subtrees = $.merge(listNode.find('li ul'), listNode);
+                var icons = $.merge(listNode.find('.fa'), icon);
+                icons.removeClass(iconFolderOpenClass).removeClass(iconFolderCloseClass);
+                if(expanded) {
+                    subtrees.slideUp({ duration: 100 });
+                    icons.addClass(iconFolderCloseClass);
+                } else {
+                    subtrees.slideDown({ duration: 100 });
+                    icons.addClass(iconFolderOpenClass);
+                }
+            })
+            // 展开关闭所有目录按钮
+            $(document).on('click', '#allExpand', function (event) {
+                event.preventDefault();
+
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconAllExpandClass);
+                icon.removeClass(iconAllExpandClass).removeClass(iconAllPackClass);
+                if(expanded) {
+                    $('#sidebar .fa.fa-folder').removeClass('fa-folder').addClass('fa-folder-open')
+                    $('#categories li ul').slideDown({ duration: 100 });
+                    icon.addClass(iconAllPackClass);
+                } else {
+                    $('#sidebar .fa.fa-folder-open').removeClass('fa-folder-open').addClass('fa-folder')
+                    $('#categories li ul').slideUp({ duration: 100 });
+                    icon.addClass(iconAllExpandClass);
+                }
+            });
+        });
+    </script>
+
+
+    
+        
+    <div class="widget-wrap">
+        <h3 class="widget-title"><span>recent</span></h3>
+        <div class="widget">
+            <ul id="recent-post" class="">
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/posts/4263562837/" class="thumbnail">
+    
+    
+        <span class="thumbnail-image thumbnail-none"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/OPS/">OPS</a><i class="fa fa-angle-right"></i><a class="article-category-link" href="/categories/OPS/MacOS/">MacOS</a></p>
+                            <p class="item-title"><a href="/posts/4263562837/" class="title">一个惊人快速的终端录像工具，也能录制 VSCode 和 Chrome 窗口</a></p>
+                            <p class="item-date"><time datetime="2021-03-28T00:02:47.000Z" itemprop="datePublished">2021-03-28</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/posts/3634498847/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210309111745.png)" alt="我用 Python 的 Seaborn 库，绘制了 17 个超好看图表!" class="thumbnail-image"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/back-end/">back-end</a><i class="fa fa-angle-right"></i><a class="article-category-link" href="/categories/back-end/Python/">Python</a></p>
+                            <p class="item-title"><a href="/posts/3634498847/" class="title">我用 Python 的 Seaborn 库，绘制了 17 个超好看图表!</a></p>
+                            <p class="item-date"><time datetime="2021-03-08T22:18:11.000Z" itemprop="datePublished">2021-03-09</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/posts/2097636152/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210303212435.jpg)" alt="工作两三年了，整不明白架构图都画啥？" class="thumbnail-image"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/Soft-engineering/">Soft engineering</a><i class="fa fa-angle-right"></i><a class="article-category-link" href="/categories/Soft-engineering/Architecture/">Architecture</a></p>
+                            <p class="item-title"><a href="/posts/2097636152/" class="title">工作两三年了，整不明白架构图都画啥？</a></p>
+                            <p class="item-date"><time datetime="2021-03-03T08:09:53.000Z" itemprop="datePublished">2021-03-03</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/posts/2846671594/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210228142136.jpg)" alt="RabbitMQ 集群高可用原理及实战部署介绍" class="thumbnail-image"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/back-end/">back-end</a><i class="fa fa-angle-right"></i><a class="article-category-link" href="/categories/back-end/Middle-ware/">Middle-ware</a></p>
+                            <p class="item-title"><a href="/posts/2846671594/" class="title">RabbitMQ 集群高可用原理及实战部署介绍</a></p>
+                            <p class="item-date"><time datetime="2021-02-28T01:06:06.000Z" itemprop="datePublished">2021-02-28</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/posts/3772598043/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210226162513.png)" alt="Swift：解包的正确姿势" class="thumbnail-image"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/iOS-Development/">iOS Development</a></p>
+                            <p class="item-title"><a href="/posts/3772598043/" class="title">Swift：解包的正确姿势</a></p>
+                            <p class="item-date"><time datetime="2021-02-26T03:32:25.000Z" itemprop="datePublished">2021-02-26</time></p>
+                        </div>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+
+    
+    <div id="toTop" class="fa fa-angle-up"></div>
+</aside>
+            
+            <section id="main"><article id="post-back-end/Middle-ware/RabbitMQ/RabbitMQ集群高可用原理及实战部署介绍" class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+        
+            <header class="article-header">
+                
+                    <div class="article-meta">
+                        
+    <div class="article-category">
+    	<i class="fa fa-folder"></i>
+        <a class="article-category-link" href="/categories/back-end/">back-end</a><i class="fa fa-angle-right"></i><a class="article-category-link" href="/categories/back-end/Middle-ware/">Middle-ware</a><i class="fa fa-angle-right"></i><a class="article-category-link" href="/categories/back-end/Middle-ware/RabbitMQ/">RabbitMQ</a>
+    </div>
+
+                        
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/tags/RabbitMQ/">RabbitMQ</a>, <a class="tag-link" href="/tags/集群/">集群</a>, <a class="tag-link" href="/tags/高可用性/">高可用性</a>
+    </div>
+
+                        
+    <div class="article-date">
+        <i class="fa fa-calendar"></i>
+        <a href="/posts/2846671594/">
+            <time datetime="2021-02-28T01:06:06.000Z" itemprop="datePublished">2021-02-28</time>
+        </a>
+    </div>
+
+
+                        
+                    </div>
+                
+                
+    
+        <h1 class="article-title" itemprop="name">
+            RabbitMQ 集群高可用原理及实战部署介绍
+        </h1>
+    
+
+            </header>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+        
+        
+            
+                <div id="toc" class="toc-article">
+                <strong class="toc-title">Catalogue</strong>
+                    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#前言"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#1-介绍"><span class="toc-number">2.</span> <span class="toc-text">1. 介绍</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#2-集群架构原理"><span class="toc-number">3.</span> <span class="toc-text">2. 集群架构原理</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#3-集群部署"><span class="toc-number">4.</span> <span class="toc-text">3. 集群部署</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#3-1、重新设置主机名"><span class="toc-number">4.1.</span> <span class="toc-text">3.1、重新设置主机名</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-2、rabbitMQ安装"><span class="toc-number">4.2.</span> <span class="toc-text">3.2、rabbitMQ安装</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-1、安装前命令准备"><span class="toc-number">4.2.1.</span> <span class="toc-text">3.2.1、安装前命令准备</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-2、下载-RabbitMQ、erlang、socat-的安装包"><span class="toc-number">4.2.2.</span> <span class="toc-text">3.2.2、下载 RabbitMQ、erlang、socat 的安装包</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-2-3、安装软件包"><span class="toc-number">4.3.</span> <span class="toc-text">3.2.3、安装软件包</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-4、启动可视化的管控台"><span class="toc-number">4.3.1.</span> <span class="toc-text">3.2.4、启动可视化的管控台</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-3、复制-Erlang-cookie"><span class="toc-number">4.4.</span> <span class="toc-text">3.3、复制 Erlang cookie</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-4、组成集群"><span class="toc-number">4.5.</span> <span class="toc-text">3.4、组成集群</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-5、设置内存节点"><span class="toc-number">4.6.</span> <span class="toc-text">3.5、设置内存节点</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-6、镜像队列"><span class="toc-number">4.6.1.</span> <span class="toc-text">3.6、镜像队列</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#4-集群的负载均衡"><span class="toc-number">5.</span> <span class="toc-text">4. 集群的负载均衡</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#4-1、HAProxy-安装"><span class="toc-number">5.1.</span> <span class="toc-text">4.1、HAProxy 安装</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#5-Java-客户端使用"><span class="toc-number">6.</span> <span class="toc-text">5. Java 客户端使用</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#6-总结"><span class="toc-number">7.</span> <span class="toc-text">6. 总结</span></a></li></ol>
+                </div>
+            
+        
+        
+            <p><img src="https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210228142136.jpg" alt=""></p>
+<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><blockquote>
+<p>在项目中想要 RabbitMQ 变得更加健壮，就要使得其变成高可用，今天我们一起来聊聊关于 RabbitMQ 集群原理和部署流程</p>
+</blockquote>
+<h1 id="1-介绍"><a href="#1-介绍" class="headerlink" title="1. 介绍"></a>1. 介绍</h1><p>在前几篇文章中，我们详细的介绍了 RabbitMQ 的内部结构和使用，以及 SpringBoot 和 RabbitMQ 整合，都是基于单台 RabbitMQ 进行使用的。</p>
+<p>我们知道在微服务流行的当下，一旦单台服务器挂了，基本上就无法提供高可用的服务了，因此为了保证服务高可用，在生产环境上我们通常的做法是搭建一个 RabbitMQ 集群，即使某台 RabbitMQ 故障了，其他正常的 RabbitMQ 服务器依然可以使用，应用程序的持续运行不会受到影响。</p>
+<h1 id="2-集群架构原理"><a href="#2-集群架构原理" class="headerlink" title="2. 集群架构原理"></a>2. 集群架构原理</h1><p>在前几篇文章中，我们有介绍到 RabbitMQ 内部有各种基础构件，包括队列、交换器、绑定、虚拟主机等，他们组成了 AMQP 协议消息通信的基础，而这些构件以<strong>元数据</strong>的形式存在，它始终记录在 RabbitMQ 内部，它们分别是：</p>
+<ul>
+<li><p><strong>队列元数据</strong>：队列名称和它们的属性</p>
+</li>
+<li><p><strong>交换器元数据</strong>：交换器名称、类型和属性</p>
+</li>
+<li><p><strong>绑定元数据</strong>：一张简单的表格展示了如何将消息路由到队列</p>
+</li>
+<li><p><strong>vhost 元数据</strong>：为 vhost 内的队列、交换器和绑定提供命名空间和安全属性</p>
+</li>
+</ul>
+<p>这些元数据，其实本质是一张查询表，里面包括了交换器名称和一个队列的绑定列表，当你将消息发布到交换器中，实际上是将你所在的信道将消息上的路由键与交换器的绑定列表进行匹配，然后将消息路由出去。</p>
+<p><img src="https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210228140741.jpg" alt=""> 消息路由表</p>
+<a id="more"></a>
+<p>有了这个机制，那么在所有节点上传递交换器消息将简单很多，而 RabbitMQ 所做的事情就是把交换器元数据拷贝到所有节点上，因此每个节点上的每条信道都可以访问完整的交换器。</p>
+<p><img src="https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210228140803.jpg" alt=""></p>
+<p>如果消息生产者所连接的是节点 2 或者节点 3，此时队列1的完整数据不在该两个节点上，那么在发送消息过程中这两个节点主要起了一个路由转发作用，根据这两个节点上的元数据转发至节点1上，最终发送的消息还是会存储至节点1的队列1上。</p>
+<p>同样，如果消息消费者所连接的节点2或者节点3，那这两个节点也会作为路由节点起到转发作用，将会从节点1的队列1中拉取消息进行消费。</p>
+<p><strong>与常见的集群主从架构模式不同的地方在于</strong>：<strong>RabbitMQ 集群模式下，仅仅只是同步元数据，每个队列内容还是在自己的服务器节点上</strong>。</p>
+<p>这么设计主要还是基于集群本身的<strong>性能和存储空间</strong>上来考虑：</p>
+<ul>
+<li><p><strong>存储空间</strong>：真正存放数据的地方是在队列里面，如果每个集群节点都拥有所有队列的完全数据拷贝，那么每个节点的存储空间会非常大，集群的消息积压能力会非常弱。例如你现在存储了 3G 队列内容，那么在另外一个只有 1G 存储空间的节点上，就会造成内存空间不足的情况，也就是无法通过集群节点的扩容提高消息积压能力。</p>
+</li>
+<li><p><strong>性能</strong>：消息的发布者需要将消息复制到每一个集群节点，每一条消息都会触发磁盘活动，这会导致整个集群内性能负载急剧拉升。</p>
+</li>
+</ul>
+<p>既然每个队列内容还是在自己的服务器节点上，同样也会带来新的问题，<strong>那就是如果队列所在服务器挂了，那存在服务器上的队列数据是不是全部都丢失了</strong>？</p>
+<p>在单个节点上，RabbitMQ 存储数据有两种方案：</p>
+<ul>
+<li><p><strong>内存模式</strong>：这种模式会将数据存储在内存当中，如果服务器突然宕机重启之后，那么附加在该节点上的队列和其关联的绑定都会丢失，并且消费者可以重新连接集群并重新创建队列；</p>
+</li>
+<li><p><strong>磁盘模式</strong>：这种模式会将数据存储磁盘当中，如果服务器突然宕机重启，数据会自动恢复，该队列又可以进行传输数据了，并且在恢复故障磁盘节点之前，不能在其它节点上让消费者重新连到集群并重新创建队列，如果消费者继续在其它节点上声明该队列，会得到一个 404 NOT_FOUND 错误，这样确保了当故障节点恢复后加入集群，该节点上的队列消息不会丢失，也避免了队列会在一个节点以上出现冗余的问题。</p>
+</li>
+</ul>
+<p>在集群中的每个节点，要么是内存节点，要么是磁盘节点，如果是内存节点，会将所有的元数据信息仅存储到内存中，<strong>而磁盘节点则不仅会将所有元数据存储到内存上， 还会将其持久化到磁盘</strong>。</p>
+<p>在单节点 RabbitMQ 上，仅允许该节点是磁盘节点，这样确保了节点发生故障或重启节点之后，所有关于系统的配置与元数据信息都会从磁盘上恢复。</p>
+<p>而在 RabbitMQ 集群上，至少有一个磁盘节点，也就是在集群环境中需要添加 2 台及以上的磁盘节点，这样其中一台发生故障了，集群仍然可以保持运行。其它节点均设置为内存节点，这样会让队列和交换器声明之类的操作会更加快速，元数据同步也会更加高效。</p>
+<h1 id="3-集群部署"><a href="#3-集群部署" class="headerlink" title="3. 集群部署"></a>3. 集群部署</h1><p>为了和生产环境保持一致，我们选用<code>CentOS7</code>操作系统进行环境部署，分别创建 3 台虚拟机。</p>
+<pre class="line-numbers language-bash"><code class="language-bash"><span class="token comment" spellcheck="true"># 3台服务器的IP</span>
+197.168.24.206
+197.168.24.233
+197.168.24.234
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+<p>放开防火墙限制，保证 3 台服务器网络都可以互通！</p>
+<h2 id="3-1、重新设置主机名"><a href="#3-1、重新设置主机名" class="headerlink" title="3.1、重新设置主机名"></a>3.1、重新设置主机名</h2><p>由于 RabbitMQ 集群连接是通过主机名来连接服务的，必须保证各个主机名之间可以 ping 通，重新设置 3 台服务器主机名，所以需要做以下操作：</p>
+<pre class="line-numbers language-bash"><code class="language-bash"><span class="token comment" spellcheck="true"># 修改节点1的主机名</span>
+<span class="token function">hostname</span> node1
+
+<span class="token comment" spellcheck="true"># 修改节点2的主机名</span>
+<span class="token function">hostname</span> node2
+
+<span class="token comment" spellcheck="true"># 修改节点3的主机名</span>
+<span class="token function">hostname</span> node3
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>编辑<code>/etc/hosts</code>文件，添加到在三台机器的<code>/etc/hosts</code>中以下内容：</p>
+<pre class="line-numbers language-bash"><code class="language-bash"><span class="token function">sudo</span> vim /etc/hosts
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>添加内容如下：</p>
+<pre class="line-numbers language-bash"><code class="language-bash">197.168.24.206 node1
+197.168.24.233 node2
+197.168.24.234 node3
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+<h2 id="3-2、rabbitMQ安装"><a href="#3-2、rabbitMQ安装" class="headerlink" title="3.2、rabbitMQ安装"></a>3.2、rabbitMQ安装</h2><p>RabbitMQ 基于 erlang 进行通信，相比其它的软件，安装有些麻烦，不过本例采用<code>rpm</code>方式安装，任何新手都可以完成安装，过程如下！</p>
+<h3 id="3-2-1、安装前命令准备"><a href="#3-2-1、安装前命令准备" class="headerlink" title="3.2.1、安装前命令准备"></a>3.2.1、安装前命令准备</h3><p>输入如下命令，完成安装前的环境准备。</p>
+<pre class="line-numbers language-bash"><code class="language-bash">yum <span class="token function">install</span> <span class="token function">lsof</span>  build-essential openssl openssl-devel unixODBC unixODBC-devel <span class="token function">make</span> gcc gcc-c++ kernel-devel m4 ncurses-devel tk tc xz <span class="token function">wget</span> vim
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<h3 id="3-2-2、下载-RabbitMQ、erlang、socat-的安装包"><a href="#3-2-2、下载-RabbitMQ、erlang、socat-的安装包" class="headerlink" title="3.2.2、下载 RabbitMQ、erlang、socat 的安装包"></a>3.2.2、下载 RabbitMQ、erlang、socat 的安装包</h3><p>本次下载的是<code>RabbitMQ-3.6.5</code>版本，采用<code>rpm</code>一键安装，适合新手直接上手。</p>
+<p>先创建一个<code>rabbitmq</code>目录，本例的目录路径为<code>/usr/app/rabbitmq</code>，然后在目录下执行如下命令，下载安装包！</p>
+<ul>
+<li>下载erlang</li>
+</ul>
+<pre class="line-numbers language-bash"><code class="language-bash"><span class="token function">wget</span> www.rabbitmq.com/releases/erlang/erlang-18.3-1.el7.centos.x86_64.rpm
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<ul>
+<li>下载socat</li>
+</ul>
+<pre class="line-numbers language-bash"><code class="language-bash"><span class="token function">wget</span> http://repo.iotti.biz/CentOS/7/x86_64/socat-1.7.3.2-5.el7.lux.x86_64.rpm
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<ul>
+<li>下载rabbitMQ</li>
+</ul>
+<pre class="line-numbers language-bash"><code class="language-bash"><span class="token function">wget</span> www.rabbitmq.com/releases/rabbitmq-server/v3.6.5/rabbitmq-server-3.6.5-1.noarch.rpm
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>最终目录文件如下：</p>
+<p><img src="https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210228140937.jpg" alt=""></p>
+<h2 id="3-2-3、安装软件包"><a href="#3-2-3、安装软件包" class="headerlink" title="3.2.3、安装软件包"></a>3.2.3、安装软件包</h2><p>下载完之后，按顺序依次安装软件包，这个很重要哦～</p>
+<ul>
+<li>安装erlang</li>
+</ul>
+<pre class="line-numbers language-bash"><code class="language-bash">rpm -ivh erlang-18.3-1.el7.centos.x86_64.rpm
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<ul>
+<li>安装socat</li>
+</ul>
+<pre class="line-numbers language-bash"><code class="language-bash">rpm -ivh socat-1.7.3.2-5.el7.lux.x86_64.rpm
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<ul>
+<li>安装rabbitmq</li>
+</ul>
+<pre class="line-numbers language-bash"><code class="language-bash">rpm -ivh rabbitmq-server-3.6.5-1.noarch.rpm
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>安装完成之后，修改<code>rabbitmq</code>的配置，默认配置文件在<code>/usr/lib/rabbitmq/lib/rabbitmq_server-3.6.5/ebin</code>目录下。</p>
+<pre class="line-numbers language-bash"><code class="language-bash">vim /usr/lib/rabbitmq/lib/rabbitmq_server-3.6.5/ebin/rabbit.app
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>修改<code>loopback_users</code>节点的值！</p>
+<p><img src="https://oscimg.oschina.net/oscnet/66858cc0-ddd7-4bf0-8d43-7821764db6e7.jpg" alt=""></p>
+<p>分别重新命令<code>rabbit</code>节点名称</p>
+<pre class="line-numbers language-bash"><code class="language-bash">vim /etc/rabbitmq/rabbitmq-env.conf
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>在文件里添加一行，如下配置！</p>
+<pre class="line-numbers language-bash"><code class="language-bash">NODENAME<span class="token operator">=</span>rabbit@node1
+
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+<p>其它两个节点命令也类似，然后，再保存！通过如下命令，启动服务即可！</p>
+<pre class="line-numbers language-bash"><code class="language-bash"><span class="token comment" spellcheck="true"># 启动服务</span>
+rabbitmq-server start <span class="token operator">&amp;</span>
+
+<span class="token comment" spellcheck="true"># 停止服务</span>
+rabbitmqctl stop
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>通过如下命令，查询服务是否启动成功！</p>
+<pre class="line-numbers language-bash"><code class="language-bash"><span class="token function">lsof</span> -i:5672
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>如果出现<code>5672</code>已经被监听，说明已经启动成功！</p>
+<p><img src="https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210228141112.jpg" alt=""></p>
+<h3 id="3-2-4、启动可视化的管控台"><a href="#3-2-4、启动可视化的管控台" class="headerlink" title="3.2.4、启动可视化的管控台"></a>3.2.4、启动可视化的管控台</h3><p>输入如下命令，启动控制台！</p>
+<pre class="line-numbers language-bash"><code class="language-bash">rabbitmq-plugins <span class="token function">enable</span> rabbitmq_management
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>用浏览器打开<code>http://ip:15672</code>，这里的<code>ip</code>就是 CentOS 系统的 ip，结果如下：</p>
+<p><img src="https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210228141136.jpg" alt=""></p>
+<p>账号、密码，默认为<code>guest</code>，如果出现无法访问，检测防火墙是否开启，如果开启将其关闭即可！</p>
+<p>登录之后的监控平台，界面如下：</p>
+<p><img src="https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210228141144.jpg" alt=""></p>
+<h2 id="3-3、复制-Erlang-cookie"><a href="#3-3、复制-Erlang-cookie" class="headerlink" title="3.3、复制 Erlang cookie"></a>3.3、复制 Erlang cookie</h2><p>RabbitMQ 集群环境下，元数据同步基于 cookie 共享方案实现。</p>
+<p>在这里将 node1 的 cookie 文件复制到 node2，由于这个文件权限是 400 为方便传输，先修改权限，非必须操作，所以需要先修改 node1 中的该文件权限为 777</p>
+<pre class="line-numbers language-bash"><code class="language-bash"><span class="token function">chmod</span> 777 /var/lib/rabbitmq/.erlang.cookie
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>用 scp 拷贝到节点 2，节点 3 的操作也类似。</p>
+<pre class="line-numbers language-bash"><code class="language-bash"><span class="token function">scp</span> /var/lib/rabbitmq/.erlang.cookie node2:/var/lib/rabbitmq/
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>最后，将权限改回来</p>
+<pre class="line-numbers language-bash"><code class="language-bash"><span class="token function">chmod</span> 400 /var/lib/rabbitmq/.erlang.cookie
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<h2 id="3-4、组成集群"><a href="#3-4、组成集群" class="headerlink" title="3.4、组成集群"></a>3.4、组成集群</h2><p>在节点 2 执行如下命令：</p>
+<pre class="line-numbers language-bash"><code class="language-bash"><span class="token comment" spellcheck="true"># 停止rabbitmq服务</span>
+rabbitmqctl stop_app
+
+<span class="token comment" spellcheck="true"># 清空节点状态</span>
+rabbitmqctl reset
+
+<span class="token comment" spellcheck="true"># node2和node1构成集群,node2必须能通过node1的主机名ping通</span>
+rabbitmqctl join_cluster rabbit@node1
+
+<span class="token comment" spellcheck="true"># 开启rabbitmq服务</span>
+rabbitmqctl start_app
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>节点 3 的操作也类似！</p>
+<p>在任意一台机上面查看集群状态：</p>
+<pre class="line-numbers language-bash"><code class="language-bash">rabbitmqctl cluster_status
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p><img src="https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210228141324.jpg" alt=""></p>
+<ul>
+<li><p>第一行：表示当前节点信息</p>
+</li>
+<li><p>第二行：表示集群中的节点成员，disc 表示这些都是磁盘节点</p>
+</li>
+<li><p>第三行：表示正在运行的节点成员</p>
+</li>
+</ul>
+<p>登录可视化管控台，可以很清晰的看到，三个服务节点已经互相关联起来了！</p>
+<p><img src="https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210228141350.jpg" alt=""></p>
+<p>如果你想将某个节点移除集群，以移除节点3为例，可以按照如下方式进行操作！</p>
+<pre class="line-numbers language-bash"><code class="language-bash"><span class="token comment" spellcheck="true"># 首先停止要移除的节点服务</span>
+rabbitmqctl stop
+
+<span class="token comment" spellcheck="true"># 移除节点3</span>
+rabbitmqctl -n rabbit@node1 forget_cluster_node rabbit@node3
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>如果移除之后，无法启动 rabbitMQ，删除已有 mnesia 信息！</p>
+<pre class="line-numbers language-bash"><code class="language-bash"><span class="token function">rm</span> -rf /var/lib/rabbitmq/mnesia
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>然后再次重启服务即可！</p>
+<h2 id="3-5、设置内存节点"><a href="#3-5、设置内存节点" class="headerlink" title="3.5、设置内存节点"></a>3.5、设置内存节点</h2><pre class="line-numbers language-bash"><code class="language-bash"><span class="token comment" spellcheck="true">#加入时候设置节点为内存节点（默认加入的为磁盘节点）</span>
+rabbitmqctl join_cluster rabbit@node1 --ram
+
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+<p>其中<code>--ram</code>指的是作为内存节点，如果不加，那就默认为磁盘节点。</p>
+<p>如果节点在集群中已经是磁盘节点了，通过以下命令可以将节点改成内存节点：</p>
+<pre class="line-numbers language-bash"><code class="language-bash"><span class="token comment" spellcheck="true"># 停止rabbitmq服务</span>
+rabbitmqctl stop_app
+
+<span class="token comment" spellcheck="true"># 更改节点为内存节点</span>
+rabbitmqctl change_cluster_node_type <span class="token function">ram</span>
+
+<span class="token comment" spellcheck="true"># 开启rabbitmq服务</span>
+rabbitmqctl start_app
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p><img src="https://oscimg.oschina.net/oscnet/d488d00f-02ed-4dd2-8c19-f41ca114a3b4.jpg" alt=""></p>
+<h3 id="3-6、镜像队列"><a href="#3-6、镜像队列" class="headerlink" title="3.6、镜像队列"></a>3.6、镜像队列</h3><p>上面我们提到，在默认情况下，队列只会保存在其中一个节点上，当节点发生故障时，尽管所有元数据信息都可以从磁盘节点上将元数据恢复到本节点上，<strong>但是内存节点的队列消息内容就不行了</strong>，这样就会导致消息的丢失。</p>
+<p>RabbitMQ 很早就意识到这个问题，在 2.6 以后的版本中增加了队列冗余选项：<strong>镜像队列</strong>。</p>
+<p>所谓镜像队列，其实就是主队列（master）依然是仅存在于一个节点上，通过关联的 rabbitMQ 服务器，从主队列同步消息到各个节点，也就是所谓的主从模式，将主队列的消息进行备份处理。</p>
+<p>如果主队列没有发生故障，那么其工作流程跟普通队列一样，生产者和消费者不会感知其变化，当发布消息时，依然是路由到主队列中，而主队列通过类似广播的机制，将消息扩散同步至其余从队列中，这就有点像 fanout 交换器一样。而消费者依然是从主队列中读取消息。</p>
+<p>一旦主队列发生故障，集群就会从最老的一个从队列选举为新的主队列，这也就实现了队列的高可用了，但我们切记不要滥用这个机制，在上面也说了，队列的冗余操作会导致不能通过扩展节点增加存储空间，而且会造成性能瓶颈。</p>
+<p>命令格式如下：</p>
+<pre class="line-numbers language-bash"><code class="language-bash">rabbitmqctl set_policy <span class="token punctuation">[</span>-p Vhost<span class="token punctuation">]</span> Name Pattern Definition <span class="token punctuation">[</span>Priority<span class="token punctuation">]</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>参数介绍：</p>
+<pre class="line-numbers language-bash"><code class="language-bash">-p Vhost: 可选参数，针对指定vhost下的queue进行设置
+Name: policy的名称
+Pattern: queue的匹配模式<span class="token punctuation">(</span>正则表达式<span class="token punctuation">)</span>
+Definition: 镜像定义，包括三个部分ha-mode, ha-params, ha-sync-mode
+    ha-mode: 指明镜像队列的模式，有效值为 all/exactly/nodes
+        all: 表示在集群中所有的节点上进行镜像
+        exactly: 表示在指定个数的节点上进行镜像，节点的个数由ha-params指定
+        nodes: 表示在指定的节点上进行镜像，节点名称通过ha-params指定
+    ha-params: ha-mode模式需要用到的参数
+    ha-sync-mode: 进行队列中消息的同步方式，有效值为automatic和manual
+priority: 可选参数，policy的优先级
+
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>举个例子，声明名为<code>ha-all</code>的策略，它与名称以<code>ha</code>开头的队列相匹配，并将镜像配置到集群中的所有节点：</p>
+<pre class="line-numbers language-bash"><code class="language-bash">rabbitmqctl set_policy ha-all <span class="token string">"^"</span> <span class="token string">'{"ha-mode":"all"}'</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>类似操作很多，具体使用可以参考官方 api。</p>
+<h1 id="4-集群的负载均衡"><a href="#4-集群的负载均衡" class="headerlink" title="4. 集群的负载均衡"></a>4. 集群的负载均衡</h1><p>HAProxy 提供高可用性、负载均衡以及基于TCP和HTTP应用的代理，支持虚拟主机，它是免费、快速并且可靠的一种解决方案。根据官方数据，其最高极限支持10G的并发。HAProxy支持从4层至7层的网络交换，即覆盖所有的 TCP 协议。就是说，Haproxy 甚至还支持 Mysql 的均衡负载。为了实现 RabbitMQ 集群的软负载均衡，这里可以选择HAProxy。</p>
+<p><img src="https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210228141455.jpg" alt=""></p>
+<h2 id="4-1、HAProxy-安装"><a href="#4-1、HAProxy-安装" class="headerlink" title="4.1、HAProxy 安装"></a>4.1、HAProxy 安装</h2><p>HAProxy 的安装也很简单，单独部署在一台服务器上，通过如下命令即可安装完成！</p>
+<pre class="line-numbers language-bash"><code class="language-bash">yum <span class="token function">install</span> haproxy
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>编辑 HAProxy 配置文件：</p>
+<pre class="line-numbers language-bash"><code class="language-bash">vim /etc/haproxy/haproxy.cfg
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>我们只需要在文件末尾加上如下配置即可！</p>
+<pre class="line-numbers language-bash"><code class="language-bash"><span class="token comment" spellcheck="true">#绑定配置</span>
+listen rabbitmq_cluster
+        bind 0.0.0.0:5672
+        <span class="token comment" spellcheck="true">#配置TCP模式</span>
+        mode tcp
+        <span class="token comment" spellcheck="true">#加权轮询</span>
+        balance roundrobin
+        <span class="token comment" spellcheck="true">#RabbitMQ集群节点配置</span>
+        server rmq_node1 197.168.24.206:5672 check inter 5000 rise 2 fall 3 weight 1
+        server rmq_node2 197.168.24.233:5672 check inter 5000 rise 2 fall 3 weight 1
+        server rmq_node3 197.168.24.234:5672 check inter 5000 rise 2 fall 3 weight 1
+
+<span class="token comment" spellcheck="true">#haproxy监控页面地址</span>
+listen monitor
+        bind 0.0.0.0:8100
+        mode http
+        option httplog
+        stats <span class="token function">enable</span>
+        stats uri /stats
+        stats refresh 5s
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>绑定配置参数说明：</p>
+<ul>
+<li><p><code>bind</code>：这里定义了客户端连接连接 IP 地址和端口号，用于客户端连接</p>
+</li>
+<li><p><code>balance roundrobin</code>：表示加权轮询负载均衡算法</p>
+</li>
+</ul>
+<p>RabbitMQ 集群节点配置说明：</p>
+<ul>
+<li><p><code>server rmq_node1</code>：定义HAProxy内RabbitMQ服务的标识</p>
+</li>
+<li><p><code>197.168.24.206:5672</code>：标识了后端RabbitMQ的服务地址</p>
+</li>
+<li><p><code>check inter 5000</code>：表示每隔多少毫秒检查RabbitMQ服务是否可用，示例参数值为 5000</p>
+</li>
+<li><p><code>rise 2</code>：表示 RabbitMQ 服务在发生故障之后，需要多少次健康检查才能被再次确认可用，示例参数值为 2</p>
+</li>
+<li><p><code>fall 2</code>：表示需要经历多少次失败的健康检查之后，HAProxy 才会停止使用此RabbitMQ服务，示例参数值为 2</p>
+</li>
+<li><p><code>weight 1</code>：表示权重比例，值越低，会优先进行数据分配，示例参数值为 1</p>
+</li>
+</ul>
+<p>启动 HAProxy：</p>
+<pre class="line-numbers language-bash"><code class="language-bash">/usr/sbin/haproxy -f /etc/haproxy/haproxy.cfg
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>登录<code>http://ip:8100/stats</code>web 管理界面，即可进行监控查看！</p>
+<p><img src="https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210228141542.jpg" alt=""></p>
+<h1 id="5-Java-客户端使用"><a href="#5-Java-客户端使用" class="headerlink" title="5. Java 客户端使用"></a>5. Java 客户端使用</h1><p>如果是配置了 HAProxy 代理服务器，可以直接使用 HAProxy 代理服务器地址即可！</p>
+<pre class="line-numbers language-java"><code class="language-java"> <span class="token comment" spellcheck="true">//ConnectionFactory创建MQ的物理连接</span>
+connectionFactory <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">ConnectionFactory</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+connectionFactory<span class="token punctuation">.</span><span class="token function">setHost</span><span class="token punctuation">(</span><span class="token string">"197.168.24.207"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>  <span class="token comment" spellcheck="true">//代理服务器地址</span>
+connectionFactory<span class="token punctuation">.</span><span class="token function">setPort</span><span class="token punctuation">(</span><span class="token number">5672</span><span class="token punctuation">)</span><span class="token punctuation">;</span>          <span class="token comment" spellcheck="true">//代理服务器端口</span>
+connectionFactory<span class="token punctuation">.</span><span class="token function">setUsername</span><span class="token punctuation">(</span><span class="token string">"admin"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>  <span class="token comment" spellcheck="true">//guest只能在本机进行访问,通过代理服务器发送消息时需要重新建立用户</span>
+connectionFactory<span class="token punctuation">.</span><span class="token function">setPassword</span><span class="token punctuation">(</span><span class="token string">"admin"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>  <span class="token comment" spellcheck="true">//guest</span>
+connectionFactory<span class="token punctuation">.</span><span class="token function">setVirtualHost</span><span class="token punctuation">(</span><span class="token string">"/"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>    <span class="token comment" spellcheck="true">//虚拟主机</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>如果没有代理服务器，使用<code>Spring</code>的<code>CachingConnectionFactory</code>类进行配置。</p>
+<p>以<code>SpringBoot</code>项目为例，配置文件如下：</p>
+<pre class="line-numbers language-java"><code class="language-java">spring<span class="token punctuation">.</span>rabbitmq<span class="token punctuation">.</span>addresses<span class="token operator">=</span><span class="token number">197.168</span><span class="token punctuation">.</span><span class="token number">24.206</span><span class="token operator">:</span><span class="token number">5672</span><span class="token punctuation">,</span><span class="token number">197.168</span><span class="token punctuation">.</span><span class="token number">24.233</span><span class="token operator">:</span><span class="token number">5672</span><span class="token punctuation">,</span><span class="token number">197.168</span><span class="token punctuation">.</span><span class="token number">24.234</span><span class="token operator">:</span><span class="token number">5672</span>
+spring<span class="token punctuation">.</span>rabbitmq<span class="token punctuation">.</span>username<span class="token operator">=</span>guest
+spring<span class="token punctuation">.</span>rabbitmq<span class="token punctuation">.</span>password<span class="token operator">=</span>guest
+spring<span class="token punctuation">.</span>rabbitmq<span class="token punctuation">.</span>virtual<span class="token operator">-</span>host<span class="token operator">=</span><span class="token operator">/</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+<p><code>RabbitConfig</code>配置类如下：</p>
+<pre class="line-numbers language-java"><code class="language-java"><span class="token annotation punctuation">@Configuration</span>
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">RabbitConfig</span> <span class="token punctuation">{</span>
+
+    <span class="token comment" spellcheck="true">/**
+     * 初始化连接工厂
+     * @param addresses
+     * @param userName
+     * @param password
+     * @param vhost
+     * @return
+     */</span>
+    <span class="token annotation punctuation">@Bean</span>
+    ConnectionFactory <span class="token function">connectionFactory</span><span class="token punctuation">(</span><span class="token annotation punctuation">@Value</span><span class="token punctuation">(</span><span class="token string">"${spring.rabbitmq.addresses}"</span><span class="token punctuation">)</span> String addresses<span class="token punctuation">,</span>
+                                        <span class="token annotation punctuation">@Value</span><span class="token punctuation">(</span><span class="token string">"${spring.rabbitmq.username}"</span><span class="token punctuation">)</span> String userName<span class="token punctuation">,</span>
+                                        <span class="token annotation punctuation">@Value</span><span class="token punctuation">(</span><span class="token string">"${spring.rabbitmq.password}"</span><span class="token punctuation">)</span> String password<span class="token punctuation">,</span>
+                                        <span class="token annotation punctuation">@Value</span><span class="token punctuation">(</span><span class="token string">"${spring.rabbitmq.virtual-host}"</span><span class="token punctuation">)</span> String vhost<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        CachingConnectionFactory connectionFactory <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">CachingConnectionFactory</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        connectionFactory<span class="token punctuation">.</span><span class="token function">setAddresses</span><span class="token punctuation">(</span>addresses<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        connectionFactory<span class="token punctuation">.</span><span class="token function">setUsername</span><span class="token punctuation">(</span>userName<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        connectionFactory<span class="token punctuation">.</span><span class="token function">setPassword</span><span class="token punctuation">(</span>password<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        connectionFactory<span class="token punctuation">.</span><span class="token function">setVirtualHost</span><span class="token punctuation">(</span>vhost<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">return</span> connectionFactory<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token comment" spellcheck="true">/**
+     * 重新实例化 RabbitAdmin 操作类
+     * @param connectionFactory
+     * @return
+     */</span>
+    <span class="token annotation punctuation">@Bean</span>
+    <span class="token keyword">public</span> RabbitAdmin <span class="token function">rabbitAdmin</span><span class="token punctuation">(</span>ConnectionFactory connectionFactory<span class="token punctuation">)</span><span class="token punctuation">{</span>
+        <span class="token keyword">return</span> <span class="token keyword">new</span> <span class="token class-name">RabbitAdmin</span><span class="token punctuation">(</span>connectionFactory<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token comment" spellcheck="true">/**
+     * 重新实例化 RabbitTemplate 操作类
+     * @param connectionFactory
+     * @return
+     */</span>
+    <span class="token annotation punctuation">@Bean</span>
+    <span class="token keyword">public</span> RabbitTemplate <span class="token function">rabbitTemplate</span><span class="token punctuation">(</span>ConnectionFactory connectionFactory<span class="token punctuation">)</span><span class="token punctuation">{</span>
+        RabbitTemplate rabbitTemplate<span class="token operator">=</span><span class="token keyword">new</span> <span class="token class-name">RabbitTemplate</span><span class="token punctuation">(</span>connectionFactory<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token comment" spellcheck="true">//数据转换为json存入消息队列</span>
+        rabbitTemplate<span class="token punctuation">.</span><span class="token function">setMessageConverter</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token class-name">Jackson2JsonMessageConverter</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">return</span> rabbitTemplate<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<h1 id="6-总结"><a href="#6-总结" class="headerlink" title="6. 总结"></a>6. 总结</h1><p>本文主要详细介绍了 RabbitMQ 集群的工作原理和如何搭建一个具备负载均衡能力的 RabbitMQ 集群的方法。</p>
+<p>限于笔者的才疏学浅，对本文内容可能还有理解不到位的地方，如有阐述不合理之处还望留言一起探讨。</p>
+
+            </div>
+        
+        <footer class="article-footer">
+        </footer>
+    </div>
+</article>
+
+
+    
+<nav id="article-nav">
+    
+        <a href="/posts/2097636152/" id="article-nav-newer" class="article-nav-link-wrap">
+            <strong class="article-nav-caption">Newer</strong>
+            <div class="article-nav-title">
+                
+                    工作两三年了，整不明白架构图都画啥？
+                
+            </div>
+        </a>
+    
+    
+        <a href="/posts/3772598043/" id="article-nav-older" class="article-nav-link-wrap">
+            <strong class="article-nav-caption">Older</strong>
+            <div class="article-nav-title">Swift：解包的正确姿势</div>
+        </a>
+    
+</nav>
+
+
+
+
+
+    
+    
+
+
+
+
+<!-- baidu url auto push script -->
+<script type="text/javascript">
+    !function(){var e=/([http|https]:\/\/[a-zA-Z0-9\_\.]+\.baidu\.com)/gi,r=window.location.href,o=document.referrer;if(!e.test(r)){var n="//api.share.baidu.com/s.gif";o?(n+="?r="+encodeURIComponent(document.referrer),r&&(n+="&l="+r)):r&&(n+="?l="+r);var t=new Image;t.src=n}}(window);
+</script>     
+
+<head><meta name="generator" content="Hexo 3.9.0">
+    <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+    <script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+<link rel="stylesheet" href="/css/prism-duotone-light.css" type="text/css">
+<link rel="stylesheet" href="/css/prism-line-numbers.css" type="text/css"></head>
+<body>
+    <div id="vcomments"></div>
+    <script>
+        new Valine({
+            el: '#vcomments',
+            appId: '8kLhebBkVygl1MhVcQx9dnBP-gzGzoHsz',
+            appKey: 'hrctlOb6RQBWjjwTJ9fVjb91'
+        })
+    </script>
+</body>
+
+
+</section>
+        </div>
+        <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+
+<footer id="footer">
+    <div class="outer">
+        <div id="footer-info" class="inner">
+            <a href="https://www.jifu.io">
+            Ji Fu &copy; 2021
+            </a>
+            <br> Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>. Theme - <a href="https://github.com/zthxxx/hexo-theme-Wikitten">wikitten</a>
+            <br> 您是  jifu'wiki 的第<span id="busuanzi_value_site_uv"></span>个小伙伴
+            <br>
+                本站总访问量<span id="busuanzi_value_site_pv"></span>次
+                本文总阅读量<span id="busuanzi_value_page_pv"></span>次
+        </div>
+    </div>
+</footer>
+
+
+
+        
+
+    
+        <script src="/libs/lightgallery/js/lightgallery.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-thumbnail.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-pager.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-autoplay.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-fullscreen.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-zoom.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-hash.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-share.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-video.min.js"></script>
+    
+    
+        <script src="/libs/justified-gallery/jquery.justifiedGallery.min.js"></script>
+    
+    
+
+
+
+<!-- Custom Scripts -->
+<script src="/js/main.js"></script>
+
+    </div>
+</body>
+</html>

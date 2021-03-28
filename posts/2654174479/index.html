@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+    <meta charset="utf-8">
+    
+    <title>分库分表 vs NewSQL数据库 | JiFu&#39;s Wiki</title>
+    
+    
+        <meta name="keywords" content="数据库,NewSQL,关系型数据库">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="description" content="概述最近与同行科技交流，经常被问到分库分表与分布式数据库如何选择，网上也有很多关于中间件+传统关系数据库（分库分表）与NewSQL分布式数据库的文章，但有些观点与判断是我觉得是偏激的，脱离环境去评价方案好坏其实有失公允。 本文通过对两种模式关键特性实现原理对比，希望可以尽可能客观、中立的阐明各自真实的优缺点以及适用场景。 NewSQL数据库先进在哪儿?首先关于“中间件+关系数据库分库分表”算不算">
+<meta name="keywords" content="数据库,NewSQL,关系型数据库">
+<meta property="og:type" content="article">
+<meta property="og:title" content="分库分表 vs NewSQL数据库">
+<meta property="og:url" content="http://www.jifu.io/posts/2654174479/index.html">
+<meta property="og:site_name" content="JiFu&#39;s Wiki">
+<meta property="og:description" content="概述最近与同行科技交流，经常被问到分库分表与分布式数据库如何选择，网上也有很多关于中间件+传统关系数据库（分库分表）与NewSQL分布式数据库的文章，但有些观点与判断是我觉得是偏激的，脱离环境去评价方案好坏其实有失公允。 本文通过对两种模式关键特性实现原理对比，希望可以尽可能客观、中立的阐明各自真实的优缺点以及适用场景。 NewSQL数据库先进在哪儿?首先关于“中间件+关系数据库分库分表”算不算">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="https://www.jifu.io/images/2/20190713002331.png">
+<meta property="og:updated_time" content="2020-08-11T05:17:21.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="分库分表 vs NewSQL数据库">
+<meta name="twitter:description" content="概述最近与同行科技交流，经常被问到分库分表与分布式数据库如何选择，网上也有很多关于中间件+传统关系数据库（分库分表）与NewSQL分布式数据库的文章，但有些观点与判断是我觉得是偏激的，脱离环境去评价方案好坏其实有失公允。 本文通过对两种模式关键特性实现原理对比，希望可以尽可能客观、中立的阐明各自真实的优缺点以及适用场景。 NewSQL数据库先进在哪儿?首先关于“中间件+关系数据库分库分表”算不算">
+<meta name="twitter:image" content="https://www.jifu.io/images/2/20190713002331.png">
+    
+
+    
+        <link rel="alternate" href="/atom.xml" title="JiFu&#39;s Wiki" type="application/atom+xml">
+    
+
+    
+        <link rel="icon" href="/favicon.ico">
+    
+
+    <link rel="stylesheet" href="/libs/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/libs/open-sans/styles.css">
+    <link rel="stylesheet" href="/libs/source-code-pro/styles.css">
+
+    <link rel="stylesheet" href="/css/style.css">
+    <script src="/libs/jquery/2.1.3/jquery.min.js"></script>
+    <script src="/libs/jquery/plugins/cookie/1.4.1/jquery.cookie.js"></script>
+    
+    
+        <link rel="stylesheet" href="/libs/lightgallery/css/lightgallery.min.css">
+    
+    
+        <link rel="stylesheet" href="/libs/justified-gallery/justifiedGallery.min.css">
+    
+    
+    
+    
+        <script>
+var _hmt = _hmt || [];
+(function() {
+    var hm = document.createElement("script");
+    hm.src = "//hm.baidu.com/hm.js?efa1eb5f56c438a850a0f60609fd7755";
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+    
+
+
+<link rel="stylesheet" href="/css/prism-duotone-light.css" type="text/css">
+<link rel="stylesheet" href="/css/prism-line-numbers.css" type="text/css"></head>
+</html>
+<body>
+    <div id="container">
+        <script>
+    (function(){
+        var bp = document.createElement('script');
+        var curProtocol = window.location.protocol.split(':')[0];
+        if (curProtocol === 'https') {
+            bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+        }
+        else {
+            bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+        }
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(bp, s);
+    })();
+</script>
+
+<header id="header">
+    <div id="header-main" class="header-inner">
+        <div class="outer">
+            <a href="/" id="logo">
+                <i class="logo"></i>
+                <span class="site-title">JiFu&#39;s Wiki</span>
+            </a>
+            <nav id="main-nav">
+                
+                    <a class="main-nav-link" href="/">Home</a>
+                
+                    <a class="main-nav-link" href="/archives">Archives</a>
+                
+                    <a class="main-nav-link" href="/categories">Categories</a>
+                
+                    <a class="main-nav-link" href="/tags">Tags</a>
+                
+                    <a class="main-nav-link" href="/about">About</a>
+                
+            </nav>
+            
+            <div id="search-form-wrap">
+
+    <form class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="Search" />
+        <button type="submit" class="search-form-submit"></button>
+    </form>
+    <div class="ins-search">
+    <div class="ins-search-mask"></div>
+    <div class="ins-search-container">
+        <div class="ins-input-wrapper">
+            <input type="text" class="ins-search-input" placeholder="Type something..." />
+            <span class="ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: 'Posts',
+            PAGES: 'Pages',
+            CATEGORIES: 'Categories',
+            TAGS: 'Tags',
+            UNTITLED: '(Untitled)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+<script src="/js/insight.js"></script>
+
+</div>
+        </div>
+    </div>
+    <div id="main-nav-mobile" class="header-sub header-inner">
+        <table class="menu outer">
+            <tr>
+                
+                    <td><a class="main-nav-link" href="/">Home</a></td>
+                
+                    <td><a class="main-nav-link" href="/archives">Archives</a></td>
+                
+                    <td><a class="main-nav-link" href="/categories">Categories</a></td>
+                
+                    <td><a class="main-nav-link" href="/tags">Tags</a></td>
+                
+                    <td><a class="main-nav-link" href="/about">About</a></td>
+                
+                <td>
+                    
+    <div class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="Search" />
+    </div>
+
+                </td>
+            </tr>
+        </table>
+    </div>
+</header>
+
+        <div class="outer">
+            
+            
+                <aside id="sidebar">
+   
+        
+    <div class="widget-wrap" id='categories'>
+        <h3 class="widget-title">
+            <span>categories</span>
+            &nbsp;
+            <a id='allExpand' href="#">
+                <i class="fa fa-angle-double-up fa-2x"></i>
+            </a>
+        </h3>
+
+        
+        
+         <ul class="unstyled" id="tree" style="display: block;"> 
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Android Development
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/1797699998/">深入了解 gradle 和 maven 的区别</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Design
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/1907494021/">PS快捷键使用指南</a></li>  <li class="file"><a href="/posts/729727978/">快速改善用户界面的10个技巧</a></li>  <li class="file"><a href="/posts/1525329016/">提高效率！24 个高手常用的 Sketch 技巧合集（附实用快捷键）</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                HR
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/3142539384/">HR常用的招聘邮件模板</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Hardware
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/3904818761/">MacBook十年进化史</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder-open"></i>
+                                &nbsp;
+                                OPS
+                            </a>
+                             <ul class="unstyled" id="tree" style="display: block;"> 
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Docker
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/1245529498/">Docker学习笔记</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Editor
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/151598530/">VScdoe error:Could not create temporary directory Permission denied</a></li>  <li class="file"><a href="/posts/4167799419/">Build personal development editor with vscode</a></li>  <li class="file"><a href="/posts/4165683660/">REST Client 简单好用的接口测试辅助工具</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder-open"></i>
+                                &nbsp;
+                                Linux
+                            </a>
+                             <ul class="unstyled" id="tree" style="display: block;"> 
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                CentOS
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/1867760035/">CentOS7编译安装VIM8</a></li>  <li class="file"><a href="/posts/920993072/">CentOS update Ruby</a></li>  <li class="file"><a href="/posts/4057676473/">yum提示Error: rpmdb open failed的解决方案</a></li>  <li class="file"><a href="/posts/1153610031/">centos7修改启动内核，删除无用内核</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                System Service
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/709002730/">使用 systemctl 添加自定义服务</a></li>  <li class="file"><a href="/posts/4024224000/">Linux swap分区及作用详解</a></li>  <li class="file"><a href="/posts/797311580/">服务管理工具 - systemctl</a></li>  <li class="file"><a href="/posts/55221137/">防火墙工具 - firewalld</a></li>  </ul> 
+                        </li>
+                         <li class="file"><a href="/posts/4070386720/">Linux系统目录结构及详细说明</a></li>  <li class="file"><a href="/posts/3897848060/">Mac使用SSH登录Google Cloud Platform</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                MacOS
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/3746871293/">Charles从入门到精通</a></li>  <li class="file"><a href="/posts/581320548/">Homebrew：让你从 Mac 切换到 Linux 更轻松</a></li>  <li class="file"><a href="/posts/4001059579/">Compiling PyQt5 for Python2.7 on Mac OS</a></li>  <li class="file"><a href="/posts/662287335/">MACOS BOOT CAMP – THE STARTUP DISK DOES NOT HAVE ENOUGH SPACE TO BE PARTITIONED</a></li>  <li class="file"><a href="/posts/2776773816/">Mac OS X设置SMB进行文件共享</a></li>  <li class="file"><a href="/posts/582618556/">Mac的最大连接数限制和端口的相关参数的设置</a></li>  <li class="file"><a href="/posts/1883980072/">Mac OS系统加速：干掉那些「炫酷」的动画</a></li>  <li class="file"><a href="/posts/1208074722/">Mac重置系统管理控制器SMC</a></li>  <li class="file"><a href="/posts/294187676/">Mac版迅雷优化,删除无用插件</a></li>  <li class="file"><a href="/posts/2652542772/">macOS 下 FFmpeg 视频转码入门及进阶使用心得</a></li>  <li class="file"><a href="/posts/1070186292/">SafariBookmarksSyncAgent意外退出解决方法</a></li>  <li class="file"><a href="/posts/2733308530/">Mac定时任务-利用launchctl定时启动任务</a></li>  <li class="file"><a href="/posts/2768996547/">一览Mac OS 图形界面的发展史</a></li>  <li class="file"><a href="/posts/4147446761/">Mac 时间机器 Time Machine 备份速度太慢的解决方法 (加速备份命令)</a></li>  <li class="file"><a href="/posts/4263562837/">一个惊人快速的终端录像工具，也能录制 VSCode 和 Chrome 窗口</a></li>  <li class="file"><a href="/posts/1623087360/">修复破解Mac应用启动时闪退（原因是由于苹果移除了TNT证书）</a></li>  <li class="file"><a href="/posts/1525358532/">在 M1 芯片 Mac 上使用 Homebrew</a></li>  <li class="file"><a href="/posts/646546052/">如何查看 macOS 系统日志，辅助排除应用程序和系统故障</a></li>  <li class="file"><a href="/posts/3807466731/">如何彻底和CrossOver说GoodBye</a></li>  <li class="file"><a href="/posts/1207571108/">强制退出Mac程序的六种方法</a></li>  <li class="file"><a href="/posts/3920589165/">如何重置Mac上的NVRAM</a></li>  <li class="file"><a href="/posts/3430780623/">解决Mac修改DNS卡死-命令行修改Mac OS系统DNS设置</a></li>  <li class="file"><a href="/posts/3653564083/">苹果 Mac 重置 SMC、NVRAM、PRAM 方法教程 - 解决 macOS 卡顿或无法启动</a></li>  <li class="file"><a href="/posts/3837318570/">Mac VSCode 禁用GPU加速</a></li>  <li class="file"><a href="/posts/3366946474/">Mac高效使用技巧</a></li>  <li class="file"><a href="/posts/558776221/">解决“Mac应用”已损坏，无法打开的问题</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Others
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/3101956195/">Git中.gitignore无效的解决办法</a></li>  <li class="file"><a href="/posts/2867836530/">Axel:命令行下轻量级多线程下载程序</a></li>  <li class="file"><a href="/posts/3413649842/">Linux实用工具</a></li>  <li class="file"><a href="/posts/1073812833/">linux下测试磁盘的读写IO速度(IO物理测速)</a></li>  <li class="file"><a href="/posts/3895039994/">命令行信息截图工具 - ScreenFetch</a></li>  <li class="file"><a href="/posts/3784546227/">Git忽略提交规则 - .gitignore配置总结</a></li>  <li class="file"><a href="/posts/760033837/">平铺式窗口管理器 - Awesome</a></li>  <li class="file"><a href="/posts/2006196850/">私有化TM备份与共享服务器 - Netatalk</a></li>  <li class="file"><a href="/posts/1413974522/">用好这些隐藏「小开关」，让 Chrome 浏览器更好用</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Vim
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/258379777/">VIM下使用Vundle搭建python开发环境</a></li>  <li class="file"><a href="/posts/3374749959/">Vim快捷键使用总结</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Windows
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/3669230936/">为远程桌面启用Windows防火墙例外</a></li>  <li class="file"><a href="/posts/3426016246/">利用windows内置工具测试硬盘速度 - winsat</a></li>  <li class="file"><a href="/posts/913943227/">解决EXCEL按上下左右键不是单元格移动的问题</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Wordpress
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/1067246247/">WordPress启用memcached动态缓存以及报错解决</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                command
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/2407250830/">history命令设置linux查看历史命令显示执行时间</a></li>  <li class="file"><a href="/posts/3200906184/">find命令快速技巧：如何定位一个文件</a></li>  <li class="file"><a href="/posts/3403344661/">定时任务Crontab命令详解</a></li>  <li class="file"><a href="/posts/3241041753/">通过编写 chroot 来认识 chroot 发挥的作用和它带来的好处</a></li>  </ul> 
+                        </li>
+                         <li class="file"><a href="/posts/404814820/">DevOps简介</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder-open"></i>
+                                &nbsp;
+                                Soft engineering
+                            </a>
+                             <ul class="unstyled" id="tree" style="display: block;"> 
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Algorithm
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/1453950584/">8大排序算法图文讲解</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Architecture
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/2097636152/">工作两三年了，整不明白架构图都画啥？</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Cheat Sheets
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/2623330927/">Cheat Sheets - PostgreSQL</a></li>  <li class="file"><a href="/posts/3327139081/">Cheat Sheets – C++</a></li>  <li class="file"><a href="/posts/3048024619/">Cheat Sheets - Django Reference Sheet</a></li>  <li class="file"><a href="/posts/3433268710/">Cheat Sheets - Shell Script</a></li>  <li class="file"><a href="/posts/4169548679/">Cheat Sheets - .NET</a></li>  <li class="file"><a href="/posts/2137528313/">Cheat Sheets – CSS</a></li>  <li class="file"><a href="/posts/2993634676/">Cheat Sheets - Git</a></li>  <li class="file"><a href="/posts/3766000533/">Cheat Sheets – HTTP</a></li>  <li class="file"><a href="/posts/982990798/">Cheat Sheets – Linux</a></li>  <li class="file"><a href="/posts/2663199359/">Cheat Sheets – Java</a></li>  <li class="file"><a href="/posts/316669616/">Cheat Sheets – Mac OS X</a></li>  <li class="file"><a href="/posts/2038387758/">Cheat Sheets – MySQL</a></li>  <li class="file"><a href="/posts/2920272111/">Cheat Sheets – Nodejs</a></li>  <li class="file"><a href="/posts/3167589601/">Cheat Sheets – Perl</a></li>  <li class="file"><a href="/posts/305297407/">Cheat Sheets – C</a></li>  <li class="file"><a href="/posts/1053003126/">Cheat Sheets – Python</a></li>  <li class="file"><a href="/posts/2789789845/">Cheat Sheets – jQuery</a></li>  <li class="file"><a href="/posts/59285358/">Cheat Sheets – HTML and XHTML</a></li>  <li class="file"><a href="/posts/4169548678/">Cheat Sheets - Photoshop</a></li>  <li class="file"><a href="/posts/1130312566/">Cheat Sheets – SQLite</a></li>  <li class="file"><a href="/posts/3905631645/">Cheat sheets - Xcode</a></li>  <li class="file"><a href="/posts/3586350539/">Cheat sheets - Mac OS</a></li>  <li class="file"><a href="/posts/1362596080/">Cheat Sheets – PHP</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Project
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/467054247/">如何编写开源项目的README文档</a></li>  <li class="file"><a href="/posts/1755831586/">软件发布版本区别介绍</a></li>  </ul> 
+                        </li>
+                         </ul> 
+                        </li>
+                        
+                        <li class="directory-open" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder-open"></i>
+                                &nbsp;
+                                back-end
+                            </a>
+                             <ul class="unstyled" id="tree" style="display: block;"> 
+                        <li class="directory-open" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder-open"></i>
+                                &nbsp;
+                                Middle-ware
+                            </a>
+                             <ul class="unstyled" id="tree" style="display: block;"> 
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Gogs
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/612684965/">私人Git服务器 -- gogs</a></li>  <li class="file"><a href="/posts/4076369309/">Gogs数据备份、恢复</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Jenkins
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/388825549/">利用Jenkins持续集成iOS项目</a></li>  <li class="file"><a href="/posts/2282359188/">jenkins密码重置</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Logstash
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/2615120416/">日志搜集处理框架Logstash-安装配置</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory-open" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                MySQL
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/554387356/">MySQL 排序的艺术：你真的懂 Order By 吗？</a></li>  <li class="file"><a href="/posts/2625460784/">MySQL延迟复制</a></li>  <li class="file active"><a href="/posts/2654174479/">分库分表 vs NewSQL数据库</a></li>  <li class="file"><a href="/posts/4284065059/">MySQL 调优/优化的 101 个建议</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Nginx
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/1350143519/">高性能 Nginx HTTPS 调优 - 如何为 HTTPS 提速 30%</a></li>  <li class="file"><a href="/posts/1544228005/">高性能Web服务器 - Nginx配置详解</a></li>  <li class="file"><a href="/posts/3996389515/">Nginx配置跨域请求 Access-Control-Allow-Origin *</a></li>  <li class="file"><a href="/posts/524919010/">Nginx正向代理与Client设置代理上网</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                RabbitMQ
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/2846671594/">RabbitMQ 集群高可用原理及实战部署介绍</a></li>  <li class="file"><a href="/posts/3135873234/">RabbitMQ入门</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Redis
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/156114019/">Redis Stream应用案例</a></li>  <li class="file"><a href="/posts/2992538737/">redis.conf参数配置及解释</a></li>  <li class="file"><a href="/posts/2864310564/">深入分析Redis特点及应用场景</a></li>  <li class="file"><a href="/posts/3909951181/">Redis Manual</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Sentry
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/1303728868/">错误日志收集平台 - Sentry(Redis+MySQL)</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Shadowsocks
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/3154796955/">Vultr快速搭建SS科学上网</a></li>  </ul> 
+                        </li>
+                         </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                NodeJS
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/2653381572/">NodeJS Package Manage Tool - NPM</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder-open"></i>
+                                &nbsp;
+                                Python
+                            </a>
+                             <ul class="unstyled" id="tree" style="display: block;"> 
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Build-in
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/2858153934/">Python build-in functions - collections</a></li>  <li class="file"><a href="/posts/857250976/">Python build-in functions - List</a></li>  <li class="file"><a href="/posts/3208674450/">Python build-in module - os</a></li>  <li class="file"><a href="/posts/5/">Python多线程和锁</a></li>  <li class="file"><a href="/posts/2434599799/">Python build-in functions</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Configuration
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/3568487154/">更改pip源至国内镜像 - 显著提升下载速度</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Library
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/4096440342/">Python Library - SQLAlchemy</a></li>  <li class="file"><a href="/posts/3634498847/">我用 Python 的 Seaborn 库，绘制了 17 个超好看图表!</a></li>  <li class="file"><a href="/posts/383305840/">Python Library - Flask SQLAlchemy</a></li>  <li class="file"><a href="/posts/55626181/">发布你自己的轮子 - PyPI打包上传实践</a></li>  </ul> 
+                        </li>
+                         <li class="file"><a href="/posts/272954362/">sys.stdout.write实现Python控制台实时刷新打印</a></li>  </ul> 
+                        </li>
+                         </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                iOS Development
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/684390890/">Swift 5.4 有什么新功能？</a></li>  <li class="file"><a href="/posts/1054462359/">Apple Store上iOS App上架流程</a></li>  <li class="file"><a href="/posts/1098789015/">Xcode开发中Build与version区别/build自增设置/build随时间变化？</a></li>  <li class="file"><a href="/posts/3772598043/">Swift：解包的正确姿势</a></li>  </ul> 
+                        </li>
+                         </ul> 
+    </div>
+    <script>
+        $(document).ready(function() {
+            var iconFolderOpenClass  = 'fa-folder-open';
+            var iconFolderCloseClass = 'fa-folder';
+            var iconAllExpandClass = 'fa-angle-double-down';
+            var iconAllPackClass = 'fa-angle-double-up';
+            // Handle directory-tree expansion:
+            // 左键单独展开目录
+            $(document).on('click', '#categories a[data-role="directory"]', function (event) {
+                event.preventDefault();
+
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconFolderOpenClass);
+                var subtree = $(this).siblings('ul');
+                icon.removeClass(iconFolderOpenClass).removeClass(iconFolderCloseClass);
+                if (expanded) {
+                    if (typeof subtree != 'undefined') {
+                        subtree.slideUp({ duration: 100 });
+                    }
+                    icon.addClass(iconFolderCloseClass);
+                } else {
+                    if (typeof subtree != 'undefined') {
+                        subtree.slideDown({ duration: 100 });
+                    }
+                    icon.addClass(iconFolderOpenClass);
+                }
+            });
+            // 右键展开下属所有目录
+            $('#categories a[data-role="directory"]').bind("contextmenu", function(event){
+                event.preventDefault();
+
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconFolderOpenClass);
+                var listNode = $(this).siblings('ul');
+                var subtrees = $.merge(listNode.find('li ul'), listNode);
+                var icons = $.merge(listNode.find('.fa'), icon);
+                icons.removeClass(iconFolderOpenClass).removeClass(iconFolderCloseClass);
+                if(expanded) {
+                    subtrees.slideUp({ duration: 100 });
+                    icons.addClass(iconFolderCloseClass);
+                } else {
+                    subtrees.slideDown({ duration: 100 });
+                    icons.addClass(iconFolderOpenClass);
+                }
+            })
+            // 展开关闭所有目录按钮
+            $(document).on('click', '#allExpand', function (event) {
+                event.preventDefault();
+
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconAllExpandClass);
+                icon.removeClass(iconAllExpandClass).removeClass(iconAllPackClass);
+                if(expanded) {
+                    $('#sidebar .fa.fa-folder').removeClass('fa-folder').addClass('fa-folder-open')
+                    $('#categories li ul').slideDown({ duration: 100 });
+                    icon.addClass(iconAllPackClass);
+                } else {
+                    $('#sidebar .fa.fa-folder-open').removeClass('fa-folder-open').addClass('fa-folder')
+                    $('#categories li ul').slideUp({ duration: 100 });
+                    icon.addClass(iconAllExpandClass);
+                }
+            });
+        });
+    </script>
+
+
+    
+        
+    <div class="widget-wrap">
+        <h3 class="widget-title"><span>recent</span></h3>
+        <div class="widget">
+            <ul id="recent-post" class="">
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/posts/4263562837/" class="thumbnail">
+    
+    
+        <span class="thumbnail-image thumbnail-none"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/OPS/">OPS</a><i class="fa fa-angle-right"></i><a class="article-category-link" href="/categories/OPS/MacOS/">MacOS</a></p>
+                            <p class="item-title"><a href="/posts/4263562837/" class="title">一个惊人快速的终端录像工具，也能录制 VSCode 和 Chrome 窗口</a></p>
+                            <p class="item-date"><time datetime="2021-03-28T00:02:47.000Z" itemprop="datePublished">2021-03-28</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/posts/3634498847/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210309111745.png)" alt="我用 Python 的 Seaborn 库，绘制了 17 个超好看图表!" class="thumbnail-image"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/back-end/">back-end</a><i class="fa fa-angle-right"></i><a class="article-category-link" href="/categories/back-end/Python/">Python</a></p>
+                            <p class="item-title"><a href="/posts/3634498847/" class="title">我用 Python 的 Seaborn 库，绘制了 17 个超好看图表!</a></p>
+                            <p class="item-date"><time datetime="2021-03-08T22:18:11.000Z" itemprop="datePublished">2021-03-09</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/posts/2097636152/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210303212435.jpg)" alt="工作两三年了，整不明白架构图都画啥？" class="thumbnail-image"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/Soft-engineering/">Soft engineering</a><i class="fa fa-angle-right"></i><a class="article-category-link" href="/categories/Soft-engineering/Architecture/">Architecture</a></p>
+                            <p class="item-title"><a href="/posts/2097636152/" class="title">工作两三年了，整不明白架构图都画啥？</a></p>
+                            <p class="item-date"><time datetime="2021-03-03T08:09:53.000Z" itemprop="datePublished">2021-03-03</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/posts/2846671594/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210228142136.jpg)" alt="RabbitMQ 集群高可用原理及实战部署介绍" class="thumbnail-image"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/back-end/">back-end</a><i class="fa fa-angle-right"></i><a class="article-category-link" href="/categories/back-end/Middle-ware/">Middle-ware</a></p>
+                            <p class="item-title"><a href="/posts/2846671594/" class="title">RabbitMQ 集群高可用原理及实战部署介绍</a></p>
+                            <p class="item-date"><time datetime="2021-02-28T01:06:06.000Z" itemprop="datePublished">2021-02-28</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/posts/3772598043/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210226162513.png)" alt="Swift：解包的正确姿势" class="thumbnail-image"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/iOS-Development/">iOS Development</a></p>
+                            <p class="item-title"><a href="/posts/3772598043/" class="title">Swift：解包的正确姿势</a></p>
+                            <p class="item-date"><time datetime="2021-02-26T03:32:25.000Z" itemprop="datePublished">2021-02-26</time></p>
+                        </div>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+
+    
+    <div id="toTop" class="fa fa-angle-up"></div>
+</aside>
+            
+            <section id="main"><article id="post-back-end/Middle-ware/MySQL/分库分表 vs NewSQL数据库" class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+        
+            <header class="article-header">
+                
+                    <div class="article-meta">
+                        
+    <div class="article-category">
+    	<i class="fa fa-folder"></i>
+        <a class="article-category-link" href="/categories/back-end/">back-end</a><i class="fa fa-angle-right"></i><a class="article-category-link" href="/categories/back-end/Middle-ware/">Middle-ware</a><i class="fa fa-angle-right"></i><a class="article-category-link" href="/categories/back-end/Middle-ware/MySQL/">MySQL</a>
+    </div>
+
+                        
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/tags/NewSQL/">NewSQL</a>, <a class="tag-link" href="/tags/关系型数据库/">关系型数据库</a>, <a class="tag-link" href="/tags/数据库/">数据库</a>
+    </div>
+
+                        
+    <div class="article-date">
+        <i class="fa fa-calendar"></i>
+        <a href="/posts/2654174479/">
+            <time datetime="2019-07-12T12:06:30.000Z" itemprop="datePublished">2019-07-13</time>
+        </a>
+    </div>
+
+
+                        
+                    </div>
+                
+                
+    
+        <h1 class="article-title" itemprop="name">
+            分库分表 vs NewSQL数据库
+        </h1>
+    
+
+            </header>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+        
+        
+            
+                <div id="toc" class="toc-article">
+                <strong class="toc-title">Catalogue</strong>
+                    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#概述"><span class="toc-number">1.</span> <span class="toc-text">概述</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#NewSQL数据库先进在哪儿"><span class="toc-number">2.</span> <span class="toc-text">NewSQL数据库先进在哪儿?</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#分布式事务"><span class="toc-number">3.</span> <span class="toc-text">分布式事务</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#CAP限制"><span class="toc-number">3.1.</span> <span class="toc-text">CAP限制</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#完备性"><span class="toc-number">3.2.</span> <span class="toc-text">完备性</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#性能"><span class="toc-number">3.3.</span> <span class="toc-text">性能</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#HA与异地多活"><span class="toc-number">4.</span> <span class="toc-text">HA与异地多活</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Scale横向扩展与分片机制"><span class="toc-number">5.</span> <span class="toc-text">Scale横向扩展与分片机制</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#分布式SQL支持"><span class="toc-number">6.</span> <span class="toc-text">分布式SQL支持</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#存储引擎"><span class="toc-number">7.</span> <span class="toc-text">存储引擎</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#成熟度与生态"><span class="toc-number">8.</span> <span class="toc-text">成熟度与生态</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#总结"><span class="toc-number">9.</span> <span class="toc-text">总结</span></a></li></ol>
+                </div>
+            
+        
+        
+            <p><img src="https://www.jifu.io/images/2/20190713002331.png" alt=""></p>
+<h1 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h1><p>最近与同行科技交流，经常被问到分库分表与分布式数据库如何选择，网上也有很多关于中间件+传统关系数据库（分库分表）与NewSQL分布式数据库的文章，但有些观点与判断是我觉得是偏激的，脱离环境去评价方案好坏其实有失公允。</p>
+<p>本文通过对两种模式关键特性实现原理对比，希望可以尽可能客观、中立的阐明各自真实的优缺点以及适用场景。</p>
+<h1 id="NewSQL数据库先进在哪儿"><a href="#NewSQL数据库先进在哪儿" class="headerlink" title="NewSQL数据库先进在哪儿?"></a>NewSQL数据库先进在哪儿?</h1><p>首先关于“中间件+关系数据库分库分表”算不算NewSQL分布式数据库问题，国外有篇论文pavlo-newsql-sigmodrec，如果根据该文中的分类，Spanner、TiDB、OB算是第一种新架构型，Sharding-Sphere、Mycat、DRDS等中间件方案算是第二种（文中还有第三种云数据库，本文暂不详细介绍）。</p>
+<p>基于中间件（包括SDK和Proxy两种形式）+传统关系数据库（分库分表）模式是不是分布式架构？我觉得是的，因为存储确实也分布式了，也能实现横向扩展。但是不是”伪”分布式数据库？从架构先进性来看，这么说也有一定道理。”伪”主要体现在中间件层与底层DB重复的SQL解析与执行计划生成、存储引擎基于B+Tree等，这在分布式数据库架构中实际上冗余低效的。为了避免引起真伪分布式数据库的口水战，本文中NewSQL数据库特指这种新架构NewSQL数据库。</p>
+<p>NewSQL数据库相比中间件+分库分表的先进在哪儿？画一个简单的架构对比图：</p>
+<p><img src="https://www.jifu.io/images/2/20190713000943.png" alt=""></p>
+<a id="more"></a>
+<ol>
+<li>传统数据库面向磁盘设计，基于内存的存储管理及并发控制，不如NewSQL数据库那般高效利用。</li>
+<li>中间件模式SQL解析、执行计划优化等在中间件与数据库中重复工作，效率相比较低；</li>
+<li>NewSQL数据库的分布式事务相比于XA进行了优化，性能更高；</li>
+<li>新架构NewSQL数据库存储设计即为基于paxos（或Raft）协议的多副本，相比于传统数据库主从模式（半同步转异步后也存在丢数问题），在实现了真正的高可用、高可靠（RTO&lt;30s，RPO=0）</li>
+<li>NewSQL数据库天生支持数据分片，数据的迁移、扩容都是自动化的，大大减轻了DBA的工作，同时对应用透明，无需在SQL指定分库分表键。<br>这些大多也是NewSQL数据库产品主要宣传的点，不过这些看起来很美好的功能是否真的如此？接下来针对以上几点分别阐述下的我的理解。</li>
+</ol>
+<h1 id="分布式事务"><a href="#分布式事务" class="headerlink" title="分布式事务"></a>分布式事务</h1><p><strong>这是把双刃剑</strong></p>
+<h2 id="CAP限制"><a href="#CAP限制" class="headerlink" title="CAP限制"></a>CAP限制</h2><p>想想更早些出现的NoSQL数据库为何不支持分布式事务（最新版的mongoDB等也开始支持了），是缺乏理论与实践支撑吗？并不是，原因是CAP定理依然是分布式数据库头上的颈箍咒，在保证强一致的同时必然会牺牲可用性A或分区容忍性P。<a href="https://links.jianshu.com/go?to=https%3A%2F%2Fwww.jdon.com%2F47671" target="_blank" rel="noopener">为什么大部分NoSQL不提供分布式事务？</a></p>
+<p>那么NewSQL数据库突破CAP定理限制了吗？并没有。NewSQL数据库的鼻主Google Spanner（目前绝大部分分布式数据库都是按照Spanner架构设计的）提供了一致性和大于5个9的可用性，宣称是一个“实际上是CA”的，其真正的含义是<strong>系统处于 CA 状态的概率非常高，由于网络分区导致的服务停用的概率非常小</strong>，究其真正原因是其打造私有全球网保证了不会出现网络中断引发的网络分区，另外就是其高效的运维队伍,这也是cloud spanner的卖点。详细可见CAP提出者Eric Brewer写的《Spanner, TrueTime 和CAP理论》。</p>
+<blockquote>
+<p>推荐一篇关于分布式系统有趣的文章，站在巨人的分布式肩膀上，其中提到：<strong>分布式系统中，您可以知道工作在哪里，或者您可以知道工作何时完成，但您无法同时了解两者；两阶段协议本质上是反可用性协议。</strong></p>
+</blockquote>
+<h2 id="完备性"><a href="#完备性" class="headerlink" title="完备性"></a>完备性</h2><p>两阶段提交协议是否严格支持ACID，各种异常场景是不是都可以覆盖？<br>2PC在commit阶段发送异常，其实跟最大努力一阶段提交类似也会有部分可见问题，严格讲一段时间内并不能保证A原子性和C一致性（待故障恢复后recovery机制可以保证最终的A和C）。完备的分布式事务支持并不是一件简单的事情，需要可以应对网络以及各种硬件包括网卡、磁盘、CPU、内存、电源等各类异常，通过严格的测试。之前跟某友商交流，他们甚至说目前已知的NewSQL在分布式事务支持上都是不完整的，他们都有案例跑不过，圈内人士这么笃定，也说明了<strong>分布式事务的支持完整程度其实是层次不齐的</strong>。</p>
+<p>但分布式事务又是这些NewSQL数据库的一个非常重要的底层机制，跨资源的DML、DDL等都依赖其实现，如果这块的性能、完备性打折扣，上层跨分片SQL执行的正确性会受到很大影响。</p>
+<h2 id="性能"><a href="#性能" class="headerlink" title="性能"></a>性能</h2><p>传统关系数据库也支持分布式事务XA，但为何很少有高并发场景下用呢？ 因为XA的基础两阶段提交协议存在网络开销大，阻塞时间长、死锁等问题，这也导致了其实际上很少大规模用在基于传统关系数据库的OLTP系统中。<br>NewSQL数据库的分布式事务实现也仍然多基于两阶段提交协议，例如google percolator分布式事务模型，<br>采用原子钟+MVCC+ Snapshot Isolation（SI），这种方式通过TSO(Timestamp Oracle)保证了全局一致性，通过MVCC避免了锁，另外通过primary lock和secondary lock将提交的一部分转为异步，相比XA确实提高了分布式事务的性能。</p>
+<blockquote>
+<p>SI是乐观锁，在热点数据场景，可能会大量的提交失败。另外SI的隔离级别与RR并非完全相同，它不会有幻想读，但会有写倾斜。<br>但不管如何优化，相比于1PC，2PC多出来的GID获取、网络开销、prepare日志持久化还是会带来很大的性能损失，尤其是跨节点的数量比较多时会更加显著，例如在银行场景做个批量扣款，一个文件可能上W个账户，这样的场景无论怎么做还是吞吐都不会很高。<br>Spanner给出的分布式事务测试数据</p>
+</blockquote>
+<p><img src="https://www.jifu.io/images/2/20190713001103.png" alt=""></p>
+<p><strong>虽然NewSQL分布式数据库产品都宣传完备支持分布式事务，但这并不是说应用可以完全不用关心数据拆分，这些数据库的最佳实践中仍然会写到，应用的大部分场景尽可能避免分布式事务。</strong></p>
+<p>既然强一致事务付出的性能代价太大，我们可以反思下是否真的需要这种强一致的分布式事务？尤其是在做微服务拆分后，很多系统也不太可能放在一个统一的数据库中。尝试将一致性要求弱化，便是柔性事务，放弃ACID(Atomicity,Consistency, Isolation, Durability)，转投BASE(Basically Available,Soft state,Eventually consistent)，例如Saga、TCC、可靠消息保证最终一致等模型，对于大规模高并发OLTP场景，我个人更建议使用柔性事务而非强一致的分布式事务。关于柔性事务，笔者之前也写过一个技术组件，最近几年也涌现出了一些新的模型与框架（例如阿里刚开源的Fescar），限于篇幅不再赘述，有空再单独写篇文章。</p>
+<blockquote>
+<p><strong>解决分布式事务是否只能用两阶段提交协议？</strong><br>oceanbase1.0中通过updateserver避免分布式事务的思路很有启发性 ，不过2.0版后也变成了2PC。<br>业界分布式事务也并非只有两阶段提交这一解，也有其它方案<a href="https://links.jianshu.com/go?to=http%3A%2F%2Fdbmsmusings.blogspot.com%2F2019%2F01%2Fits-time-to-move-on-from-two-phase.html%3Fm%3D1" target="_blank" rel="noopener">its-time-to-move-on-from-two-phase</a>(如果打不开，国内有翻译版<a href="https://links.jianshu.com/go?to=https%3A%2F%2Fwww.jdon.com%2F51588" target="_blank" rel="noopener">https://www.jdon.com/51588</a>)</p>
+</blockquote>
+<h1 id="HA与异地多活"><a href="#HA与异地多活" class="headerlink" title="HA与异地多活"></a>HA与异地多活</h1><p>主从模式并不是最优的方式，就算是半同步复制，在极端情况下（半同步转异步）也存在丢数问题，目前业界公认更好的方案是基于paxos分布式一致性协议或者其它类paxos如raft方式，Google Spanner、TiDB、cockcoachDB、OB都采用了这种方式，基于Paxos协议的多副本存储，遵循过半写原则，支持自动选主，解决了数据的高可靠，缩短了failover时间，提高了可用性，特别是减少了运维的工作量，这种方案技术上已经很成熟，也是NewSQL数据库底层的标配。<br>当然这种方式其实也可以用在传统关系数据库，阿里、微信团队等也有将MySQL存储改造支持paxos多副本的，MySQL也推出了官方版MySQL Group Cluster，预计不远的未来主从模式可能就成为历史了。</p>
+<blockquote>
+<p>分布式一致性算法本身并不难，但具体在工程实践时，需要考虑很多异常并做很多优化，实现一个生产级可靠成熟的一致性协议并不容易。例如实际使用时必须转化实现为multi-paxos或multi-raft，需要通过batch、异步等方式减少网络、磁盘IO等开销。</p>
+</blockquote>
+<p><strong>需要注意的是很多NewSQL数据库厂商宣传基于paxos或raft协议可以实现【异地多活】，这个实际上是有前提的，那就是异地之间网络延迟不能太高。</strong>以银行“两地三中心”为例，异地之间多相隔数千里，延时达到数十毫秒，如果要多活，那便需异地副本也参与数据库日志过半确认，这样高的延时几乎没有OLTP系统可以接受的。</p>
+<p><strong>数据库层面做异地多活是个美好的愿景，但距离导致的延时目前并没有好的方案。</strong>之前跟蚂蚁团队交流，蚂蚁异地多活的方案是在应用层通过MQ同步双写交易信息，异地DC将交易信息保存在分布式缓存中，一旦发生异地切换，数据库同步中间件会告之数据延迟时间，应用从缓存中读取交易信息，将这段时间内涉及到的业务对象例如用户、账户进行黑名单管理，等数据同步追上之后再将这些业务对象从黑名单中剔除。由于双写的不是所有数据库操作日志而只是交易信息，数据延迟只影响一段时间内数据，这是目前我觉得比较靠谱的异地度多活方案。</p>
+<p>另外有些系统进行了单元化改造，这在paxos选主时也要结合考虑进去，这也是目前很多NewSQL数据库欠缺的功能。</p>
+<h1 id="Scale横向扩展与分片机制"><a href="#Scale横向扩展与分片机制" class="headerlink" title="Scale横向扩展与分片机制"></a>Scale横向扩展与分片机制</h1><p>paxos算法解决了高可用、高可靠问题，并没有解决Scale横向扩展的问题，所以分片是必须支持的。NewSQL数据库都是天生内置分片机制的，而且会根据每个分片的数据负载(磁盘使用率、写入速度等)自动识别热点，然后进行分片的分裂、数据迁移、合并，这些过程应用是无感知的，这省去了DBA的很多运维工作量。以TiDB为例，它将数据切成region，如果region到64M时，数据自动进行迁移。</p>
+<p>分库分表模式下需要应用设计之初就要明确各表的拆分键、拆分方式（range、取模、一致性哈希或者自定义路由表）、路由规则、拆分库表数量、扩容方式等。相比NewSQL数据库，这种模式给应用带来了很大侵入和复杂度，这对大多数系统来说也是一大挑战。</p>
+<blockquote>
+<p>分库分表模式也能做到在线扩容，基本思路是通过异步复制先追加数据，然后设置只读完成路由切换，最后放开写操作，当然这些需要中间件与数据库端配合一起才能完成。</p>
+</blockquote>
+<p><strong>这里有个问题是NewSQL数据库统一的内置分片策略（例如tidb基于range）可能并不是最高效的，因为与领域模型中的划分要素并不一致，这导致的后果是很多交易会产生分布式事务。</strong>举个例子，银行核心业务系统是以客户为维度，也就是说客户表、该客户的账户表、流水表在绝大部分场景下是一起写的，但如果按照各表主键range进行分片，这个交易并不能在一个分片上完成，这在高频OLTP系统中会带来性能问题。</p>
+<h1 id="分布式SQL支持"><a href="#分布式SQL支持" class="headerlink" title="分布式SQL支持"></a>分布式SQL支持</h1><p>常见的单分片SQL，这两者都能很好支持。NewSQL数据库由于定位与目标是一个通用的数据库，所以支持的SQL会更完整，包括跨分片的join、聚合等复杂SQL。中间件模式多面向应用需求设计，不过大部分也支持带拆分键SQL、库表遍历、单库join、聚合、排序、分页等。但对跨库的join以及聚合支持就不够了。</p>
+<p>NewSQL数据库一般并不支持存储过程、视图、外键等功能，而中间件模式底层就是传统关系数据库，这些功能如果只是涉及单库是比较容易支持的。</p>
+<p>NewSQL数据库往往选择兼容MySQL或者PostgreSQL协议，所以SQL支持仅局限于这两种，中间件例如驱动模式往往只需做简单的SQL解析、计算路由、SQL重写，所以可以支持更多种类的数据库SQL。</p>
+<p>SQL支持的差异主要在于分布式SQL执行计划生成器，由于NewSQL数据库具有底层数据的分布、统计信息，因此可以做CBO，生成的执行计划效率更高，而中间件模式下没有这些信息，往往只能基于规则RBO（Rule-Based-Opimization），这也是为什么中间件模式一般并不支持跨库join，因为实现了效率也往往并不高，还不如交给应用去做。</p>
+<blockquote>
+<p>这里也可以看出中间件+分库分表模式的架构风格体现出的是一种妥协、平衡，它是一个面向应用型的设计；而NewSQL数据库则要求更高、“大包大揽”，它是一个通用底层技术软件，因此后者的复杂度、技术门槛也高很多。</p>
+</blockquote>
+<h1 id="存储引擎"><a href="#存储引擎" class="headerlink" title="存储引擎"></a>存储引擎</h1><p>传统关系数据库的存储引擎设计都是面向磁盘的，大多都基于B+树。B+树通过降低树的高度减少随机读、进而减少磁盘寻道次数，提高读的性能，但大量的随机写会导致树的分裂，从而带来随机写，导致写性能下降。NewSQL的底层存储引擎则多采用LSM，相比B+树LSM将对磁盘的随机写变成顺序写，大大提高了写的性能。不过LSM的的读由于需要合并数据性能比B+树差，一般来说LSM更适合应在写大于读的场景。当然这只是单纯数据结构角度的对比，在数据库实际实现时还会通过SSD、缓冲、bloom filter等方式优化读写性能，所以读性能基本不会下降太多。NewSQL数据由于多副本、分布式事务等开销，相比单机关系数据库SQL的响应时间并不占优，但由于集群的弹性扩展，整体QPS提升还是很明显的，这也是NewSQL数据库厂商说分布式数据库更看重的是吞吐，而不是单笔SQL响应时间的原因。</p>
+<h1 id="成熟度与生态"><a href="#成熟度与生态" class="headerlink" title="成熟度与生态"></a>成熟度与生态</h1><p>分布式数据库是个新型通用底层软件，准确的衡量与评价需要一个多维度的测试模型，需包括发展现状、使用情况、社区生态、监控运维、周边配套工具、功能满足度、DBA人才、SQL兼容性、性能测试、高可用测试、在线扩容、分布式事务、隔离级别、在线DDL等等，虽然NewSQL数据库发展经过了一定时间检验，但多集中在互联网以及传统企业非核心交易系统中，目前还处于快速迭代、规模使用不断优化完善的阶段。<br>相比而言，传统关系数据库则经过了多年的发展，通过完整的评测，在成熟度、功能、性能、周边生态、风险把控、相关人才积累等多方面都具有明显优势，同时对已建系统的兼容性也更好。</p>
+<p><strong>对于互联网公司，数据量的增长压力以及追求新技术的基因会更倾向于尝试NewSQL数据库，不用再考虑库表拆分、应用改造、扩容、事务一致性等问题怎么看都是非常吸引人的方案。</strong></p>
+<p><strong>对于传统企业例如银行这种风险意识较高的行业来说，NewSQL数据库则可能在未来一段时间内仍处于探索、审慎试点的阶段。基于中间件+分库分表模式架构简单，技术门槛更低，虽然没有NewSQL数据库功能全面，但大部分场景最核心的诉求也就是拆分后SQL的正确路由，而此功能中间件模式应对还是绰绰有余的，可以说在大多数OLTP场景是够用的。</strong></p>
+<p><em>限于篇幅，其它特性例如在线DDL、数据迁移、运维工具等特性就不在本文展开对比。</em></p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>如果看完以上内容，您还不知道选哪种模式，那么结合以下几个问题，先思考下NewSQL数据库解决的点对于自身是不是真正的痛点：</p>
+<ul>
+<li>强一致事务是否必须在数据库层解决？</li>
+<li>数据的增长速度是否不可预估的？</li>
+<li>扩容的频率是否已超出了自身运维能力？</li>
+<li>相比响应时间更看重吞吐？</li>
+<li>是否必须做到对应用完全透明？</li>
+<li>是否有熟悉NewSQL数据库的DBA团队？</li>
+</ul>
+<p>如果以上有2到3个是肯定的，那么你可以考虑用NewSQL数据库了，虽然前期可能需要一定的学习成本，但它是数据库的发展方向，未来收益也会更高，尤其是互联网行业，随着数据量的突飞猛进，分库分表带来的痛苦会与日俱增。当然选择NewSQL数据库你也要做好承担一定风险的准备。</p>
+<p>如果你还未做出抉择，不妨再想想下面几个问题：</p>
+<ul>
+<li>最终一致性是否可以满足实际场景？</li>
+<li>数据未来几年的总量是否可以预估？</li>
+<li>扩容、DDL等操作是否有系统维护窗口？</li>
+<li>对响应时间是否比吞吐更敏感？</li>
+<li>是否需要兼容已有的关系数据库系统？</li>
+<li>是否已有传统数据库DBA人才的积累？</li>
+<li>是否可容忍分库分表对应用的侵入？</li>
+</ul>
+<p>如果这些问题有多数是肯定的，那还是分库分表吧。在软件领域很少有完美的解决方案，NewSQL数据库也不是数据分布式架构的银弹。相比而言分库分表是一个代价更低、风险更小的方案，它最大程度复用传统关系数据库生态，通过中间件也可以满足分库分表后的绝大多数功能，定制化能力更强。<strong>在当前NewSQL数据库还未完全成熟的阶段，分库分表可以说是一个上限低但下限高的方案，尤其传统行业的核心系统，如果你仍然打算把数据库当做一个黑盒产品来用，踏踏实实用好分库分表会被认为是个稳妥的选择。</strong></p>
+
+            </div>
+        
+        <footer class="article-footer">
+        </footer>
+    </div>
+</article>
+
+
+    
+<nav id="article-nav">
+    
+        <a href="/posts/2864310564/" id="article-nav-newer" class="article-nav-link-wrap">
+            <strong class="article-nav-caption">Newer</strong>
+            <div class="article-nav-title">
+                
+                    深入分析Redis特点及应用场景
+                
+            </div>
+        </a>
+    
+    
+        <a href="/posts/3366946474/" id="article-nav-older" class="article-nav-link-wrap">
+            <strong class="article-nav-caption">Older</strong>
+            <div class="article-nav-title">Mac高效使用技巧</div>
+        </a>
+    
+</nav>
+
+
+
+
+
+    
+    
+
+
+
+
+<!-- baidu url auto push script -->
+<script type="text/javascript">
+    !function(){var e=/([http|https]:\/\/[a-zA-Z0-9\_\.]+\.baidu\.com)/gi,r=window.location.href,o=document.referrer;if(!e.test(r)){var n="//api.share.baidu.com/s.gif";o?(n+="?r="+encodeURIComponent(document.referrer),r&&(n+="&l="+r)):r&&(n+="?l="+r);var t=new Image;t.src=n}}(window);
+</script>     
+
+<head><meta name="generator" content="Hexo 3.9.0">
+    <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+    <script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+<link rel="stylesheet" href="/css/prism-duotone-light.css" type="text/css">
+<link rel="stylesheet" href="/css/prism-line-numbers.css" type="text/css"></head>
+<body>
+    <div id="vcomments"></div>
+    <script>
+        new Valine({
+            el: '#vcomments',
+            appId: '8kLhebBkVygl1MhVcQx9dnBP-gzGzoHsz',
+            appKey: 'hrctlOb6RQBWjjwTJ9fVjb91'
+        })
+    </script>
+</body>
+
+
+</section>
+        </div>
+        <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+
+<footer id="footer">
+    <div class="outer">
+        <div id="footer-info" class="inner">
+            <a href="https://www.jifu.io">
+            Ji Fu &copy; 2021
+            </a>
+            <br> Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>. Theme - <a href="https://github.com/zthxxx/hexo-theme-Wikitten">wikitten</a>
+            <br> 您是  jifu'wiki 的第<span id="busuanzi_value_site_uv"></span>个小伙伴
+            <br>
+                本站总访问量<span id="busuanzi_value_site_pv"></span>次
+                本文总阅读量<span id="busuanzi_value_page_pv"></span>次
+        </div>
+    </div>
+</footer>
+
+
+
+        
+
+    
+        <script src="/libs/lightgallery/js/lightgallery.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-thumbnail.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-pager.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-autoplay.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-fullscreen.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-zoom.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-hash.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-share.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-video.min.js"></script>
+    
+    
+        <script src="/libs/justified-gallery/jquery.justifiedGallery.min.js"></script>
+    
+    
+
+
+
+<!-- Custom Scripts -->
+<script src="/js/main.js"></script>
+
+    </div>
+</body>
+</html>

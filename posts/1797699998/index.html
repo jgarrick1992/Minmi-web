@@ -1,0 +1,1061 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+    <meta charset="utf-8">
+    
+    <title>深入了解 gradle 和 maven 的区别 | JiFu&#39;s Wiki</title>
+    
+    
+        <meta name="keywords" content="Android,gradle">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="description" content="介绍gradle 和 maven 都可以用来构建 java 程序，甚至在某些情况下，两者还可以互相转换，那么他们两个的共同点和不同点是什么？我们如何在项目中选择使用哪种技术呢？一起来看看吧。 虽然 gradle 和 maven 都可以作为 java 程序的构建工具。但是两者还是有很大的不同之处的。我们可以从下面几个方面来进行分析。 可扩展性Google 选择 gradle 作为 android">
+<meta name="keywords" content="Android,gradle">
+<meta property="og:type" content="article">
+<meta property="og:title" content="深入了解 gradle 和 maven 的区别">
+<meta property="og:url" content="http://www.jifu.io/posts/1797699998/index.html">
+<meta property="og:site_name" content="JiFu&#39;s Wiki">
+<meta property="og:description" content="介绍gradle 和 maven 都可以用来构建 java 程序，甚至在某些情况下，两者还可以互相转换，那么他们两个的共同点和不同点是什么？我们如何在项目中选择使用哪种技术呢？一起来看看吧。 虽然 gradle 和 maven 都可以作为 java 程序的构建工具。但是两者还是有很大的不同之处的。我们可以从下面几个方面来进行分析。 可扩展性Google 选择 gradle 作为 android">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210206215843.png">
+<meta property="og:updated_time" content="2021-02-28T13:25:18.350Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="深入了解 gradle 和 maven 的区别">
+<meta name="twitter:description" content="介绍gradle 和 maven 都可以用来构建 java 程序，甚至在某些情况下，两者还可以互相转换，那么他们两个的共同点和不同点是什么？我们如何在项目中选择使用哪种技术呢？一起来看看吧。 虽然 gradle 和 maven 都可以作为 java 程序的构建工具。但是两者还是有很大的不同之处的。我们可以从下面几个方面来进行分析。 可扩展性Google 选择 gradle 作为 android">
+<meta name="twitter:image" content="https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210206215843.png">
+    
+
+    
+        <link rel="alternate" href="/atom.xml" title="JiFu&#39;s Wiki" type="application/atom+xml">
+    
+
+    
+        <link rel="icon" href="/favicon.ico">
+    
+
+    <link rel="stylesheet" href="/libs/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/libs/open-sans/styles.css">
+    <link rel="stylesheet" href="/libs/source-code-pro/styles.css">
+
+    <link rel="stylesheet" href="/css/style.css">
+    <script src="/libs/jquery/2.1.3/jquery.min.js"></script>
+    <script src="/libs/jquery/plugins/cookie/1.4.1/jquery.cookie.js"></script>
+    
+    
+        <link rel="stylesheet" href="/libs/lightgallery/css/lightgallery.min.css">
+    
+    
+        <link rel="stylesheet" href="/libs/justified-gallery/justifiedGallery.min.css">
+    
+    
+    
+    
+        <script>
+var _hmt = _hmt || [];
+(function() {
+    var hm = document.createElement("script");
+    hm.src = "//hm.baidu.com/hm.js?efa1eb5f56c438a850a0f60609fd7755";
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+    
+
+
+<link rel="stylesheet" href="/css/prism-duotone-light.css" type="text/css">
+<link rel="stylesheet" href="/css/prism-line-numbers.css" type="text/css"></head>
+</html>
+<body>
+    <div id="container">
+        <script>
+    (function(){
+        var bp = document.createElement('script');
+        var curProtocol = window.location.protocol.split(':')[0];
+        if (curProtocol === 'https') {
+            bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+        }
+        else {
+            bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+        }
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(bp, s);
+    })();
+</script>
+
+<header id="header">
+    <div id="header-main" class="header-inner">
+        <div class="outer">
+            <a href="/" id="logo">
+                <i class="logo"></i>
+                <span class="site-title">JiFu&#39;s Wiki</span>
+            </a>
+            <nav id="main-nav">
+                
+                    <a class="main-nav-link" href="/">Home</a>
+                
+                    <a class="main-nav-link" href="/archives">Archives</a>
+                
+                    <a class="main-nav-link" href="/categories">Categories</a>
+                
+                    <a class="main-nav-link" href="/tags">Tags</a>
+                
+                    <a class="main-nav-link" href="/about">About</a>
+                
+            </nav>
+            
+            <div id="search-form-wrap">
+
+    <form class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="Search" />
+        <button type="submit" class="search-form-submit"></button>
+    </form>
+    <div class="ins-search">
+    <div class="ins-search-mask"></div>
+    <div class="ins-search-container">
+        <div class="ins-input-wrapper">
+            <input type="text" class="ins-search-input" placeholder="Type something..." />
+            <span class="ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: 'Posts',
+            PAGES: 'Pages',
+            CATEGORIES: 'Categories',
+            TAGS: 'Tags',
+            UNTITLED: '(Untitled)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+<script src="/js/insight.js"></script>
+
+</div>
+        </div>
+    </div>
+    <div id="main-nav-mobile" class="header-sub header-inner">
+        <table class="menu outer">
+            <tr>
+                
+                    <td><a class="main-nav-link" href="/">Home</a></td>
+                
+                    <td><a class="main-nav-link" href="/archives">Archives</a></td>
+                
+                    <td><a class="main-nav-link" href="/categories">Categories</a></td>
+                
+                    <td><a class="main-nav-link" href="/tags">Tags</a></td>
+                
+                    <td><a class="main-nav-link" href="/about">About</a></td>
+                
+                <td>
+                    
+    <div class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="Search" />
+    </div>
+
+                </td>
+            </tr>
+        </table>
+    </div>
+</header>
+
+        <div class="outer">
+            
+            
+                <aside id="sidebar">
+   
+        
+    <div class="widget-wrap" id='categories'>
+        <h3 class="widget-title">
+            <span>categories</span>
+            &nbsp;
+            <a id='allExpand' href="#">
+                <i class="fa fa-angle-double-up fa-2x"></i>
+            </a>
+        </h3>
+
+        
+        
+         <ul class="unstyled" id="tree" style="display: block;"> 
+                        <li class="directory-open" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Android Development
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file active"><a href="/posts/1797699998/">深入了解 gradle 和 maven 的区别</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Design
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/1907494021/">PS快捷键使用指南</a></li>  <li class="file"><a href="/posts/729727978/">快速改善用户界面的10个技巧</a></li>  <li class="file"><a href="/posts/1525329016/">提高效率！24 个高手常用的 Sketch 技巧合集（附实用快捷键）</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                HR
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/3142539384/">HR常用的招聘邮件模板</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Hardware
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/3904818761/">MacBook十年进化史</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder-open"></i>
+                                &nbsp;
+                                OPS
+                            </a>
+                             <ul class="unstyled" id="tree" style="display: block;"> 
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Docker
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/1245529498/">Docker学习笔记</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Editor
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/151598530/">VScdoe error:Could not create temporary directory Permission denied</a></li>  <li class="file"><a href="/posts/4167799419/">Build personal development editor with vscode</a></li>  <li class="file"><a href="/posts/4165683660/">REST Client 简单好用的接口测试辅助工具</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder-open"></i>
+                                &nbsp;
+                                Linux
+                            </a>
+                             <ul class="unstyled" id="tree" style="display: block;"> 
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                CentOS
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/1867760035/">CentOS7编译安装VIM8</a></li>  <li class="file"><a href="/posts/920993072/">CentOS update Ruby</a></li>  <li class="file"><a href="/posts/4057676473/">yum提示Error: rpmdb open failed的解决方案</a></li>  <li class="file"><a href="/posts/1153610031/">centos7修改启动内核，删除无用内核</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                System Service
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/709002730/">使用 systemctl 添加自定义服务</a></li>  <li class="file"><a href="/posts/4024224000/">Linux swap分区及作用详解</a></li>  <li class="file"><a href="/posts/797311580/">服务管理工具 - systemctl</a></li>  <li class="file"><a href="/posts/55221137/">防火墙工具 - firewalld</a></li>  </ul> 
+                        </li>
+                         <li class="file"><a href="/posts/4070386720/">Linux系统目录结构及详细说明</a></li>  <li class="file"><a href="/posts/3897848060/">Mac使用SSH登录Google Cloud Platform</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                MacOS
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/3746871293/">Charles从入门到精通</a></li>  <li class="file"><a href="/posts/581320548/">Homebrew：让你从 Mac 切换到 Linux 更轻松</a></li>  <li class="file"><a href="/posts/4001059579/">Compiling PyQt5 for Python2.7 on Mac OS</a></li>  <li class="file"><a href="/posts/662287335/">MACOS BOOT CAMP – THE STARTUP DISK DOES NOT HAVE ENOUGH SPACE TO BE PARTITIONED</a></li>  <li class="file"><a href="/posts/2776773816/">Mac OS X设置SMB进行文件共享</a></li>  <li class="file"><a href="/posts/582618556/">Mac的最大连接数限制和端口的相关参数的设置</a></li>  <li class="file"><a href="/posts/1883980072/">Mac OS系统加速：干掉那些「炫酷」的动画</a></li>  <li class="file"><a href="/posts/1208074722/">Mac重置系统管理控制器SMC</a></li>  <li class="file"><a href="/posts/294187676/">Mac版迅雷优化,删除无用插件</a></li>  <li class="file"><a href="/posts/2652542772/">macOS 下 FFmpeg 视频转码入门及进阶使用心得</a></li>  <li class="file"><a href="/posts/1070186292/">SafariBookmarksSyncAgent意外退出解决方法</a></li>  <li class="file"><a href="/posts/2733308530/">Mac定时任务-利用launchctl定时启动任务</a></li>  <li class="file"><a href="/posts/2768996547/">一览Mac OS 图形界面的发展史</a></li>  <li class="file"><a href="/posts/4147446761/">Mac 时间机器 Time Machine 备份速度太慢的解决方法 (加速备份命令)</a></li>  <li class="file"><a href="/posts/4263562837/">一个惊人快速的终端录像工具，也能录制 VSCode 和 Chrome 窗口</a></li>  <li class="file"><a href="/posts/1623087360/">修复破解Mac应用启动时闪退（原因是由于苹果移除了TNT证书）</a></li>  <li class="file"><a href="/posts/1525358532/">在 M1 芯片 Mac 上使用 Homebrew</a></li>  <li class="file"><a href="/posts/646546052/">如何查看 macOS 系统日志，辅助排除应用程序和系统故障</a></li>  <li class="file"><a href="/posts/3807466731/">如何彻底和CrossOver说GoodBye</a></li>  <li class="file"><a href="/posts/1207571108/">强制退出Mac程序的六种方法</a></li>  <li class="file"><a href="/posts/3920589165/">如何重置Mac上的NVRAM</a></li>  <li class="file"><a href="/posts/3430780623/">解决Mac修改DNS卡死-命令行修改Mac OS系统DNS设置</a></li>  <li class="file"><a href="/posts/3653564083/">苹果 Mac 重置 SMC、NVRAM、PRAM 方法教程 - 解决 macOS 卡顿或无法启动</a></li>  <li class="file"><a href="/posts/3837318570/">Mac VSCode 禁用GPU加速</a></li>  <li class="file"><a href="/posts/3366946474/">Mac高效使用技巧</a></li>  <li class="file"><a href="/posts/558776221/">解决“Mac应用”已损坏，无法打开的问题</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Others
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/3101956195/">Git中.gitignore无效的解决办法</a></li>  <li class="file"><a href="/posts/2867836530/">Axel:命令行下轻量级多线程下载程序</a></li>  <li class="file"><a href="/posts/3413649842/">Linux实用工具</a></li>  <li class="file"><a href="/posts/1073812833/">linux下测试磁盘的读写IO速度(IO物理测速)</a></li>  <li class="file"><a href="/posts/3895039994/">命令行信息截图工具 - ScreenFetch</a></li>  <li class="file"><a href="/posts/3784546227/">Git忽略提交规则 - .gitignore配置总结</a></li>  <li class="file"><a href="/posts/760033837/">平铺式窗口管理器 - Awesome</a></li>  <li class="file"><a href="/posts/2006196850/">私有化TM备份与共享服务器 - Netatalk</a></li>  <li class="file"><a href="/posts/1413974522/">用好这些隐藏「小开关」，让 Chrome 浏览器更好用</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Vim
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/258379777/">VIM下使用Vundle搭建python开发环境</a></li>  <li class="file"><a href="/posts/3374749959/">Vim快捷键使用总结</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Windows
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/3669230936/">为远程桌面启用Windows防火墙例外</a></li>  <li class="file"><a href="/posts/3426016246/">利用windows内置工具测试硬盘速度 - winsat</a></li>  <li class="file"><a href="/posts/913943227/">解决EXCEL按上下左右键不是单元格移动的问题</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Wordpress
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/1067246247/">WordPress启用memcached动态缓存以及报错解决</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                command
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/2407250830/">history命令设置linux查看历史命令显示执行时间</a></li>  <li class="file"><a href="/posts/3200906184/">find命令快速技巧：如何定位一个文件</a></li>  <li class="file"><a href="/posts/3403344661/">定时任务Crontab命令详解</a></li>  <li class="file"><a href="/posts/3241041753/">通过编写 chroot 来认识 chroot 发挥的作用和它带来的好处</a></li>  </ul> 
+                        </li>
+                         <li class="file"><a href="/posts/404814820/">DevOps简介</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder-open"></i>
+                                &nbsp;
+                                Soft engineering
+                            </a>
+                             <ul class="unstyled" id="tree" style="display: block;"> 
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Algorithm
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/1453950584/">8大排序算法图文讲解</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Architecture
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/2097636152/">工作两三年了，整不明白架构图都画啥？</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Cheat Sheets
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/2623330927/">Cheat Sheets - PostgreSQL</a></li>  <li class="file"><a href="/posts/3327139081/">Cheat Sheets – C++</a></li>  <li class="file"><a href="/posts/3048024619/">Cheat Sheets - Django Reference Sheet</a></li>  <li class="file"><a href="/posts/3433268710/">Cheat Sheets - Shell Script</a></li>  <li class="file"><a href="/posts/4169548679/">Cheat Sheets - .NET</a></li>  <li class="file"><a href="/posts/2137528313/">Cheat Sheets – CSS</a></li>  <li class="file"><a href="/posts/2993634676/">Cheat Sheets - Git</a></li>  <li class="file"><a href="/posts/3766000533/">Cheat Sheets – HTTP</a></li>  <li class="file"><a href="/posts/982990798/">Cheat Sheets – Linux</a></li>  <li class="file"><a href="/posts/2663199359/">Cheat Sheets – Java</a></li>  <li class="file"><a href="/posts/316669616/">Cheat Sheets – Mac OS X</a></li>  <li class="file"><a href="/posts/2038387758/">Cheat Sheets – MySQL</a></li>  <li class="file"><a href="/posts/2920272111/">Cheat Sheets – Nodejs</a></li>  <li class="file"><a href="/posts/3167589601/">Cheat Sheets – Perl</a></li>  <li class="file"><a href="/posts/305297407/">Cheat Sheets – C</a></li>  <li class="file"><a href="/posts/1053003126/">Cheat Sheets – Python</a></li>  <li class="file"><a href="/posts/2789789845/">Cheat Sheets – jQuery</a></li>  <li class="file"><a href="/posts/59285358/">Cheat Sheets – HTML and XHTML</a></li>  <li class="file"><a href="/posts/4169548678/">Cheat Sheets - Photoshop</a></li>  <li class="file"><a href="/posts/1130312566/">Cheat Sheets – SQLite</a></li>  <li class="file"><a href="/posts/3905631645/">Cheat sheets - Xcode</a></li>  <li class="file"><a href="/posts/3586350539/">Cheat sheets - Mac OS</a></li>  <li class="file"><a href="/posts/1362596080/">Cheat Sheets – PHP</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Project
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/467054247/">如何编写开源项目的README文档</a></li>  <li class="file"><a href="/posts/1755831586/">软件发布版本区别介绍</a></li>  </ul> 
+                        </li>
+                         </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder-open"></i>
+                                &nbsp;
+                                back-end
+                            </a>
+                             <ul class="unstyled" id="tree" style="display: block;"> 
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder-open"></i>
+                                &nbsp;
+                                Middle-ware
+                            </a>
+                             <ul class="unstyled" id="tree" style="display: block;"> 
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Gogs
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/612684965/">私人Git服务器 -- gogs</a></li>  <li class="file"><a href="/posts/4076369309/">Gogs数据备份、恢复</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Jenkins
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/388825549/">利用Jenkins持续集成iOS项目</a></li>  <li class="file"><a href="/posts/2282359188/">jenkins密码重置</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Logstash
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/2615120416/">日志搜集处理框架Logstash-安装配置</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                MySQL
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/554387356/">MySQL 排序的艺术：你真的懂 Order By 吗？</a></li>  <li class="file"><a href="/posts/2625460784/">MySQL延迟复制</a></li>  <li class="file"><a href="/posts/2654174479/">分库分表 vs NewSQL数据库</a></li>  <li class="file"><a href="/posts/4284065059/">MySQL 调优/优化的 101 个建议</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Nginx
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/1350143519/">高性能 Nginx HTTPS 调优 - 如何为 HTTPS 提速 30%</a></li>  <li class="file"><a href="/posts/1544228005/">高性能Web服务器 - Nginx配置详解</a></li>  <li class="file"><a href="/posts/3996389515/">Nginx配置跨域请求 Access-Control-Allow-Origin *</a></li>  <li class="file"><a href="/posts/524919010/">Nginx正向代理与Client设置代理上网</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                RabbitMQ
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/2846671594/">RabbitMQ 集群高可用原理及实战部署介绍</a></li>  <li class="file"><a href="/posts/3135873234/">RabbitMQ入门</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Redis
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/156114019/">Redis Stream应用案例</a></li>  <li class="file"><a href="/posts/2992538737/">redis.conf参数配置及解释</a></li>  <li class="file"><a href="/posts/2864310564/">深入分析Redis特点及应用场景</a></li>  <li class="file"><a href="/posts/3909951181/">Redis Manual</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Sentry
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/1303728868/">错误日志收集平台 - Sentry(Redis+MySQL)</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Shadowsocks
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/3154796955/">Vultr快速搭建SS科学上网</a></li>  </ul> 
+                        </li>
+                         </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                NodeJS
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/2653381572/">NodeJS Package Manage Tool - NPM</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder-open"></i>
+                                &nbsp;
+                                Python
+                            </a>
+                             <ul class="unstyled" id="tree" style="display: block;"> 
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Build-in
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/2858153934/">Python build-in functions - collections</a></li>  <li class="file"><a href="/posts/857250976/">Python build-in functions - List</a></li>  <li class="file"><a href="/posts/3208674450/">Python build-in module - os</a></li>  <li class="file"><a href="/posts/5/">Python多线程和锁</a></li>  <li class="file"><a href="/posts/2434599799/">Python build-in functions</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Configuration
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/3568487154/">更改pip源至国内镜像 - 显著提升下载速度</a></li>  </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                Library
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/4096440342/">Python Library - SQLAlchemy</a></li>  <li class="file"><a href="/posts/3634498847/">我用 Python 的 Seaborn 库，绘制了 17 个超好看图表!</a></li>  <li class="file"><a href="/posts/383305840/">Python Library - Flask SQLAlchemy</a></li>  <li class="file"><a href="/posts/55626181/">发布你自己的轮子 - PyPI打包上传实践</a></li>  </ul> 
+                        </li>
+                         <li class="file"><a href="/posts/272954362/">sys.stdout.write实现Python控制台实时刷新打印</a></li>  </ul> 
+                        </li>
+                         </ul> 
+                        </li>
+                        
+                        <li class="directory" id="">
+                            <a href="#" data-role="directory">
+                                <i class="fa fa-folder"></i>
+                                &nbsp;
+                                iOS Development
+                            </a>
+                             <ul class="unstyled" id="tree" >  <li class="file"><a href="/posts/684390890/">Swift 5.4 有什么新功能？</a></li>  <li class="file"><a href="/posts/1054462359/">Apple Store上iOS App上架流程</a></li>  <li class="file"><a href="/posts/1098789015/">Xcode开发中Build与version区别/build自增设置/build随时间变化？</a></li>  <li class="file"><a href="/posts/3772598043/">Swift：解包的正确姿势</a></li>  </ul> 
+                        </li>
+                         </ul> 
+    </div>
+    <script>
+        $(document).ready(function() {
+            var iconFolderOpenClass  = 'fa-folder-open';
+            var iconFolderCloseClass = 'fa-folder';
+            var iconAllExpandClass = 'fa-angle-double-down';
+            var iconAllPackClass = 'fa-angle-double-up';
+            // Handle directory-tree expansion:
+            // 左键单独展开目录
+            $(document).on('click', '#categories a[data-role="directory"]', function (event) {
+                event.preventDefault();
+
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconFolderOpenClass);
+                var subtree = $(this).siblings('ul');
+                icon.removeClass(iconFolderOpenClass).removeClass(iconFolderCloseClass);
+                if (expanded) {
+                    if (typeof subtree != 'undefined') {
+                        subtree.slideUp({ duration: 100 });
+                    }
+                    icon.addClass(iconFolderCloseClass);
+                } else {
+                    if (typeof subtree != 'undefined') {
+                        subtree.slideDown({ duration: 100 });
+                    }
+                    icon.addClass(iconFolderOpenClass);
+                }
+            });
+            // 右键展开下属所有目录
+            $('#categories a[data-role="directory"]').bind("contextmenu", function(event){
+                event.preventDefault();
+
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconFolderOpenClass);
+                var listNode = $(this).siblings('ul');
+                var subtrees = $.merge(listNode.find('li ul'), listNode);
+                var icons = $.merge(listNode.find('.fa'), icon);
+                icons.removeClass(iconFolderOpenClass).removeClass(iconFolderCloseClass);
+                if(expanded) {
+                    subtrees.slideUp({ duration: 100 });
+                    icons.addClass(iconFolderCloseClass);
+                } else {
+                    subtrees.slideDown({ duration: 100 });
+                    icons.addClass(iconFolderOpenClass);
+                }
+            })
+            // 展开关闭所有目录按钮
+            $(document).on('click', '#allExpand', function (event) {
+                event.preventDefault();
+
+                var icon = $(this).children('.fa');
+                var expanded = icon.hasClass(iconAllExpandClass);
+                icon.removeClass(iconAllExpandClass).removeClass(iconAllPackClass);
+                if(expanded) {
+                    $('#sidebar .fa.fa-folder').removeClass('fa-folder').addClass('fa-folder-open')
+                    $('#categories li ul').slideDown({ duration: 100 });
+                    icon.addClass(iconAllPackClass);
+                } else {
+                    $('#sidebar .fa.fa-folder-open').removeClass('fa-folder-open').addClass('fa-folder')
+                    $('#categories li ul').slideUp({ duration: 100 });
+                    icon.addClass(iconAllExpandClass);
+                }
+            });
+        });
+    </script>
+
+
+    
+        
+    <div class="widget-wrap">
+        <h3 class="widget-title"><span>recent</span></h3>
+        <div class="widget">
+            <ul id="recent-post" class="">
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/posts/4263562837/" class="thumbnail">
+    
+    
+        <span class="thumbnail-image thumbnail-none"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/OPS/">OPS</a><i class="fa fa-angle-right"></i><a class="article-category-link" href="/categories/OPS/MacOS/">MacOS</a></p>
+                            <p class="item-title"><a href="/posts/4263562837/" class="title">一个惊人快速的终端录像工具，也能录制 VSCode 和 Chrome 窗口</a></p>
+                            <p class="item-date"><time datetime="2021-03-28T00:02:47.000Z" itemprop="datePublished">2021-03-28</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/posts/3634498847/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210309111745.png)" alt="我用 Python 的 Seaborn 库，绘制了 17 个超好看图表!" class="thumbnail-image"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/back-end/">back-end</a><i class="fa fa-angle-right"></i><a class="article-category-link" href="/categories/back-end/Python/">Python</a></p>
+                            <p class="item-title"><a href="/posts/3634498847/" class="title">我用 Python 的 Seaborn 库，绘制了 17 个超好看图表!</a></p>
+                            <p class="item-date"><time datetime="2021-03-08T22:18:11.000Z" itemprop="datePublished">2021-03-09</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/posts/2097636152/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210303212435.jpg)" alt="工作两三年了，整不明白架构图都画啥？" class="thumbnail-image"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/Soft-engineering/">Soft engineering</a><i class="fa fa-angle-right"></i><a class="article-category-link" href="/categories/Soft-engineering/Architecture/">Architecture</a></p>
+                            <p class="item-title"><a href="/posts/2097636152/" class="title">工作两三年了，整不明白架构图都画啥？</a></p>
+                            <p class="item-date"><time datetime="2021-03-03T08:09:53.000Z" itemprop="datePublished">2021-03-03</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/posts/2846671594/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210228142136.jpg)" alt="RabbitMQ 集群高可用原理及实战部署介绍" class="thumbnail-image"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/back-end/">back-end</a><i class="fa fa-angle-right"></i><a class="article-category-link" href="/categories/back-end/Middle-ware/">Middle-ware</a></p>
+                            <p class="item-title"><a href="/posts/2846671594/" class="title">RabbitMQ 集群高可用原理及实战部署介绍</a></p>
+                            <p class="item-date"><time datetime="2021-02-28T01:06:06.000Z" itemprop="datePublished">2021-02-28</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/posts/3772598043/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210226162513.png)" alt="Swift：解包的正确姿势" class="thumbnail-image"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/iOS-Development/">iOS Development</a></p>
+                            <p class="item-title"><a href="/posts/3772598043/" class="title">Swift：解包的正确姿势</a></p>
+                            <p class="item-date"><time datetime="2021-02-26T03:32:25.000Z" itemprop="datePublished">2021-02-26</time></p>
+                        </div>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+
+    
+    <div id="toTop" class="fa fa-angle-up"></div>
+</aside>
+            
+            <section id="main"><article id="post-Android Development/深入了解 gradle 和 maven 的区别" class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+        
+            <header class="article-header">
+                
+                    <div class="article-meta">
+                        
+    <div class="article-category">
+    	<i class="fa fa-folder"></i>
+        <a class="article-category-link" href="/categories/Android-Development/">Android Development</a>
+    </div>
+
+                        
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/tags/Android/">Android</a>, <a class="tag-link" href="/tags/gradle/">gradle</a>
+    </div>
+
+                        
+    <div class="article-date">
+        <i class="fa fa-calendar"></i>
+        <a href="/posts/1797699998/">
+            <time datetime="2021-02-06T08:45:53.000Z" itemprop="datePublished">2021-02-06</time>
+        </a>
+    </div>
+
+
+                        
+                    </div>
+                
+                
+    
+        <h1 class="article-title" itemprop="name">
+            深入了解 gradle 和 maven 的区别
+        </h1>
+    
+
+            </header>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+        
+        
+            
+                <div id="toc" class="toc-article">
+                <strong class="toc-title">Catalogue</strong>
+                    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#介绍"><span class="toc-number">1.</span> <span class="toc-text">介绍</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#可扩展性"><span class="toc-number">2.</span> <span class="toc-text">可扩展性</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#性能比较"><span class="toc-number">3.</span> <span class="toc-text">性能比较</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#增量构建"><span class="toc-number">3.1.</span> <span class="toc-text">增量构建</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#构建缓存"><span class="toc-number">3.2.</span> <span class="toc-text">构建缓存</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Gradle-守护进程"><span class="toc-number">3.3.</span> <span class="toc-text">Gradle 守护进程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#使用-gradle-和-maven-构建-Apache-Commons-Lang-3-的比较"><span class="toc-number">3.4.</span> <span class="toc-text">使用 gradle 和 maven 构建 Apache Commons Lang 3 的比较</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#使用-gradle-和-maven-构建小项目（10-个模块，每个模块-50-个源文件和-50-个测试文件）的比较"><span class="toc-number">3.5.</span> <span class="toc-text">使用 gradle 和 maven 构建小项目（10 个模块，每个模块 50 个源文件和 50 个测试文件）的比较</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#使用-gradle-和-maven-构建大项目（500-个模块，每个模块-100-个源文件和-100-个测试文件）的比较"><span class="toc-number">3.6.</span> <span class="toc-text">使用 gradle 和 maven 构建大项目（500 个模块，每个模块 100 个源文件和 100 个测试文件）的比较</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#依赖的区别"><span class="toc-number">4.</span> <span class="toc-text">依赖的区别</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#自动转换"><span class="toc-number">5.</span> <span class="toc-text">自动转换</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#转换依赖"><span class="toc-number">6.</span> <span class="toc-text">转换依赖</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#compile"><span class="toc-number">6.1.</span> <span class="toc-text">compile</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#runtime"><span class="toc-number">6.2.</span> <span class="toc-text">runtime</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#test"><span class="toc-number">6.3.</span> <span class="toc-text">test</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#provided"><span class="toc-number">6.4.</span> <span class="toc-text">provided</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#import"><span class="toc-number">6.5.</span> <span class="toc-text">import</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#转换-repositories-仓库"><span class="toc-number">7.</span> <span class="toc-text">转换 repositories 仓库</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#控制依赖的版本"><span class="toc-number">8.</span> <span class="toc-text">控制依赖的版本</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#多模块项目"><span class="toc-number">8.1.</span> <span class="toc-text">多模块项目</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#profile-和属性"><span class="toc-number">9.</span> <span class="toc-text">profile 和属性</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#资源处理"><span class="toc-number">10.</span> <span class="toc-text">资源处理</span></a></li></ol>
+                </div>
+            
+        
+        
+            <p><img src="https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210206215843.png" alt=""></p>
+<h1 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h1><p>gradle 和 maven 都可以用来构建 java 程序，甚至在某些情况下，两者还可以互相转换，那么他们两个的共同点和不同点是什么？我们如何在项目中选择使用哪种技术呢？一起来看看吧。</p>
+<p>虽然 gradle 和 maven 都可以作为 java 程序的构建工具。但是两者还是有很大的不同之处的。我们可以从下面几个方面来进行分析。</p>
+<h1 id="可扩展性"><a href="#可扩展性" class="headerlink" title="可扩展性"></a>可扩展性</h1><p>Google 选择 gradle 作为 android 的构建工具不是没有理由的，其中一个非常重要的原因就是因为 gradle 够灵活。一方面是因为 gradle 使用的是 groovy 或者 kotlin 语言作为脚本的编写语言，这样极大的提高了脚本的灵活性，但是其本质上的原因是 gradle 的基础架构能够支持这种灵活性。</p>
+<p>你可以使用 gradle 来构建 native 的 C/C++ 程序，甚至扩展到任何语言的构建。</p>
+<p>相对而言，maven 的灵活性就差一些，并且自定义起来也比较麻烦，但是 maven 的项目比较容易看懂，并且上手简单。</p>
+<p>所以如果你的项目没有太多自定义构建需求的话还是推荐使用 maven，但是如果有自定义的构建需求，那么还是投入 gradle 的怀抱吧。</p>
+<h1 id="性能比较"><a href="#性能比较" class="headerlink" title="性能比较"></a>性能比较</h1><p>虽然现在大家的机子性能都比较强劲，好像在做项目构建的时候性能的优势并不是那么的迫切，但是对于大型项目来说，一次构建可能会需要很长的时间，尤其对于自动化构建和 CI 的环境来说，当然希望这个构建是越快越好。</p>
+<p>Gradle 和 Maven 都支持并行的项目构建和依赖解析。但是 gradle 的三个特点让 gradle 可以跑的比 maven 快上一点：</p>
+<a id="more"></a>
+<h2 id="增量构建"><a href="#增量构建" class="headerlink" title="增量构建"></a>增量构建</h2><p>gradle 为了提升构建的效率，提出了增量构建的概念，为了实现增量构建，gradle 将每一个 task 都分成了三部分，分别是 input 输入，任务本身和 output 输出。下图是一个典型的 java 编译的 task。</p>
+<p><img src="https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210206214714.webp" alt=""></p>
+<p>以上图为例，input 就是目标 jdk 的版本，源代码等，output 就是编译出来的 class 文件。</p>
+<p>增量构建的原理就是监控 input 的变化，只有 input 发送变化了，才重新执行 task 任务，否则 gradle 认为可以重用之前的执行结果。</p>
+<p>所以在编写 gradle 的 task 的时候，需要指定 task 的输入和输出。</p>
+<p>并且要注意只有会对输出结果产生变化的才能被称为输入，如果你定义了对初始结果完全无关的变量作为输入，则这些变量的变化会导致 gradle 重新执行 task，导致了不必要的性能的损耗。</p>
+<p>还要注意不确定执行结果的任务，比如说同样的输入可能会得到不同的输出结果，那么这样的任务将不能够被配置为增量构建任务。</p>
+<h2 id="构建缓存"><a href="#构建缓存" class="headerlink" title="构建缓存"></a>构建缓存</h2><p>gradle 可以重用同样 input 的输出作为缓存，大家可能会有疑问了，这个缓存和增量编译不是一个意思吗？</p>
+<p>在同一个机子上是的，但是缓存可以跨机器共享. 如果你是在一个 CI 服务的话，build cache 将会非常有用。因为 developer 的 build 可以直接从 CI 服务器上面拉取构建结果，非常的方便。</p>
+<h2 id="Gradle-守护进程"><a href="#Gradle-守护进程" class="headerlink" title="Gradle 守护进程"></a>Gradle 守护进程</h2><p>gradle 会开启一个守护进程来和各个 build 任务进行交互，优点就是不需要每次构建都初始化需要的组件和服务。</p>
+<p>同时因为守护进程是一个一直运行的进程，除了可以避免每次 JVM 启动的开销之外，还可以缓存项目结构，文件，task 和其他的信息，从而提升运行速度。</p>
+<p>我们可以运行 gradle –status 来查看正在运行的 daemons 进程。</p>
+<p>从 Gradle 3.0 之后，daemons 是默认开启的，你可以使用 org.gradle.daemon=false 来禁止 daemons。</p>
+<p>我们可以通过下面的几个图来直观的感受一下 gradle 和 maven 的性能比较：</p>
+<h2 id="使用-gradle-和-maven-构建-Apache-Commons-Lang-3-的比较"><a href="#使用-gradle-和-maven-构建-Apache-Commons-Lang-3-的比较" class="headerlink" title="使用 gradle 和 maven 构建 Apache Commons Lang 3 的比较"></a>使用 gradle 和 maven 构建 Apache Commons Lang 3 的比较</h2><p><img src="https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210206214830.webp" alt=""></p>
+<h2 id="使用-gradle-和-maven-构建小项目（10-个模块，每个模块-50-个源文件和-50-个测试文件）的比较"><a href="#使用-gradle-和-maven-构建小项目（10-个模块，每个模块-50-个源文件和-50-个测试文件）的比较" class="headerlink" title="使用 gradle 和 maven 构建小项目（10 个模块，每个模块 50 个源文件和 50 个测试文件）的比较"></a>使用 gradle 和 maven 构建小项目（10 个模块，每个模块 50 个源文件和 50 个测试文件）的比较</h2><p><img src="https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210206214841.webp" alt=""></p>
+<h2 id="使用-gradle-和-maven-构建大项目（500-个模块，每个模块-100-个源文件和-100-个测试文件）的比较"><a href="#使用-gradle-和-maven-构建大项目（500-个模块，每个模块-100-个源文件和-100-个测试文件）的比较" class="headerlink" title="使用 gradle 和 maven 构建大项目（500 个模块，每个模块 100 个源文件和 100 个测试文件）的比较"></a>使用 gradle 和 maven 构建大项目（500 个模块，每个模块 100 个源文件和 100 个测试文件）的比较</h2><p><img src="https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210206214917.webp" alt=""></p>
+<p>可以看到 gradle 性能的提升是非常明显的。</p>
+<h1 id="依赖的区别"><a href="#依赖的区别" class="headerlink" title="依赖的区别"></a>依赖的区别</h1><p>gradle 和 maven 都可以本地缓存依赖文件，并且都支持依赖文件的并行下载。</p>
+<p>在 maven 中只可以通过版本号来覆盖一个依赖项。而 gradle 更加灵活，你可以自定义依赖关系和替换规则，通过这些替换规则，gradle 可以构建非常复杂的项目。</p>
+<p>因为 maven 出现的时间比较早，所以基本上所有的 java 项目都支持 maven，但是并不是所有的项目都支持 gradle。如果你有需要把 maven 项目迁移到 gradle 的想法，那么就一起来看看吧。</p>
+<p>根据我们之前的介绍，大家可以发现 gradle 和 maven 从本质上来说就是不同的，gradle 通过 task 的 DAG 图来组织任务，而 maven 则是通过 attach 到 phases 的 goals 来执行任务。</p>
+<p>虽然两者的构建有很大的不同，但是得益于 gradle 和 maven 相识的各种约定规则，从 maven 移植到 gradle 并不是那么难。</p>
+<p>要想从 maven 移植到 gradle，首先要了解下 maven 的 build 生命周期，maven 的生命周期包含了 clean，compile，test，package，verify，install 和 deploy 这几个 phase。</p>
+<p>我们需要将 maven 的生命周期 phase 转换为 gradle 的生命周期 task。这里需要使用到 gradle 的 Base Plugin，Java Plugin 和 Maven Publish Plugin。</p>
+<p>先看下怎么引入这三个 plugin：</p>
+<pre class="line-numbers language-bash"><code class="language-bash">plugins <span class="token punctuation">{</span>    <span class="token function">id</span> <span class="token string">'base'</span>    <span class="token function">id</span> <span class="token string">'java'</span>    <span class="token function">id</span> <span class="token string">'maven-publish'</span><span class="token punctuation">}</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>clean 会被转换成为 clean task，compile 会被转换成为 classes task，test 会被转换成为 test task，package 会被转换成为 assemble task，verify 会被转换成为 check task，install 会被转换成为 Maven Publish Plugin 中的 publishToMavenLocal task，deploy 会被转换成为 Maven Publish Plugin 中的 publish task。</p>
+<p>有了这些 task 之间的对应关系，我们就可以尝试进行 maven 到 gradle 的转换了。</p>
+<h1 id="自动转换"><a href="#自动转换" class="headerlink" title="自动转换"></a>自动转换</h1><p>我们除了可以使用 gradle init 命令来创建一个 gradle 的架子之外，还可以使用这个命令来将 maven 项目转换成为 gradle 项目，gradle init 命令会去读取 pom 文件，并将其转换成为 gradle 项目。</p>
+<h1 id="转换依赖"><a href="#转换依赖" class="headerlink" title="转换依赖"></a>转换依赖</h1><p>gradle 和 maven 的依赖都包含了 group ID, artifact ID 和版本号。两者本质上是一样的，只是形式不同，我们看一个转换的例子：</p>
+<pre class="line-numbers language-xml"><code class="language-xml"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>dependencies</span><span class="token punctuation">></span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>dependency</span><span class="token punctuation">></span></span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>groupId</span><span class="token punctuation">></span></span>log4j<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>groupId</span><span class="token punctuation">></span></span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>artifactId</span><span class="token punctuation">></span></span>log4j<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>artifactId</span><span class="token punctuation">></span></span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>version</span><span class="token punctuation">></span></span>1.2.12<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>version</span><span class="token punctuation">></span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>dependency</span><span class="token punctuation">></span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>dependencies</span><span class="token punctuation">></span></span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>上是一个 maven 的例子，我们看下 gradle 的例子怎写：</p>
+<pre class="line-numbers language-xml"><code class="language-xml">dependencies {    implementation 'log4j:log4j:1.2.12'  }
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>可以看到 gradle 比 maven 写起来要简单很多。</p>
+<p>注意这里的 implementation 实际上是由 Java Plugin 来实现的。</p>
+<p>我们在 maven 的依赖中有时候还会用到 scope 选项，用来表示依赖的范围，我们看下这些范围该如何进行转换：</p>
+<h2 id="compile"><a href="#compile" class="headerlink" title="compile"></a>compile</h2><p>在 gradle 可以有两种配置来替换 compile，我们可以使用 implementation 或者 api。</p>
+<p>前者在任何使用 Java Plugin 的 gradle 中都可以使用，而 api 只能在使用 Java Library Plugin 的项目中使用。</p>
+<p>当然两者是有区别的，如果你是构建应用程序或者 webapp，那么推荐使用 implementation，如果你是在构建 Java libraries，那么推荐使用 api。</p>
+<h2 id="runtime"><a href="#runtime" class="headerlink" title="runtime"></a>runtime</h2><p>可以替换成 runtimeOnly 。</p>
+<h2 id="test"><a href="#test" class="headerlink" title="test"></a>test</h2><p>gradle 中的 test 分为两种，一种是编译 test 项目的时候需要，那么可以使用 testImplementation，一种是运行 test 项目的时候需要，那么可以使用 testRuntimeOnly。</p>
+<h2 id="provided"><a href="#provided" class="headerlink" title="provided"></a>provided</h2><p>可以替换成为 compileOnly。</p>
+<h2 id="import"><a href="#import" class="headerlink" title="import"></a>import</h2><p>在 maven 中，import 经常用在 dependencyManagement 中，通常用来从一个 pom 文件中导入依赖项，从而保证项目中依赖项目版本的一致性。</p>
+<p>在 gradle 中，可以使用 platform() 或者 enforcedPlatform() 来导入 pom 文件：</p>
+<pre class="line-numbers language-xml"><code class="language-xml">dependencies {
+    implementation platform('org.springframework.boot:spring-boot-dependencies:1.5.8.RELEASE')
+    implementation 'com.google.code.gson:gson'
+    implementation 'dom4j:dom4j'
+}
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>比如上面的例子中，我们导入了 spring-boot-dependencies。因为这个 pom 中已经定义了依赖项的版本号，所以我们在后面引入 gson 的时候就不需要指定版本号了。</p>
+<p>platform 和 enforcedPlatform 的区别在于，enforcedPlatform 会将导入的 pom 版本号覆盖其他导入的版本号：</p>
+<pre class="line-numbers language-xml"><code class="language-xml">dependencies {
+    // import a BOM. The versions used in this file will override any other version found in the graph
+    implementation enforcedPlatform('org.springframework.boot:spring-boot-dependencies:1.5.8.RELEASE')
+    // define dependencies without versions
+    implementation 'com.google.code.gson:gson'
+    implementation 'dom4j:dom4j'
+    // this version will be overridden by the one found in the BOM
+    implementation 'org.codehaus.groovy:groovy:1.8.6'
+}
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<h1 id="转换-repositories-仓库"><a href="#转换-repositories-仓库" class="headerlink" title="转换 repositories 仓库"></a>转换 repositories 仓库</h1><p>gradle 可以兼容使用 maven 或者 lvy 的 repository。gradle 没有默认的仓库地址，所以你必须手动指定一个。</p>
+<p>你可以在 gradle 使用 maven 的仓库：</p>
+<pre class="line-numbers language-xml"><code class="language-xml">repositories {
+    mavenCentral()
+}
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+<p>我们还可以直接指定 maven 仓库的地址：</p>
+<pre class="line-numbers language-xml"><code class="language-xml">repositories {
+    maven {
+        url "http://repo.mycompany.com/maven2"
+    }
+}
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>如果你想使用 maven 本地的仓库，则可以这样使用：</p>
+<pre class="line-numbers language-xml"><code class="language-xml">repositories {
+    mavenLocal()
+}
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+<p>但是 mavenLocal 是不推荐使用的，为什么呢？</p>
+<p>mavenLocal 只是 maven 在本地的一个 cache，它包含的内容并不完整。比如说一个本地的 maven repository module 可能只包含了 jar 包文件，并没有包含 source 或者 javadoc 文件。那么我们将不能够在 gradle 中查看这个 module 的源代码，因为 gradle 会首先在 maven 本地的路径中查找这个 module。</p>
+<p>并且本地的 repository 是不可信任的，因为里面的内容可以轻易被修改，并没有任何的验证机制。</p>
+<h1 id="控制依赖的版本"><a href="#控制依赖的版本" class="headerlink" title="控制依赖的版本"></a>控制依赖的版本</h1><p>如果同一个项目中对同一个模块有不同版本的两个依赖的话，默认情况下 Gradle 会在解析完 DAG 之后，选择版本最高的那个依赖包。</p>
+<p>但是这样做并不一定就是正确的， 所以我们需要自定义依赖版本的功能。</p>
+<p>首先就是上面我们提到的使用 platform() 和 enforcedPlatform() 来导入 BOM（packaging 类型是 POM 的）文件。</p>
+<p>如果我们项目中依赖了某个 module，而这个 module 又依赖了另外的 module，我们叫做传递依赖。在这种情况下，如果我们希望控制传递依赖的版本，比如说将传递依赖的版本升级为一个新的版本，那么可以使用 dependency constraints：</p>
+<pre class="line-numbers language-xml"><code class="language-xml">dependencies {
+    implementation 'org.apache.httpcomponents:httpclient'
+    constraints {
+        implementation('org.apache.httpcomponents:httpclient:4.5.3') {
+            because 'previous versions have a bug impacting this application'
+        }
+        implementation('commons-codec:commons-codec:1.11') {
+            because 'version 1.9 pulled from httpclient has bugs affecting this application'
+        }
+    }
+}
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<blockquote>
+<p>注意，dependency constraints 只对传递依赖有效，如果上面的例子中 commons-codec 并不是传递依赖，那么将不会有任何影响。</p>
+<p>同时 Dependency constraints 需要 Gradle Module Metadata 的支持，也就是说只有你的 module 是发布在 gradle 中才支持这个特性，如果是发布在 maven 或者 ivy 中是不支持的。</p>
+</blockquote>
+<p>上面讲的是传递依赖的版本升级。同样是传递依赖，如果本项目也需要使用到这个传递依赖的 module，但是需要使用到更低的版本（因为默认 gradle 会使用最新的版本），就需要用到版本降级了。</p>
+<pre class="line-numbers language-xml"><code class="language-xml">dependencies {
+    implementation 'org.apache.httpcomponents:httpclient:4.5.4'
+    implementation('commons-codec:commons-codec') {
+        version {
+            strictly '1.9'
+        }
+    }
+}
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>我们可以在 implementation 中指定特定的 version 即可。</p>
+<p>strictly 表示的是强制匹配特定的版本号，除了 strictly 之外，还有 require，表示需要的版本号大于等于给定的版本号。prefer，如果没有指定其他的版本号，那么就使用 prefer 这个。reject，拒绝使用这个版本。</p>
+<p>除此之外，你还可以使用 Java Platform Plugin 来指定特定的 platform，从而限制版本号。</p>
+<p>最后看一下如何 exclude 一个依赖：</p>
+<pre class="line-numbers language-xml"><code class="language-xml">dependencies {
+    implementation('commons-beanutils:commons-beanutils:1.9.4') {
+        exclude group: 'commons-collections',
+        module: 'commons-collections'
+    }
+}
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<h2 id="多模块项目"><a href="#多模块项目" class="headerlink" title="多模块项目"></a>多模块项目</h2><p>maven 中可以创建多模块项目：</p>
+<pre class="line-numbers language-xml"><code class="language-xml"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>modules</span><span class="token punctuation">></span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>module</span><span class="token punctuation">></span></span>simple-weather<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>module</span><span class="token punctuation">></span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>module</span><span class="token punctuation">></span></span>simple-webapp<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>module</span><span class="token punctuation">></span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>modules</span><span class="token punctuation">></span></span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+<p>我们可以在 gradle 中做同样的事情 settings.gradle：</p>
+<pre class="line-numbers language-gradle"><code class="language-gradle">rootProject.name = 'simple-multi-module'  include 'simple-weather', 'simple-webapp'
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<h1 id="profile-和属性"><a href="#profile-和属性" class="headerlink" title="profile 和属性"></a>profile 和属性</h1><p>maven 中可以使用 profile 来区别不同的环境，在 gradle 中，我们可以定义好不同的 profile 文件，然后通过脚本来加载他们：</p>
+<p>build.gradle：</p>
+<pre class="line-numbers language-gradle"><code class="language-gradle">if (!hasProperty('buildProfile')) ext.buildProfile = 'default'
+
+apply from: "profile-${buildProfile}.gradle"
+
+task greeting {
+    doLast {
+        println message
+    }
+}
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>profile-default.gradle：</p>
+<pre class="line-numbers language-gradle"><code class="language-gradle">ext.message = 'foobar'
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>profile-test.gradle：</p>
+<pre class="line-numbers language-gradle"><code class="language-gradle">ext.message = 'testing 1 2 3'
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>我们可以这样来运行：</p>
+<pre class="line-numbers language-gradle"><code class="language-gradle">> gradle greetingfoobar> gradle -PbuildProfile=test greetingtesting 1 2 3
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<h1 id="资源处理"><a href="#资源处理" class="headerlink" title="资源处理"></a>资源处理</h1><p>在 maven 中有一个 process-resources 阶段，可以执行 resources:resources 用来进行 resource 文件的拷贝操作。</p>
+<p>在 Gradle 中的 Java plugin 的 processResources task 也可以做相同的事情。</p>
+<p>比如我可以执行 copy 任务：</p>
+<pre class="line-numbers language-gradle"><code class="language-gradle">task copyReport(type: Copy) {
+    from file("buildDir/reports/my-report.pdf")
+    into file("buildDir/toArchive")
+}
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+<p>更加复杂的拷贝：</p>
+<pre class="line-numbers language-gradle"><code class="language-gradle">task copyPdfReportsForArchiving(type: Copy) {
+    from "buildDir/reports"
+    include "*.pdf"
+    into "buildDir/toArchive"
+}
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>当然拷贝还有更加复杂的应用。这里就不详细讲解了。</p>
+<!-- # 参考资料 -->
+<!-- > -[]() -->
+
+            </div>
+        
+        <footer class="article-footer">
+        </footer>
+    </div>
+</article>
+
+
+    
+<nav id="article-nav">
+    
+        <a href="/posts/3653564083/" id="article-nav-newer" class="article-nav-link-wrap">
+            <strong class="article-nav-caption">Newer</strong>
+            <div class="article-nav-title">
+                
+                    苹果 Mac 重置 SMC、NVRAM、PRAM 方法教程 - 解决 macOS 卡顿或无法启动
+                
+            </div>
+        </a>
+    
+    
+        <a href="/posts/1525358532/" id="article-nav-older" class="article-nav-link-wrap">
+            <strong class="article-nav-caption">Older</strong>
+            <div class="article-nav-title">在 M1 芯片 Mac 上使用 Homebrew</div>
+        </a>
+    
+</nav>
+
+
+
+
+
+    
+    
+
+
+
+
+<!-- baidu url auto push script -->
+<script type="text/javascript">
+    !function(){var e=/([http|https]:\/\/[a-zA-Z0-9\_\.]+\.baidu\.com)/gi,r=window.location.href,o=document.referrer;if(!e.test(r)){var n="//api.share.baidu.com/s.gif";o?(n+="?r="+encodeURIComponent(document.referrer),r&&(n+="&l="+r)):r&&(n+="?l="+r);var t=new Image;t.src=n}}(window);
+</script>     
+
+<head><meta name="generator" content="Hexo 3.9.0">
+    <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+    <script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+<link rel="stylesheet" href="/css/prism-duotone-light.css" type="text/css">
+<link rel="stylesheet" href="/css/prism-line-numbers.css" type="text/css"></head>
+<body>
+    <div id="vcomments"></div>
+    <script>
+        new Valine({
+            el: '#vcomments',
+            appId: '8kLhebBkVygl1MhVcQx9dnBP-gzGzoHsz',
+            appKey: 'hrctlOb6RQBWjjwTJ9fVjb91'
+        })
+    </script>
+</body>
+
+
+</section>
+        </div>
+        <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+
+<footer id="footer">
+    <div class="outer">
+        <div id="footer-info" class="inner">
+            <a href="https://www.jifu.io">
+            Ji Fu &copy; 2021
+            </a>
+            <br> Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>. Theme - <a href="https://github.com/zthxxx/hexo-theme-Wikitten">wikitten</a>
+            <br> 您是  jifu'wiki 的第<span id="busuanzi_value_site_uv"></span>个小伙伴
+            <br>
+                本站总访问量<span id="busuanzi_value_site_pv"></span>次
+                本文总阅读量<span id="busuanzi_value_page_pv"></span>次
+        </div>
+    </div>
+</footer>
+
+
+
+        
+
+    
+        <script src="/libs/lightgallery/js/lightgallery.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-thumbnail.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-pager.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-autoplay.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-fullscreen.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-zoom.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-hash.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-share.min.js"></script>
+        <script src="/libs/lightgallery/js/lg-video.min.js"></script>
+    
+    
+        <script src="/libs/justified-gallery/jquery.justifiedGallery.min.js"></script>
+    
+    
+
+
+
+<!-- Custom Scripts -->
+<script src="/js/main.js"></script>
+
+    </div>
+</body>
+</html>
