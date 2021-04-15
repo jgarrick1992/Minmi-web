@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://www.jifu.io/"/>
-  <updated>2021-04-15T14:14:54.200Z</updated>
+  <updated>2021-04-15T14:16:43.024Z</updated>
   <id>http://www.jifu.io/</id>
   
   <author>
@@ -21,14 +21,14 @@
     <link href="http://www.jifu.io/posts/647907268/"/>
     <id>http://www.jifu.io/posts/647907268/</id>
     <published>2021-04-15T13:28:19.000Z</published>
-    <updated>2021-04-15T14:14:54.200Z</updated>
+    <updated>2021-04-15T14:16:43.024Z</updated>
     
-    <content type="html"><![CDATA[<p><img src="https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210416015030.jpg" alt=""></p><h1 id="前言1111111111"><a href="#前言1111111111" class="headerlink" title="前言1111111111"></a>前言1111111111</h1><p>苹果2020年底发布了“最不讲武德”的M1芯片Macbook、mac mini，惊艳了无数玩家。M1芯片采用ARM架构，5纳米工艺的M1芯片偷袭了Intel的14纳米工艺的cpu，这靠的是台积电5纳米代工，还是Intel长期14纳米的坚持？本文介绍在ARM架构的M1芯片Macbook上面安装win10玩steam、epic games的步骤，来看看在苹果M1芯片上玩steam是什么体验。</p><h1 id="1-安装Parallels-Desktop软件"><a href="#1-安装Parallels-Desktop软件" class="headerlink" title="1. 安装Parallels Desktop软件"></a>1. 安装Parallels Desktop软件</h1><p>用M1 Macbook的Safari浏览器点击<a href="https://my.parallels.com/login?continue=%2Fdesktop%2Fbeta" target="_blank" rel="noopener">链接</a>进入Parallels官网下载Parallels Desktop软件的登陆界面：</p><p>[<img src="https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210416012936.png" alt="苹果M1芯片Macbook安装win10玩steam游戏步骤"></p><a id="more"></a><p>点击“Continue with Apple”苹果图标按钮，会自动使用你的Macbook的Apple ID登陆（也可以用Google的ID进行登陆，如果无法登陆就按提示进行操作），登陆后进入下面的界面：</p><p>[<img src="https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210416013029.png" alt="苹果M1芯片Macbook安装win10玩steam游戏步骤"></p><p>在这个界面往下拉，会看见下载Paralles Desktop软件的“DOWNLOAD”蓝色字体按钮（见下图）：</p><p>[<img src="https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210416013050.png" alt="苹果M1芯片Macbook安装win10玩steam游戏步骤"></p><p>点击上图的“DOWNLOAD”蓝色英文字，下载Paralles Desktop软件的安装文件到Macbook的硬盘里，下载好之后，安装该软件，并使用下面的激活码激活Paralles Desktop软件（该激活码在官网可以找到，见上图）：</p><p>QBP4PG-5SMPTH-KCMPVR-NE2S47-429DSZ</p><p>[<img src="https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210416013117.png" alt="苹果M1芯片Macbook安装win10玩steam游戏步骤"></p><p>将激活码拷贝到上图的方框里面，按“激活”按钮进行激活，看见下图的话，就代表Paralles Desktop软件已经成功激活了：</p><p>[<img src="https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210416013139.png" alt="苹果M1芯片Macbook安装win10玩steam游戏步骤"></p><h1 id="2-去微软官网下载Win10的ARM版本的VHDX安装文件"><a href="#2-去微软官网下载Win10的ARM版本的VHDX安装文件" class="headerlink" title="2. 去微软官网下载Win10的ARM版本的VHDX安装文件"></a>2. 去微软官网下载Win10的ARM版本的VHDX安装文件</h1><p>点击<a href="https://go.smzdm.com/176124ca5367e021/ca_bb_yc_163_71408175_10111_1461_179_0" target="_blank" rel="noopener">微软</a><a href="https://go.smzdm.com/176124ca5367e021/ca_bb_yc_163_71408175_10111_1461_179_0" target="_blank" rel="noopener">官网网址</a>，下载windows insider preview ARM64的VHDX安装文件：</p><p>[<img src="https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210416013237.png" alt="苹果M1芯片Macbook安装win10玩steam游戏步骤"></p><p>进入上述网址后，会看见上图这样的界面，点击上图右上角的Sign in 按钮，用outlook邮箱账号登陆（需要预先注册好微软的outlook邮箱）:</p><p>[<img src="https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210416013248.png" alt="苹果M1芯片Macbook安装win10玩steam游戏步骤"></p><p>用微软outlook邮箱账号登陆后进入下图的界面，在下图的界面点击“windows 10 client ARM64 insider preview Build 21286”的蓝色图标，下载VHDX安装文件到Mac电脑里：</p><p>[<img src="https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210416013255.png" alt="苹果M1芯片Macbook安装win10玩steam游戏步骤"></p><p>点击“windows 10 client ARM64 insider preview Build 21286”的蓝色图标后，会问是否下载（见下图）：</p><p>[<img src="https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210416013302.png" alt="苹果M1芯片Macbook安装win10玩steam游戏步骤"></p><p>在这里如果用Safari浏览器下载“windows 10 client ARM64 insider preview Build 21286.VHDX”安装文件会非常慢，建议用迅雷或者其他工具下载。我深夜尝试过，用Safari浏览器直接下载的速度非常慢：</p><p>[<img src="https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210416013310.png" alt="苹果M1芯片Macbook安装win10玩steam游戏步骤"></p><h1 id="3-用Paralles-Desktop软件加载Win10的ARM版本的VHDX安装文件，安装win10系统"><a href="#3-用Paralles-Desktop软件加载Win10的ARM版本的VHDX安装文件，安装win10系统" class="headerlink" title="3. 用Paralles Desktop软件加载Win10的ARM版本的VHDX安装文件，安装win10系统"></a>3. 用Paralles Desktop软件加载Win10的ARM版本的VHDX安装文件，安装win10系统</h1><p>将“windows 10 client ARM64 insider preview Build 21286.VHDX”安装文件下载到Macbook之后，打Paralles Desktop软件，进入下图的界面，在这个界面点击“手动选择”按钮：</p><p>[<img src="https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210416013441.png" alt="苹果M1芯片Macbook安装win10玩steam游戏步骤"></p><p>选择下载到Macbook的“windows 10 client ARM64 insider preview Build 21286.VHDX”文件，选好之后，点击对话框右下角的“打开”按钮：</p><p>[<img src="https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210416013447.png" alt="苹果M1芯片Macbook安装win10玩steam游戏步骤"></p><p>之后进入下图的界面，在这个界面可以看见Windows 10的图标了，点击右下角的“创建”按钮：</p><p>[<img src="https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210416013454.png" alt="苹果M1芯片Macbook安装win10玩steam游戏步骤"></p><p>之后会自动开始安装win10到M1电脑里：</p><p>[<img src="https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210416013501.png" alt="苹果M1芯片Macbook安装win10玩steam游戏步骤"></p><p>安装过程中提示软件需要访问<a href="https://www.smzdm.com/fenlei/shexiangtou/" target="_blank" rel="noopener">摄像头</a>，点击“好”：</p><p>[<img src="https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210416013612.png" alt="苹果M1芯片Macbook安装win10玩steam游戏步骤"></p><p>安装过程提示软件需要访问<a href="https://www.smzdm.com/fenlei/maikefeng/" target="_blank" rel="noopener">麦克风</a>，点击“好”：</p><p>[<img src="https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210416013621.png" alt="苹果M1芯片Macbook安装win10玩steam游戏步骤"></p><p>安装过程大约持续20分钟左右：</p><p>[<img src="https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210416013640.png" alt="苹果M1芯片Macbook安装win10玩steam游戏步骤"></p><p>出现下图的田字图标，代表就要安装完成了：</p><p>[<img src="https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210416013655.png" alt="苹果M1芯片Macbook安装win10玩steam游戏步骤"></p><h1 id="M1芯片Macbook的兼容性"><a href="#M1芯片Macbook的兼容性" class="headerlink" title="M1芯片Macbook的兼容性"></a>M1芯片Macbook的兼容性</h1><p>M1很强大，但是M1是ARM架构的芯片，M1版本的Macbook本身不兼容win系统的exe等X86架构的程序，M1安装了win10的ARM版本，兼容性立马改善了不少，至少可以在M1上利用win10 ARM来使用windows绿色版的Photoshop程序（见下图），虽然由于分辨率不是特别匹配，感觉菜单栏的字体特别小(也许可以通过调节屏幕分辨率进行调整)，但至少win版本的photoshop程序可以用在M1上了（见下图）。还有很多常用的exe程序都可以顺利安装在win10 ARM系统上使用。</p><p>[<img src="https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210416013908.jpg" alt="苹果M1芯片Macbook安装win10玩steam游戏步骤"></p><h1 id="M1芯片Macbook-pro用Win10-ARM系统安装steam玩游戏"><a href="#M1芯片Macbook-pro用Win10-ARM系统安装steam玩游戏" class="headerlink" title="M1芯片Macbook pro用Win10 ARM系统安装steam玩游戏"></a>M1芯片Macbook pro用Win10 ARM系统安装steam玩游戏</h1><p>M1直接安装steam玩游戏，会出现很多游戏无法运行的问题。在M1的虚拟win10 ARM系统上安装steam玩游戏会不会好一些呢？经过测试，兼容性比M1直接运行steam好那么一丢丢，但是很多游戏仍然无法顺利在win10 ARM系统上玩耍。M1对steam的兼容性仍然不是很好，就算用了Paralles Desktop虚拟的win 10 ARM系统，兼容性仍然有问题。</p><p>[<img src="https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210416013915.gif" alt="苹果M1芯片Macbook安装win10玩steam游戏步骤"></p>]]></content>
+    <content type="html"><![CDATA[<p><img src="https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210416015030.jpg" alt=""></p><h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>苹果2020年底发布了“最不讲武德”的M1芯片Macbook、mac mini，惊艳了无数玩家。M1芯片采用ARM架构，5纳米工艺的M1芯片偷袭了Intel的14纳米工艺的cpu，这靠的是台积电5纳米代工，还是Intel长期14纳米的坚持？本文介绍在ARM架构的M1芯片Macbook上面安装win10玩steam、epic games的步骤，来看看在苹果M1芯片上玩steam是什么体验。</p><h1 id="1-安装Parallels-Desktop软件"><a href="#1-安装Parallels-Desktop软件" class="headerlink" title="1. 安装Parallels Desktop软件"></a>1. 安装Parallels Desktop软件</h1><p>用M1 Macbook的Safari浏览器点击<a href="https://my.parallels.com/login?continue=%2Fdesktop%2Fbeta" target="_blank" rel="noopener">链接</a>进入Parallels官网下载Parallels Desktop软件的登陆界面：</p><p>[<img src="https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210416012936.png" alt="苹果M1芯片Macbook安装win10玩steam游戏步骤"></p><a id="more"></a><p>点击“Continue with Apple”苹果图标按钮，会自动使用你的Macbook的Apple ID登陆（也可以用Google的ID进行登陆，如果无法登陆就按提示进行操作），登陆后进入下面的界面：</p><p>[<img src="https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210416013029.png" alt="苹果M1芯片Macbook安装win10玩steam游戏步骤"></p><p>在这个界面往下拉，会看见下载Paralles Desktop软件的“DOWNLOAD”蓝色字体按钮（见下图）：</p><p>[<img src="https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210416013050.png" alt="苹果M1芯片Macbook安装win10玩steam游戏步骤"></p><p>点击上图的“DOWNLOAD”蓝色英文字，下载Paralles Desktop软件的安装文件到Macbook的硬盘里，下载好之后，安装该软件，并使用下面的激活码激活Paralles Desktop软件（该激活码在官网可以找到，见上图）：</p><p>QBP4PG-5SMPTH-KCMPVR-NE2S47-429DSZ</p><p>[<img src="https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210416013117.png" alt="苹果M1芯片Macbook安装win10玩steam游戏步骤"></p><p>将激活码拷贝到上图的方框里面，按“激活”按钮进行激活，看见下图的话，就代表Paralles Desktop软件已经成功激活了：</p><p>[<img src="https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210416013139.png" alt="苹果M1芯片Macbook安装win10玩steam游戏步骤"></p><h1 id="2-去微软官网下载Win10的ARM版本的VHDX安装文件"><a href="#2-去微软官网下载Win10的ARM版本的VHDX安装文件" class="headerlink" title="2. 去微软官网下载Win10的ARM版本的VHDX安装文件"></a>2. 去微软官网下载Win10的ARM版本的VHDX安装文件</h1><p>点击<a href="https://go.smzdm.com/176124ca5367e021/ca_bb_yc_163_71408175_10111_1461_179_0" target="_blank" rel="noopener">微软</a><a href="https://go.smzdm.com/176124ca5367e021/ca_bb_yc_163_71408175_10111_1461_179_0" target="_blank" rel="noopener">官网网址</a>，下载windows insider preview ARM64的VHDX安装文件：</p><p>[<img src="https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210416013237.png" alt="苹果M1芯片Macbook安装win10玩steam游戏步骤"></p><p>进入上述网址后，会看见上图这样的界面，点击上图右上角的Sign in 按钮，用outlook邮箱账号登陆（需要预先注册好微软的outlook邮箱）:</p><p>[<img src="https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210416013248.png" alt="苹果M1芯片Macbook安装win10玩steam游戏步骤"></p><p>用微软outlook邮箱账号登陆后进入下图的界面，在下图的界面点击“windows 10 client ARM64 insider preview Build 21286”的蓝色图标，下载VHDX安装文件到Mac电脑里：</p><p>[<img src="https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210416013255.png" alt="苹果M1芯片Macbook安装win10玩steam游戏步骤"></p><p>点击“windows 10 client ARM64 insider preview Build 21286”的蓝色图标后，会问是否下载（见下图）：</p><p>[<img src="https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210416013302.png" alt="苹果M1芯片Macbook安装win10玩steam游戏步骤"></p><p>在这里如果用Safari浏览器下载“windows 10 client ARM64 insider preview Build 21286.VHDX”安装文件会非常慢，建议用迅雷或者其他工具下载。我深夜尝试过，用Safari浏览器直接下载的速度非常慢：</p><p>[<img src="https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210416013310.png" alt="苹果M1芯片Macbook安装win10玩steam游戏步骤"></p><h1 id="3-用Paralles-Desktop软件加载Win10的ARM版本的VHDX安装文件，安装win10系统"><a href="#3-用Paralles-Desktop软件加载Win10的ARM版本的VHDX安装文件，安装win10系统" class="headerlink" title="3. 用Paralles Desktop软件加载Win10的ARM版本的VHDX安装文件，安装win10系统"></a>3. 用Paralles Desktop软件加载Win10的ARM版本的VHDX安装文件，安装win10系统</h1><p>将“windows 10 client ARM64 insider preview Build 21286.VHDX”安装文件下载到Macbook之后，打Paralles Desktop软件，进入下图的界面，在这个界面点击“手动选择”按钮：</p><p>[<img src="https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210416013441.png" alt="苹果M1芯片Macbook安装win10玩steam游戏步骤"></p><p>选择下载到Macbook的“windows 10 client ARM64 insider preview Build 21286.VHDX”文件，选好之后，点击对话框右下角的“打开”按钮：</p><p>[<img src="https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210416013447.png" alt="苹果M1芯片Macbook安装win10玩steam游戏步骤"></p><p>之后进入下图的界面，在这个界面可以看见Windows 10的图标了，点击右下角的“创建”按钮：</p><p>[<img src="https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210416013454.png" alt="苹果M1芯片Macbook安装win10玩steam游戏步骤"></p><p>之后会自动开始安装win10到M1电脑里：</p><p>[<img src="https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210416013501.png" alt="苹果M1芯片Macbook安装win10玩steam游戏步骤"></p><p>安装过程中提示软件需要访问<a href="https://www.smzdm.com/fenlei/shexiangtou/" target="_blank" rel="noopener">摄像头</a>，点击“好”：</p><p>[<img src="https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210416013612.png" alt="苹果M1芯片Macbook安装win10玩steam游戏步骤"></p><p>安装过程提示软件需要访问<a href="https://www.smzdm.com/fenlei/maikefeng/" target="_blank" rel="noopener">麦克风</a>，点击“好”：</p><p>[<img src="https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210416013621.png" alt="苹果M1芯片Macbook安装win10玩steam游戏步骤"></p><p>安装过程大约持续20分钟左右：</p><p>[<img src="https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210416013640.png" alt="苹果M1芯片Macbook安装win10玩steam游戏步骤"></p><p>出现下图的田字图标，代表就要安装完成了：</p><p>[<img src="https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210416013655.png" alt="苹果M1芯片Macbook安装win10玩steam游戏步骤"></p><h1 id="M1芯片Macbook的兼容性"><a href="#M1芯片Macbook的兼容性" class="headerlink" title="M1芯片Macbook的兼容性"></a>M1芯片Macbook的兼容性</h1><p>M1很强大，但是M1是ARM架构的芯片，M1版本的Macbook本身不兼容win系统的exe等X86架构的程序，M1安装了win10的ARM版本，兼容性立马改善了不少，至少可以在M1上利用win10 ARM来使用windows绿色版的Photoshop程序（见下图），虽然由于分辨率不是特别匹配，感觉菜单栏的字体特别小(也许可以通过调节屏幕分辨率进行调整)，但至少win版本的photoshop程序可以用在M1上了（见下图）。还有很多常用的exe程序都可以顺利安装在win10 ARM系统上使用。</p><p>[<img src="https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210416013908.jpg" alt="苹果M1芯片Macbook安装win10玩steam游戏步骤"></p><h1 id="M1芯片Macbook-pro用Win10-ARM系统安装steam玩游戏"><a href="#M1芯片Macbook-pro用Win10-ARM系统安装steam玩游戏" class="headerlink" title="M1芯片Macbook pro用Win10 ARM系统安装steam玩游戏"></a>M1芯片Macbook pro用Win10 ARM系统安装steam玩游戏</h1><p>M1直接安装steam玩游戏，会出现很多游戏无法运行的问题。在M1的虚拟win10 ARM系统上安装steam玩游戏会不会好一些呢？经过测试，兼容性比M1直接运行steam好那么一丢丢，但是很多游戏仍然无法顺利在win10 ARM系统上玩耍。M1对steam的兼容性仍然不是很好，就算用了Paralles Desktop虚拟的win 10 ARM系统，兼容性仍然有问题。</p><p>[<img src="https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210416013915.gif" alt="苹果M1芯片Macbook安装win10玩steam游戏步骤"></p>]]></content>
     
     <summary type="html">
     
       &lt;p&gt;&lt;img src=&quot;https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210416015030.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
-&lt;h1 id=&quot;前言1111111111&quot;&gt;&lt;a href=&quot;#前言1111111111&quot; class=&quot;headerlink&quot; title=&quot;前言1111111111&quot;&gt;&lt;/a&gt;前言1111111111&lt;/h1&gt;&lt;p&gt;苹果2020年底发布了“最不讲武德”的M1芯片Macbook、mac mini，惊艳了无数玩家。M1芯片采用ARM架构，5纳米工艺的M1芯片偷袭了Intel的14纳米工艺的cpu，这靠的是台积电5纳米代工，还是Intel长期14纳米的坚持？本文介绍在ARM架构的M1芯片Macbook上面安装win10玩steam、epic games的步骤，来看看在苹果M1芯片上玩steam是什么体验。&lt;/p&gt;
+&lt;h1 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h1&gt;&lt;p&gt;苹果2020年底发布了“最不讲武德”的M1芯片Macbook、mac mini，惊艳了无数玩家。M1芯片采用ARM架构，5纳米工艺的M1芯片偷袭了Intel的14纳米工艺的cpu，这靠的是台积电5纳米代工，还是Intel长期14纳米的坚持？本文介绍在ARM架构的M1芯片Macbook上面安装win10玩steam、epic games的步骤，来看看在苹果M1芯片上玩steam是什么体验。&lt;/p&gt;
 &lt;h1 id=&quot;1-安装Parallels-Desktop软件&quot;&gt;&lt;a href=&quot;#1-安装Parallels-Desktop软件&quot; class=&quot;headerlink&quot; title=&quot;1. 安装Parallels Desktop软件&quot;&gt;&lt;/a&gt;1. 安装Parallels Desktop软件&lt;/h1&gt;&lt;p&gt;用M1 Macbook的Safari浏览器点击&lt;a href=&quot;https://my.parallels.com/login?continue=%2Fdesktop%2Fbeta&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;链接&lt;/a&gt;进入Parallels官网下载Parallels Desktop软件的登陆界面：&lt;/p&gt;
 &lt;p&gt;[&lt;img src=&quot;https://jifu-pub-images.oss-ap-southeast-2.aliyuncs.com/20210416012936.png&quot; alt=&quot;苹果M1芯片Macbook安装win10玩steam游戏步骤&quot;&gt;&lt;/p&gt;
     
@@ -85,13 +85,13 @@
       <category term="MacOS" scheme="http://www.jifu.io/categories/OPS/MacOS/"/>
     
     
-      <category term="Chrome" scheme="http://www.jifu.io/tags/Chrome/"/>
-    
       <category term="VSCode" scheme="http://www.jifu.io/tags/VSCode/"/>
     
       <category term="终端" scheme="http://www.jifu.io/tags/%E7%BB%88%E7%AB%AF/"/>
     
       <category term="录像" scheme="http://www.jifu.io/tags/%E5%BD%95%E5%83%8F/"/>
+    
+      <category term="Chrome" scheme="http://www.jifu.io/tags/Chrome/"/>
     
   </entry>
   
@@ -362,11 +362,11 @@ pip install seaborn`
     
       <category term="调优" scheme="http://www.jifu.io/tags/%E8%B0%83%E4%BC%98/"/>
     
-      <category term="提速" scheme="http://www.jifu.io/tags/%E6%8F%90%E9%80%9F/"/>
-    
       <category term="Nginx" scheme="http://www.jifu.io/tags/Nginx/"/>
     
       <category term="高性能" scheme="http://www.jifu.io/tags/%E9%AB%98%E6%80%A7%E8%83%BD/"/>
+    
+      <category term="提速" scheme="http://www.jifu.io/tags/%E6%8F%90%E9%80%9F/"/>
     
   </entry>
   
@@ -569,9 +569,9 @@ pip install seaborn`
     
       <category term="Mac" scheme="http://www.jifu.io/tags/Mac/"/>
     
-      <category term="SMC" scheme="http://www.jifu.io/tags/SMC/"/>
-    
       <category term="NVRAM" scheme="http://www.jifu.io/tags/NVRAM/"/>
+    
+      <category term="SMC" scheme="http://www.jifu.io/tags/SMC/"/>
     
       <category term="PRAM" scheme="http://www.jifu.io/tags/PRAM/"/>
     
@@ -689,11 +689,11 @@ pip install seaborn`
       <category term="Editor" scheme="http://www.jifu.io/categories/OPS/Editor/"/>
     
     
-      <category term="vscode" scheme="http://www.jifu.io/tags/vscode/"/>
-    
       <category term="restful" scheme="http://www.jifu.io/tags/restful/"/>
     
       <category term="REST Client" scheme="http://www.jifu.io/tags/REST-Client/"/>
+    
+      <category term="vscode" scheme="http://www.jifu.io/tags/vscode/"/>
     
       <category term="Plugin" scheme="http://www.jifu.io/tags/Plugin/"/>
     
@@ -724,11 +724,11 @@ pip install seaborn`
       <category term="MacOS" scheme="http://www.jifu.io/categories/OPS/MacOS/"/>
     
     
-      <category term="command" scheme="http://www.jifu.io/tags/command/"/>
-    
       <category term="MacOS" scheme="http://www.jifu.io/tags/MacOS/"/>
     
       <category term="Homebrew" scheme="http://www.jifu.io/tags/Homebrew/"/>
+    
+      <category term="command" scheme="http://www.jifu.io/tags/command/"/>
     
   </entry>
   
@@ -769,9 +769,9 @@ pip install seaborn`
       <category term="Others" scheme="http://www.jifu.io/categories/OPS/Others/"/>
     
     
-      <category term="screenfetch" scheme="http://www.jifu.io/tags/screenfetch/"/>
-    
       <category term="command" scheme="http://www.jifu.io/tags/command/"/>
+    
+      <category term="screenfetch" scheme="http://www.jifu.io/tags/screenfetch/"/>
     
       <category term="系统信息" scheme="http://www.jifu.io/tags/%E7%B3%BB%E7%BB%9F%E4%BF%A1%E6%81%AF/"/>
     
